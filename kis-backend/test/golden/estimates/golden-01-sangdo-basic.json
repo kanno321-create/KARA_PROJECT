@@ -1,0 +1,38 @@
+{
+  "name": "SANGDO 기본 3P 차단기",
+  "input": {
+    "brand": "SANGDO",
+    "form": "ECONOMIC",
+    "installation": {
+      "location": "INDOOR",
+      "mount": "FLUSH"
+    },
+    "device": {
+      "type": "MCCB"
+    },
+    "main": {
+      "model": "SBS-603",
+      "poles": "3P"
+    },
+    "branches": [
+      {
+        "model": "SBS-203",
+        "poles": "3P",
+        "qty": 2
+      }
+    ],
+    "accessories": {
+      "enabled": false
+    }
+  },
+  "expected": {
+    "enclosure": {
+      "form": "ECONOMIC",
+      "W": 300,
+      "H": 400,
+      "D": 200
+    },
+    "brand": "SANGDO",
+    "status": "validated"
+  }
+}

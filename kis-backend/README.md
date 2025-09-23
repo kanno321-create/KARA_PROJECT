@@ -1,163 +1,160 @@
 # KIS견적 AI ERP Backend
 
-Evidence-based Industrial Estimation System
+Evidence-based Industrial Estimation System with 7-Layer Safety Net (안전망 7종)
 
 ## Overview
 
-This is the complete backend implementation for the KIS ERP system, designed specifically for Korean industrial electrical panel estimation with AI-powered evidence generation and strict CEO knowledge-based validation.
+Complete backend implementation for the KIS ERP system, designed specifically for Korean industrial electrical panel estimation with AI-powered evidence generation, knowledge versioning, and comprehensive security architecture.
 
-## Architecture
+## 🛡️ Safety Net Architecture (안전망 7종)
 
-### Core Principles
-- **Evidence-Based**: Every decision backed by CEO's knowledge only
-- **ABSTAIN on Missing Data**: Never guess, always ask specific questions
-- **Single Brand Principle**: SANGDO/LS separation (MIXED only when explicit)
-- **Economic Form Default**: 8:2 ratio preference for compact layouts
-- **3-Gate Validation**: Main breaker, Branch breakers, Accessories all required
+### Layer 1-2: Security & Input Validation
+- **API Key Authentication**: X-API-Key header enforcement
+- **Rate Limiting**: Request throttling with configurable limits
+- **Input Sanitization**: Zod schema validation with XSS/injection prevention
+- **Pre-Gate Validation**: Input normalization and constraint checking
 
-### Technology Stack
+### Layer 3-4: Evidence & Integrity
+- **Evidence Signatures**: HMAC-SHA256 cryptographic integrity
+- **Audit Trail**: Complete operation logging with Evidence packages
+- **Idempotency**: Transaction safety with duplicate request handling
+- **Rollback Capability**: Database transaction management
+
+### Layer 5-6: Knowledge Management
+- **Version Control**: KnowledgeVersion/KnowledgeTable versioning system
+- **Hot Swap Cache**: Thread-safe knowledge updates without service interruption
+- **Golden Set Regression**: Automated testing of knowledge changes
+- **CSV Import/Validation**: Strict data validation with staging workflow
+
+### Layer 7: Contract & CI
+- **OpenAPI 3.1**: Complete API contract documentation
+- **Spectral Linting**: Automated API quality assurance
+- **GitHub Actions**: 13-step CI pipeline with comprehensive testing
+- **Automated Testing**: Contract, Integration, and E2E test suites
+
+## Technology Stack
+
 - **Framework**: Fastify with TypeScript
 - **Database**: SQLite with Prisma ORM
-- **Validation**: Zod schemas
-- **Testing**: Vitest
-- **Documentation**: Swagger/OpenAPI
+- **Validation**: Zod schemas with Evidence signatures
+- **Knowledge**: Versioned CSV tables with hot swap capability
+- **Testing**: Vitest with Contract/Integration/E2E suites
+- **Documentation**: OpenAPI 3.1 with Spectral linting
+- **CI/CD**: GitHub Actions with 7-layer safety net verification
 
 ## Project Structure
 
 ```
 src/
 ├── lib/
-│   ├── validators.ts         # Zod schemas for all API requests/responses
-│   ├── size-tables.ts        # CSV parser and dimension lookup
-│   ├── brand-rules.ts        # Brand validation and 3-gate checks
+│   ├── validators.ts         # Zod schemas for API requests/responses
+│   ├── size-tables-v2.ts     # Versioned knowledge cache with hot swap
+│   ├── csv.ts                # Strict CSV parser with validation
+│   ├── hash.ts               # SHA-256 utilities for data integrity
 │   ├── enclosure-rules.ts    # Size calculation algorithms
-│   ├── evidence.ts           # Evidence package generation
+│   ├── evidence.ts           # Evidence package generation with signatures
+│   ├── pre-gates.ts          # Input validation and normalization
+│   ├── security-middleware.ts # Rate limiting and API key auth
+│   ├── idempotency.ts        # Transaction safety and duplicate handling
 │   └── errors.ts             # KIS-specific error handling
 ├── services/
-│   ├── estimate.service.ts   # Core estimation business logic
-│   ├── calendar.service.ts   # Calendar and event management
-│   ├── email.service.ts      # Email grouping and threading
-│   ├── drawing.service.ts    # Drawing version control
-│   └── settings.service.ts   # System configuration (singleton)
+│   ├── estimate.service.ts   # Core estimation with evidence generation
+│   └── abstain.service.ts    # Knowledge gap tracking and resolution
 ├── routes/
 │   ├── estimate.ts           # Estimation API endpoints
-│   ├── calendar.ts           # Calendar API endpoints
-│   ├── email.ts              # Email API endpoints
-│   ├── drawing.ts            # Drawing API endpoints
-│   └── settings.ts           # Settings API endpoints
-├── data/
-│   ├── KIS_Enclosure_Rules.md                    # CEO knowledge rules
-│   ├── LS_Metasol_MCCB_dimensions_by_AF_and_poles.csv
-│   └── Sangdo_MCCB_dimensions_by_AF_model_poles.csv
-├── app.ts                    # Fastify application setup
+│   ├── admin-knowledge.ts    # Knowledge management API (admin-only)
+│   └── admin.ts              # System administration endpoints
+├── regression/
+│   └── golden.ts             # Golden set regression testing framework
+├── jobs/
+│   └── cleanup.ts            # Background job management
+├── scripts/
+│   ├── test-idempotency-concurrency.js    # CI automation scripts
+│   ├── admin-activate-and-regress.js      # Knowledge workflow testing
+│   └── collect-evidence-samples.js        # Evidence integrity testing
+├── test/
+│   ├── contract/             # API contract validation tests
+│   └── integration/          # System integration tests
+├── app.ts                    # Fastify application with all safety nets
 ├── index.ts                  # Server entry point
 └── config.ts                 # Environment configuration
 ```
 
 ## Key Features
 
-### 1. Validation Schemas (`src/lib/validators.ts`)
-- **Enums**: Brand, Form, Location, Mount, DeviceType, Poles
-- **Request/Response**: EstimateRequest, EstimateResponse, EnclosureResult
-- **Evidence**: EvidenceSchema with tables and rules references
-- **ABSTAIN**: AbstainSchema for knowledge gap tracking
-- **All Modules**: Calendar, Email, Drawing, Settings schemas
+### 1. Versioned Knowledge Management
+- **KnowledgeVersion**: Label-based versioning (e.g., "v2025-09-24-01")
+- **Active/Inactive States**: Single active version with historical tracking
+- **Staging Workflow**: Import → Validate → Activate with regression testing
+- **Hot Swap**: Zero-downtime knowledge updates with thread safety
+- **Audit Trail**: Complete change tracking with user attribution
 
-### 2. Size Tables Engine (`src/lib/size-tables.ts`)
-- **CSV Loading**: Auto-parse LS_Metasol and Sangdo dimension files
-- **Memory Cache**: In-memory storage for fast lookups
-- **getSize()**: Main lookup function with ELCB mapping (SBS→SES, SBE→SEE)
-- **Availability Checks**: getAvailableModels, getAvailableAFs, getAvailablePoles
-- **Hot Reload**: reloadSizeTables() for runtime updates
-
-### 3. Brand Rules Engine (`src/lib/brand-rules.ts`)
-- **Single Brand Validation**: Prevent SANGDO/LS mixing
-- **3-Gate Validation**: Main + Branches + Accessories completeness
-- **Device Type Matching**: MCCB vs ELCB series validation
-- **Poles Verification**: Model-poles compatibility checking
-- **Economic Default**: Form validation with drawing analysis hooks
-
-### 4. Enclosure Rules Engine (`src/lib/enclosure-rules.ts`)
-- **Layout Algorithm**: Economic vs Standard form calculations
-- **Sorting Logic**: Frame size → Poles count → Quantity prioritization
-- **Size Calculation**: W/H/D with proper margins and tolerances
-- **Mixed Brand Support**: Validation for allowMixedBrand settings
-- **Row Management**: Intelligent wrap and height calculations
-
-### 5. Evidence Service (`src/lib/evidence.ts`)
-- **Rules Documentation**: Links to specific KIS_Enclosure_Rules.md sections
+### 2. Evidence-Based Architecture
+- **Signature Generation**: HMAC-SHA256 with configurable secret
+- **Snapshot Integrity**: SHA-256 hashing of normalized request data
 - **Table References**: Exact CSV rows used in calculations
-- **Brand Policy**: Single-brand or explicit MIXED documentation
-- **Request Snapshot**: Normalized and sanitized input capture
-- **Version Tracking**: Knowledge base version stamps
+- **Version Consistency**: Evidence tied to specific knowledge versions
+- **Verification API**: Independent signature validation endpoint
 
-### 6. Estimate Service (`src/services/estimate.service.ts`)
-- **Complete Validation**: All rule engines + data verification
-- **Size Calculation**: Enclosure dimension computation
-- **Evidence Generation**: Auto-create audit trail packages
-- **ABSTAIN Management**: Missing data queue with specific questions
-- **Audit Logging**: Complete operation tracking
+### 3. Admin Knowledge API
+- **POST /v1/knowledge/tables/import** - CSV/JSON import to staging
+- **POST /v1/knowledge/tables/validate** - Sample validation with estimates
+- **POST /v1/knowledge/tables/activate** - Hot swap with regression tests
+- **POST /v1/knowledge/tables/rollback** - Version rollback capability
+- **GET /v1/knowledge/versions** - Version history and status
+
+### 4. Comprehensive Testing
+- **Contract Tests**: API schema compliance and error handling
+- **Integration Tests**: Complete workflow validation
+- **Security Tests**: Authentication, authorization, input validation
+- **Regression Tests**: Golden set validation across knowledge versions
+- **CI Automation**: Scripts for idempotency, workflow, and evidence testing
+
+### 5. OpenAPI 3.1 Documentation
+- **Complete Schema**: All endpoints with request/response definitions
+- **Error Documentation**: Standard error formats with examples
+- **Security Schemes**: API key authentication documentation
+- **Spectral Linting**: Automated quality assurance and style enforcement
+- **Interactive Docs**: Swagger UI with live API testing
 
 ## API Endpoints
 
-### Estimation
-- `POST /v1/estimate/validate` - Input validation with detailed error reporting
-- `POST /v1/estimate/create` - Full estimation with enclosure calculations
+### Core Estimation
+- `POST /v1/estimate/create` - Full estimation with evidence generation
 - `GET /v1/estimate/:id` - Retrieve estimate with evidence
-- `GET /v1/estimate/:id/evidence` - Evidence package access
-- `GET /v1/estimate/abstain` - ABSTAIN queue for knowledge gaps
+- `GET /v1/evidence/:estimateId` - Evidence package access
+- `POST /v1/evidence/verify` - Signature verification
 
-### Calendar Management
-- `GET/POST/PUT/DELETE /v1/calendar` - Event CRUD operations
-- `GET /v1/calendar/export/ics` - ICS file generation
-- `GET /v1/calendar/summary/:year/:month` - Monthly statistics
+### Knowledge Management (Admin)
+- `GET /v1/knowledge/versions` - List all knowledge versions
+- `GET /v1/knowledge/versions/active` - Get active version
+- `POST /v1/knowledge/tables/import` - Import CSV data to staging
+- `POST /v1/knowledge/tables/validate` - Validate staging with samples
+- `POST /v1/knowledge/tables/activate` - Activate version with regression
+- `POST /v1/knowledge/tables/rollback` - Rollback to previous version
 
-### Email Management
-- `GET/POST/PUT/DELETE /v1/email/groups` - Email group management
-- `GET/POST/PUT/DELETE /v1/email/threads` - Thread management
-- `GET /v1/email/stats` - Email statistics and auto-classification
+### System Health
+- `GET /health` - System status with knowledge version info
+- `GET /api-docs` - OpenAPI documentation (Swagger UI)
 
-### Drawing Management
-- `GET/POST/PUT/DELETE /v1/drawings` - Drawing CRUD with name+rev uniqueness
-- `GET /v1/drawings/by-name/:name/revisions` - Version history
-- `POST/DELETE /v1/drawings/:id/links/estimates/:estimateId` - Cross-linking
+## Security Architecture
 
-### Settings Management
-- `GET/PUT /v1/settings` - System configuration (singleton)
-- `GET/PUT /v1/settings/rules` - Business rule configuration
-- `GET/PUT /v1/settings/knowledge-version` - Knowledge base versioning
+### Authentication & Authorization
+- **API Key**: X-API-Key header required for all endpoints
+- **Admin Privileges**: Knowledge management requires admin API key
+- **Rate Limiting**: Configurable request throttling per IP/key
 
-## Error Handling
+### Data Integrity
+- **Evidence Signatures**: HMAC-SHA256 with timing-safe comparison
+- **Input Validation**: Zod schemas with sanitization
+- **SQL Injection Protection**: Prisma ORM with parameterized queries
+- **XSS Prevention**: Input sanitization and output encoding
 
-### KIS-Specific Error Codes
-- `REQ_MORE_INFO` - Missing required input fields
-- `NEED_KNOWLEDGE_UPDATE` - CEO knowledge gap requiring update
-- `BRAND_CONFLICT` - Single brand principle violation
-- `POLES_MISMATCH` - Model-poles incompatibility
-- `DEVICE_TYPE_MISMATCH` - MCCB/ELCB series mismatch
-- `GATE_MISSING` - 3-gate validation failure
-
-### ABSTAIN System
-When knowledge is insufficient, the system:
-1. Creates failed estimate with detailed question
-2. Adds to ABSTAIN queue with specific request path
-3. Returns 422 with exact information needed
-4. Tracks resolution for knowledge base updates
-
-## Database Schema
-
-### Core Tables
-- **Setting** - Singleton system configuration
-- **Estimate** - Estimation requests and results
-- **Evidence** - Audit trail and evidence packages
-- **Abstain** - Knowledge gap tracking queue
-
-### Supporting Tables
-- **CalendarEvent** - Schedule management with conflict detection
-- **EmailGroup/EmailThread** - Email organization and auto-classification
-- **Drawing** - Version-controlled drawing management
-- **AuditLog** - Complete system operation logging
-- **KnowledgeTable** - CSV metadata and checksums
+### Operational Security
+- **Secret Management**: Environment-based secret configuration
+- **Audit Logging**: Complete operation tracking
+- **Error Sanitization**: No sensitive data in error responses
+- **Idempotency Keys**: Prevent replay attacks
 
 ## Development Setup
 
@@ -175,7 +172,10 @@ When knowledge is insufficient, the system:
 3. **Environment Configuration**
    ```bash
    cp .env.example .env
-   # Edit .env with your configuration
+   # Edit .env with your configuration:
+   # - DATABASE_URL
+   # - API_KEY (admin access)
+   # - EVIDENCE_SECRET (signature generation)
    ```
 
 4. **Development Server**
@@ -185,9 +185,92 @@ When knowledge is insufficient, the system:
 
 5. **Testing**
    ```bash
-   npm test
-   npm run test:ui
+   npm test                    # Unit tests
+   npm run test:contract       # API contract tests
+   npm run test:integration    # Integration tests
+   npm run test:all           # All test suites
    ```
+
+## Knowledge Management Workflow
+
+### 1. Import New Knowledge
+```bash
+# CSV import to staging
+curl -X POST http://localhost:3000/v1/knowledge/tables/import \
+  -H "X-API-Key: your-admin-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "format": "csv",
+    "content": "brand,series,model,af,poles,width_mm,height_mm,depth_mm,meta\n...",
+    "versionLabel": "v2025-09-24-02"
+  }'
+```
+
+### 2. Validate Staging Data
+```bash
+# Test staging with sample estimates
+curl -X POST http://localhost:3000/v1/knowledge/tables/validate \
+  -H "X-API-Key: your-admin-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "versionLabel": "v2025-09-24-02",
+    "sampleSize": 10
+  }'
+```
+
+### 3. Activate Version (Hot Swap)
+```bash
+# Activate with regression testing
+curl -X POST http://localhost:3000/v1/knowledge/tables/activate \
+  -H "X-API-Key: your-admin-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "versionLabel": "v2025-09-24-02",
+    "runRegression": true
+  }'
+```
+
+### 4. Monitor and Rollback if Needed
+```bash
+# Rollback if issues detected
+curl -X POST http://localhost:3000/v1/knowledge/tables/rollback \
+  -H "X-API-Key: your-admin-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "targetVersionLabel": "v2025-09-24-01",
+    "reason": "Performance regression detected"
+  }'
+```
+
+## CI/CD Pipeline
+
+### GitHub Actions Workflow
+The `.github/workflows/kis-audit.yml` implements a 13-step audit process:
+
+1. **Environment Setup** - Node.js, pnpm, dependencies
+2. **Static Analysis** - TypeScript, ESLint, Prettier
+3. **Database Setup** - Prisma migrations and seeding
+4. **OpenAPI Validation** - Spectral linting and contract verification
+5. **Server Startup** - Background server for testing
+6. **Smoke Tests** - Basic endpoint health checks
+7. **Validation Tests** - Input validation and error handling
+8. **Idempotency Testing** - Concurrent request handling
+9. **Load Testing** - Performance under stress
+10. **Knowledge Workflow** - Import → Validate → Activate cycle
+11. **Evidence Integrity** - Signature verification and samples
+12. **Artifact Collection** - Test results and evidence samples
+13. **PR Comments** - Automated audit summary
+
+### Local CI Testing
+```bash
+# Run full audit locally
+npm run audit:full
+
+# Individual test suites
+npm run test:idempotency
+npm run test:knowledge-workflow
+npm run test:evidence-collection
+```
 
 ## Production Deployment
 
@@ -201,41 +284,79 @@ When knowledge is insufficient, the system:
    npx prisma migrate deploy
    ```
 
-3. **Start Production Server**
+3. **Environment Variables**
+   ```bash
+   # Required production environment variables
+   DATABASE_URL=file:./production.db
+   API_KEY=your-secure-admin-key
+   EVIDENCE_SECRET=your-cryptographic-secret
+   NODE_ENV=production
+   PORT=3000
+   ```
+
+4. **Start Production Server**
    ```bash
    npm start
    ```
 
-## Knowledge Base Updates
+## Error Handling
 
-The system supports runtime knowledge updates:
+### Standard Error Format
+```json
+{
+  "error": "ERROR_CODE",
+  "message": "Human-readable description",
+  "statusCode": 422,
+  "details": {
+    "field": "specific validation details"
+  }
+}
+```
 
-1. **CSV Updates**: Upload new dimension files → `reloadSizeTables()`
-2. **Rules Updates**: Modify KIS_Enclosure_Rules.md → Update knowledge version
-3. **ABSTAIN Resolution**: Process queue → Update tables → Mark resolved
+### KIS-Specific Error Codes
+- `MISSING_API_KEY` - Authentication required
+- `BRAND_CONFLICT` - Single brand principle violation
+- `NEED_KNOWLEDGE_UPDATE` - Missing dimension data
+- `VERSION_NOT_FOUND` - Invalid knowledge version
+- `VERSION_ALREADY_EXISTS` - Duplicate version label
+- `EVIDENCE_INVALID` - Signature verification failed
 
-## Monitoring and Health
+## Performance Monitoring
 
-- **Health Check**: `GET /health` - System status and size table info
-- **API Info**: `GET /info` - Version and knowledge base status
-- **Swagger Docs**: `GET /docs` - Complete API documentation
+### Metrics and Health Checks
+- **Response Times**: Built-in request timing
+- **Cache Hit Rates**: Knowledge cache performance
+- **Error Rates**: Validation and system errors
+- **Knowledge Version**: Active version tracking
+- **Evidence Integrity**: Signature verification rates
 
-## Security Considerations
+### Optimization Features
+- **In-Memory Cache**: Size tables loaded at startup
+- **Hot Swap**: Zero-downtime knowledge updates
+- **Connection Pooling**: Database connection management
+- **Request Batching**: Efficient bulk operations
 
-- **Input Validation**: Zod schemas for all endpoints
-- **Error Sanitization**: No sensitive data in error responses
-- **Evidence Integrity**: Immutable audit trails
-- **Knowledge Verification**: CEO-only data sources
+## Security Best Practices
 
-## Performance Optimization
+### Production Security Checklist
+- [ ] Strong API keys with rotation policy
+- [ ] EVIDENCE_SECRET with high entropy (256-bit recommended)
+- [ ] Rate limiting configured for production load
+- [ ] Database access restricted to application
+- [ ] Error logging without sensitive data exposure
+- [ ] Regular security audits and dependency updates
 
-- **In-Memory Cache**: Size tables loaded on startup
-- **Efficient Lookups**: Optimized search algorithms
-- **Minimal Database**: SQLite for fast local operations
-- **Parallel Processing**: Concurrent validation where possible
+### Compliance Features
+- **Audit Trail**: Complete operation logging
+- **Data Integrity**: Cryptographic evidence verification
+- **Access Control**: Role-based API key management
+- **Change Tracking**: Knowledge version history
+- **Rollback Capability**: Quick recovery from issues
 
 ---
 
 **Contact**: KARA PROJECT Team
 **License**: Proprietary
-**Version**: 1.0.0
+**Version**: 2.0.0 (안전망 7종 Complete Implementation)
+**Documentation**: [OpenAPI Specification](./openapi.yaml)
+**CI Status**: [GitHub Actions](/.github/workflows/kis-audit.yml)

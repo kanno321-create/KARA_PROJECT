@@ -1,0 +1,38 @@
+{
+  "name": "LS AF 기준 차단기",
+  "input": {
+    "brand": "LS",
+    "form": "ECONOMIC",
+    "installation": {
+      "location": "INDOOR",
+      "mount": "FLUSH"
+    },
+    "device": {
+      "type": "MCCB"
+    },
+    "main": {
+      "af": 630,
+      "poles": "3P"
+    },
+    "branches": [
+      {
+        "af": 225,
+        "poles": "3P",
+        "qty": 3
+      }
+    ],
+    "accessories": {
+      "enabled": false
+    }
+  },
+  "expected": {
+    "enclosure": {
+      "form": "ECONOMIC",
+      "W": 400,
+      "H": 500,
+      "D": 250
+    },
+    "brand": "LS",
+    "status": "validated"
+  }
+}
