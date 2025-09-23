@@ -56,10 +56,30 @@ export const config = {
   // File limits
   maxJsonSize: 256 * 1024, // 256KB
 
+  // Security
+  security: {
+    allowedOrigins: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    evidenceSecret: process.env.EVIDENCE_SECRET,
+    adminApiKey: process.env.ADMIN_API_KEY,
+  },
+
+  // Rate Limiting (refined)
+  rateLimitRefined: {
+    estimateCreate: parseInt(process.env.RATE_LIMIT_ESTIMATE_CREATE || '30'),
+    estimateValidate: parseInt(process.env.RATE_LIMIT_ESTIMATE_VALIDATE || '60'),
+    default: parseInt(process.env.RATE_LIMIT_DEFAULT || '60'),
+  },
+
   // Idempotency
   idempotency: {
     enabled: true,
     ttl: 24 * 60 * 60 * 1000, // 24 hours
+  },
+
+  // Audit
+  audit: {
+    enabled: process.env.AUDIT_ENABLED !== 'false',
+    logRequests: process.env.AUDIT_LOG_REQUESTS !== 'false',
   },
 } as const;
 

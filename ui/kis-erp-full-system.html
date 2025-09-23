@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KIS ERP System - Complete</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --color-brand: #10a37f;
+    --color-brand-strong: #0e8f71;
+    --color-surface: #ffffff;
+    --color-surface-2: #f2f2f2;
+    --color-text: #1f2328;
+    --color-text-subtle: #6b7280;
+    --color-border: #e5e7eb;
+    --color-error: #ef4444;
+    --color-warning: #f59e0b;
+    --color-success: #10b981;
+}
+
+body {
+    font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+    background: #f7f7f8;
+    color: var(--color-text);
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* 탭 시스템 */
+.tab-container {
+    background: white;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 8px;
+    overflow-x: auto;
+}
+
+.tab {
+    padding: 10px 16px;
+    border: 1px solid #d1d1d1;
+    border-bottom: none;
+    background: #f9f9f9;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 4px 4px 0 0;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.tab.active {
+    background: white;
+    border-color: var(--color-brand);
+    color: var(--color-brand);
+}
+
+.tab-close {
+    margin-left: 4px;
+    cursor: pointer;
+    color: #999;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.tab-close:hover {
+    background: #e1dfdd;
+    border-radius: 50%;
+}
+
+.new-tab {
+    padding: 6px 10px;
+    background: var(--color-brand);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.new-tab:hover {
+    background: var(--color-brand-strong);
+}
+
+/* 새 탭 선택 드롭다운 */
+.new-tab-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.new-tab-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: none;
+    z-index: 1000;
+    min-width: 120px;
+}
+
+.new-tab-menu.show {
+    display: block;
+}
+
+.new-tab-menu-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.new-tab-menu-item:hover {
+    background: #f0f0f0;
+}
+
+/* 메인 콘텐츠 */
+.content-container {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.left-panel {
+    width: 500px;
+    background: white;
+    padding: 20px;
+    overflow-y: auto;
+    border-right: 1px solid var(--color-border);
+}
+
+.right-panel {
+    flex: 1;
+    background: white;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* 섹션 카드 */
+.section {
+    margin-bottom: 20px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: white;
+}
+
+.section-header {
+    background: #f9f9f9;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--color-border);
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-content {
+    padding: 16px;
+}
+
+/* 폼 요소 */
+.form-row {
+    margin-bottom: 12px;
+}
+
+.form-row.cols-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.form-label {
+    display: block;
+    font-size: 13px;
+    color: var(--color-text-subtle);
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d1d1;
+    border-radius: 2px;
+    font-size: 14px;
+    background: white;
+}
+
+.form-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--color-brand);
+}
+
+/* 버튼 */
+.btn {
+    padding: 8px 16px;
+    border: 1px solid #d1d1d1;
+    border-radius: 2px;
+    background: white;
+    color: #323130;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    background: #f3f2f1;
+}
+
+.btn-primary {
+    background: var(--color-brand);
+    color: white;
+    border-color: var(--color-brand);
+}
+
+.btn-primary:hover {
+    background: var(--color-brand-strong);
+}
+
+.btn-small {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+/* 토글 */
+.header-toggle {
+    display: flex;
+    background: #f0f0f0;
+    border-radius: 20px;
+    padding: 2px;
+    border: 1px solid #d1d1d1;
+}
+
+.header-toggle-option {
+    padding: 4px 12px;
+    border-radius: 18px;
+    background: transparent;
+    color: #666;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s;
+}
+
+.header-toggle-option.active {
+    background: var(--color-brand);
+    color: white;
+}
+
+/* 리스트 */
+.item-list {
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.list-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f3f2f1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+.list-item:hover {
+    background: #f9f9f9;
+}
+
+.list-empty {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+}
+
+/* 배너 */
+.banner {
+    padding: 8px 16px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    animation: slideDown 0.3s ease;
+}
+
+.banner.success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+}
+
+.banner.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.banner.warning {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 테이블 */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 13px;
+}
+
+th {
+    background: #f9f9f9;
+    font-weight: 600;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    color: var(--color-text-subtle);
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+/* 캘린더 스타일 */
+.calendar-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #f9f9f9;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.calendar-nav-btn {
+    padding: 6px 12px;
+    border: 1px solid var(--color-border);
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.calendar-nav-btn:hover {
+    background: #f0f0f0;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border: 1px solid var(--color-border);
+}
+
+.calendar-header-cell {
+    padding: 8px;
+    background: #f9f9f9;
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.calendar-cell {
+    min-height: 80px;
+    padding: 4px;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    position: relative;
+    background: white;
+}
+
+.calendar-cell.other-month {
+    background: #f9f9f9;
+    color: #999;
+}
+
+.calendar-cell.today {
+    background: #f0fdf4;
+}
+
+.calendar-day {
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.calendar-event {
+    font-size: 11px;
+    padding: 2px 4px;
+    margin: 1px 0;
+    border-radius: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.calendar-event.estimate { background: #dbeafe; color: #1e40af; }
+.calendar-event.install { background: #fce7f3; color: #9f1239; }
+.calendar-event.inbound { background: #f3e8ff; color: #6b21a8; }
+.calendar-event.misc { background: #e0e7ff; color: #4338ca; }
+
+/* 이메일 스타일 */
+.email-thread {
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.email-thread:hover {
+    background: #f9f9f9;
+}
+
+.email-thread.selected {
+    border-color: var(--color-brand);
+    background: #f0fdf4;
+}
+
+.email-status {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.email-status.sent { background: #d1fae5; color: #065f46; }
+.email-status.draft { background: #e0e7ff; color: #4338ca; }
+.email-status.failed { background: #fee2e2; color: #991b1b; }
+
+.email-group-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--color-brand);
+    color: white;
+    border-radius: 12px;
+    font-size: 11px;
+    margin-left: 8px;
+}
+
+/* 도면 카드 */
+.drawing-card {
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.drawing-card:hover {
+    background: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.drawing-tags {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.drawing-tag {
+    padding: 2px 6px;
+    background: #e0e7ff;
+    color: #4338ca;
+    border-radius: 12px;
+    font-size: 11px;
+}
+
+/* 설정 스타일 */
+.settings-kv {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.settings-kv:last-child {
+    border-bottom: none;
+}
+
+/* 체크박스 */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+    cursor: pointer;
+}
+
+.checkbox-label input {
+    margin-right: 8px;
+}
+
+/* 주간 뷰 */
+.week-grid {
+    display: grid;
+    grid-template-columns: 60px repeat(7, 1fr);
+    border: 1px solid var(--color-border);
+}
+
+.week-time-header {
+    grid-column: 1;
+    padding: 8px 4px;
+    background: #f9f9f9;
+    text-align: center;
+    font-size: 11px;
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.week-day-header {
+    padding: 8px;
+    background: #f9f9f9;
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.week-time-slot {
+    min-height: 40px;
+    padding: 2px 4px;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 11px;
+    color: #999;
+}
+
+.week-slot {
+    min-height: 40px;
+    padding: 2px;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    position: relative;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .left-panel {
+        width: 100%;
+    }
+
+    .content-container {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <!-- 탭 바 -->
+    <div class="tab-container" id="tabs"></div>
+
+    <!-- 콘텐츠 영역 -->
+    <div class="content-container">
+        <div class="left-panel" id="leftPanel"></div>
+        <div class="right-panel" id="rightPanel"></div>
+    </div>
+</div>
+
+<script>
+// 전역 상태
+let state = {
+    tabs: [],
+    activeTabId: null,
+    nextTabId: 1,
+    settings: {
+        defaults: { brand: 'SANGDO', form: 'ECONOMIC', location: 'INDOOR', mount: 'FLUSH' },
+        rules: { singleBrand: true, antiPoleMistake: true, antiDeviceConfuse: true, antiInstallMismatch: true },
+        knowledgeVersion: { rules: 'v1.0', tables: 'v1.0', updated: '2024-09-20' },
+        history: []
+    }
+};
+
+// 초기화
+function init() {
+    loadState();
+    if (state.tabs.length === 0) {
+        addQuoteTab();
+    }
+    renderTabs();
+    renderActiveTab();
+}
+
+// 상태 저장/로드
+function saveState() {
+    localStorage.setItem('kis-erp-state', JSON.stringify(state));
+}
+
+function loadState() {
+    const saved = localStorage.getItem('kis-erp-state');
+    if (saved) {
+        state = JSON.parse(saved);
+    }
+}
+
+// 탭 시스템
+function renderTabs() {
+    const container = document.getElementById('tabs');
+    container.innerHTML = '';
+
+    state.tabs.forEach(tab => {
+        const tabEl = document.createElement('div');
+        tabEl.className = `tab ${tab.id === state.activeTabId ? 'active' : ''}`;
+        tabEl.innerHTML = `
+            <span onclick="switchTab(${tab.id})">${getTabIcon(tab.type)} ${tab.title}</span>
+            ${state.tabs.length > 1 ? `<span class="tab-close" onclick="closeTab(${tab.id})">×</span>` : ''}
+        `;
+        container.appendChild(tabEl);
+    });
+
+    // 새 탭 드롭다운
+    const dropdown = document.createElement('div');
+    dropdown.className = 'new-tab-dropdown';
+    dropdown.innerHTML = `
+        <button class="new-tab" onclick="toggleNewTabMenu()">+ 새 탭</button>
+        <div class="new-tab-menu" id="newTabMenu">
+            <div class="new-tab-menu-item" onclick="addQuoteTab()">📋 견적서</div>
+            <div class="new-tab-menu-item" onclick="addCalendarTab()">📅 캘린더</div>
+            <div class="new-tab-menu-item" onclick="addEmailTab()">✉️ 이메일</div>
+            <div class="new-tab-menu-item" onclick="addDrawingsTab()">📐 도면</div>
+            <div class="new-tab-menu-item" onclick="addSettingsTab()">⚙️ 설정</div>
+        </div>
+    `;
+    container.appendChild(dropdown);
+}
+
+function toggleNewTabMenu() {
+    const menu = document.getElementById('newTabMenu');
+    menu.classList.toggle('show');
+}
+
+function getTabIcon(type) {
+    const icons = {
+        quote: '📋',
+        calendar: '📅',
+        email: '✉️',
+        drawings: '📐',
+        settings: '⚙️'
+    };
+    return icons[type] || '📄';
+}
+
+function switchTab(tabId) {
+    state.activeTabId = tabId;
+    saveState();
+    renderTabs();
+    renderActiveTab();
+}
+
+function closeTab(tabId) {
+    if (state.tabs.length === 1) return;
+
+    state.tabs = state.tabs.filter(t => t.id !== tabId);
+
+    if (tabId === state.activeTabId) {
+        state.activeTabId = state.tabs[0].id;
+    }
+
+    saveState();
+    renderTabs();
+    renderActiveTab();
+}
+
+function renderActiveTab() {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (!tab) return;
+
+    switch(tab.type) {
+        case 'quote':
+            renderQuoteTab(tab);
+            break;
+        case 'calendar':
+            renderCalendarTab(tab);
+            break;
+        case 'email':
+            renderEmailTab(tab);
+            break;
+        case 'drawings':
+            renderDrawingsTab(tab);
+            break;
+        case 'settings':
+            renderSettingsTab(tab);
+            break;
+    }
+}
+
+// 견적서 탭
+function addQuoteTab() {
+    const id = state.nextTabId++;
+    const tab = {
+        id,
+        type: 'quote',
+        title: `견적서 ${id}`,
+        data: {
+            customerInfo: { company: '', contact: '', email: '', address: '' },
+            enclosureInfo: { type: '옥내', boxType: '', material: '', request: '' },
+            mainBreakerInfo: { type: 'MCCB', poles: '', capacity: '', brand: '' },
+            branchBreakers: [],
+            accessories: [],
+            estimateVisible: false
+        }
+    };
+
+    state.tabs.push(tab);
+    state.activeTabId = id;
+    saveState();
+    renderTabs();
+    renderActiveTab();
+}
+
+function renderQuoteTab(tab) {
+    renderQuoteLeft(tab);
+    renderQuoteRight(tab);
+}
+
+function renderQuoteLeft(tab) {
+    const leftPanel = document.getElementById('leftPanel');
+    const data = tab.data;
+
+    leftPanel.innerHTML = `
+        <!-- 고객정보 -->
+        <div class="section">
+            <div class="section-header">고객정보</div>
+            <div class="section-content">
+                <div class="form-row cols-2">
+                    <div>
+                        <label class="form-label">업체명</label>
+                        <input type="text" class="form-input" id="company" value="${data.customerInfo.company}" placeholder="업체명 입력">
+                    </div>
+                    <div>
+                        <label class="form-label">연락처</label>
+                        <input type="text" class="form-input" id="contact" value="${data.customerInfo.contact}" placeholder="연락처 입력">
+                    </div>
+                </div>
+                <div class="form-row cols-2">
+                    <div>
+                        <label class="form-label">이메일</label>
+                        <input type="email" class="form-input" id="email" value="${data.customerInfo.email}" placeholder="이메일 입력">
+                    </div>
+                    <div>
+                        <label class="form-label">주소</label>
+                        <input type="text" class="form-input" id="address" value="${data.customerInfo.address}" placeholder="주소 입력">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 외함정보 -->
+        <div class="section">
+            <div class="section-header">
+                <span>외함정보</span>
+                <div class="header-toggle">
+                    <button class="header-toggle-option ${data.enclosureInfo.type === '옥내' ? 'active' : ''}" onclick="toggleEnclosureType('옥내')">옥내</button>
+                    <button class="header-toggle-option ${data.enclosureInfo.type === '옥외' ? 'active' : ''}" onclick="toggleEnclosureType('옥외')">옥외</button>
+                </div>
+            </div>
+            <div class="section-content">
+                <div class="form-row cols-2">
+                    <div>
+                        <label class="form-label">함체타입</label>
+                        <select class="form-select" id="boxType">
+                            <option value="">선택</option>
+                            <option value="기성함" ${data.enclosureInfo.boxType === '기성함' ? 'selected' : ''}>기성함</option>
+                            <option value="제작함" ${data.enclosureInfo.boxType === '제작함' ? 'selected' : ''}>제작함</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">재질</label>
+                        <select class="form-select" id="material">
+                            <option value="">선택</option>
+                            <option value="STEEL 1.6T" ${data.enclosureInfo.material === 'STEEL 1.6T' ? 'selected' : ''}>STEEL 1.6T</option>
+                            <option value="STEEL 2.0T" ${data.enclosureInfo.material === 'STEEL 2.0T' ? 'selected' : ''}>STEEL 2.0T</option>
+                            <option value="STS 1.5T" ${data.enclosureInfo.material === 'STS 1.5T' ? 'selected' : ''}>STS 1.5T</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 차단기 -->
+        <div class="section">
+            <div class="section-header">메인 차단기</div>
+            <div class="section-content">
+                <div class="form-row cols-2">
+                    <div>
+                        <label class="form-label">극수</label>
+                        <select class="form-select" id="mainPoles">
+                            <option value="">선택</option>
+                            <option value="2P">2P</option>
+                            <option value="3P">3P</option>
+                            <option value="4P">4P</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">용량</label>
+                        <select class="form-select" id="mainCapacity">
+                            <option value="">선택</option>
+                            <option value="100A">100A</option>
+                            <option value="125A">125A</option>
+                            <option value="150A">150A</option>
+                            <option value="175A">175A</option>
+                            <option value="200A">200A</option>
+                            <option value="225A">225A</option>
+                            <option value="250A">250A</option>
+                            <option value="300A">300A</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 20px;">
+            <button class="btn btn-primary" onclick="generateEstimate()">견적 생성</button>
+        </div>
+    `;
+
+    // 이벤트 리스너
+    leftPanel.querySelectorAll('input, select').forEach(el => {
+        el.addEventListener('change', () => updateQuoteData(tab));
+    });
+}
+
+function renderQuoteRight(tab) {
+    const rightPanel = document.getElementById('rightPanel');
+    const data = tab.data;
+
+    if (!data.estimateVisible) {
+        rightPanel.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <p>좌측에서 정보를 입력한 후<br>견적 생성 버튼을 클릭하세요</p>
+            </div>
+        `;
+    } else {
+        // 견적 결과 표시
+        let total = 1300000; // 기본값
+        rightPanel.innerHTML = `
+            <h3>견적서</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>항목</th>
+                        <th>수량</th>
+                        <th>단가</th>
+                        <th>금액</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>외함 (${data.enclosureInfo.boxType || '기성함'} - ${data.enclosureInfo.material || 'STEEL 1.6T'})</td>
+                        <td>1</td>
+                        <td>850,000</td>
+                        <td>850,000</td>
+                    </tr>
+                    <tr>
+                        <td>메인차단기 (${data.mainBreakerInfo.type} ${data.mainBreakerInfo.poles || '4P'} ${data.mainBreakerInfo.capacity || '200A'})</td>
+                        <td>1</td>
+                        <td>450,000</td>
+                        <td>450,000</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3">합계</th>
+                        <th>${total.toLocaleString()}원</th>
+                    </tr>
+                </tfoot>
+            </table>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="sendEstimateEmail()">이메일 전송</button>
+                <button class="btn" onclick="addEstimateToCalendar()">캘린더에 추가</button>
+            </div>
+        `;
+    }
+}
+
+function updateQuoteData(tab) {
+    const data = tab.data;
+    data.customerInfo.company = document.getElementById('company')?.value || '';
+    data.customerInfo.contact = document.getElementById('contact')?.value || '';
+    data.customerInfo.email = document.getElementById('email')?.value || '';
+    data.customerInfo.address = document.getElementById('address')?.value || '';
+    data.enclosureInfo.boxType = document.getElementById('boxType')?.value || '';
+    data.enclosureInfo.material = document.getElementById('material')?.value || '';
+    data.mainBreakerInfo.poles = document.getElementById('mainPoles')?.value || '';
+    data.mainBreakerInfo.capacity = document.getElementById('mainCapacity')?.value || '';
+    saveState();
+}
+
+function toggleEnclosureType(type) {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'quote') {
+        tab.data.enclosureInfo.type = type;
+        saveState();
+        renderQuoteLeft(tab);
+    }
+}
+
+function generateEstimate() {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'quote') {
+        tab.data.estimateVisible = true;
+        saveState();
+        renderQuoteRight(tab);
+        showBanner('success', '견적서가 생성되었습니다');
+    }
+}
+
+// 캘린더 탭
+function addCalendarTab() {
+    const id = state.nextTabId++;
+    const tab = {
+        id,
+        type: 'calendar',
+        title: `캘린더 ${id}`,
+        data: {
+            view: 'month',
+            range: {
+                start: new Date().toISOString().split('T')[0],
+                end: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0]
+            },
+            filters: {
+                types: { estimate: true, install: true, inbound: true, misc: true },
+                owner: '',
+                q: ''
+            },
+            events: [
+                { id: 'cal_1', type: 'estimate', title: '삼성전자 견적', start: new Date().toISOString(), end: new Date(Date.now() + 2*60*60*1000).toISOString(), location: '서울', memo: '', owner: '김과장' },
+                { id: 'cal_2', type: 'install', title: 'LG전자 설치', start: new Date(Date.now() + 3*24*60*60*1000).toISOString(), end: new Date(Date.now() + 3*24*60*60*1000 + 4*60*60*1000).toISOString(), location: '수원', memo: '', owner: '이대리' }
+            ],
+            selectedDate: new Date().toISOString().split('T')[0]
+        }
+    };
+
+    state.tabs.push(tab);
+    state.activeTabId = id;
+    saveState();
+    renderTabs();
+    renderActiveTab();
+}
+
+function renderCalendarTab(tab) {
+    renderCalendarLeft(tab);
+    renderCalendarRight(tab);
+}
+
+function renderCalendarLeft(tab) {
+    const leftPanel = document.getElementById('leftPanel');
+    const data = tab.data;
+
+    leftPanel.innerHTML = `
+        <!-- 기간/보기 모드 -->
+        <div class="section">
+            <div class="section-header">
+                <span>보기 모드</span>
+                <div class="header-toggle">
+                    <button class="header-toggle-option ${data.view === 'month' ? 'active' : ''}" onclick="setCalendarView('month')">월간</button>
+                    <button class="header-toggle-option ${data.view === 'week' ? 'active' : ''}" onclick="setCalendarView('week')">주간</button>
+                </div>
+            </div>
+            <div class="section-content">
+                <div class="form-row cols-2">
+                    <div>
+                        <label class="form-label">시작일</label>
+                        <input type="date" class="form-input" id="calStart" value="${data.range.start}">
+                    </div>
+                    <div>
+                        <label class="form-label">종료일</label>
+                        <input type="date" class="form-input" id="calEnd" value="${data.range.end}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 일정 필터 -->
+        <div class="section">
+            <div class="section-header">일정 필터</div>
+            <div class="section-content">
+                <label class="checkbox-label">
+                    <input type="checkbox" ${data.filters.types.estimate ? 'checked' : ''} onchange="toggleEventType('estimate')">
+                    견적
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" ${data.filters.types.install ? 'checked' : ''} onchange="toggleEventType('install')">
+                    설치
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" ${data.filters.types.inbound ? 'checked' : ''} onchange="toggleEventType('inbound')">
+                    입고
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" ${data.filters.types.misc ? 'checked' : ''} onchange="toggleEventType('misc')">
+                    기타
+                </label>
+                <div class="form-row">
+                    <label class="form-label">담당자</label>
+                    <input type="text" class="form-input" id="calOwner" placeholder="담당자 검색" value="${data.filters.owner}">
+                </div>
+            </div>
+        </div>
+
+        <!-- 새 일정 추가 -->
+        <div class="section">
+            <div class="section-header">새 일정 추가</div>
+            <div class="section-content">
+                <div class="form-row">
+                    <label class="form-label">제목</label>
+                    <input type="text" class="form-input" id="eventTitle" placeholder="일정 제목">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">타입</label>
+                    <select class="form-select" id="eventType">
+                        <option value="estimate">견적</option>
+                        <option value="install">설치</option>
+                        <option value="inbound">입고</option>
+                        <option value="misc">기타</option>
+                    </select>
+                </div>
+                <div class="form-row cols-2">
+                    <div>
+                        <label class="form-label">시작</label>
+                        <input type="datetime-local" class="form-input" id="eventStart">
+                    </div>
+                    <div>
+                        <label class="form-label">종료</label>
+                        <input type="datetime-local" class="form-input" id="eventEnd">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">장소</label>
+                    <input type="text" class="form-input" id="eventLocation" placeholder="장소">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">메모</label>
+                    <textarea class="form-textarea" id="eventMemo" placeholder="메모"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="addCalendarEvent()">일정 추가</button>
+            </div>
+        </div>
+    `;
+}
+
+function renderCalendarRight(tab) {
+    const rightPanel = document.getElementById('rightPanel');
+    const data = tab.data;
+
+    if (data.view === 'month') {
+        renderMonthView(rightPanel, data);
+    } else {
+        renderWeekView(rightPanel, data);
+    }
+}
+
+function renderMonthView(container, data) {
+    const today = new Date();
+    const currentMonth = new Date(data.selectedDate);
+    const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+    const lastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+
+    let html = `
+        <div class="calendar-navigation">
+            <button class="calendar-nav-btn" onclick="calendarNavigate('prev')">◀</button>
+            <span>${currentMonth.getFullYear()}년 ${currentMonth.getMonth() + 1}월</span>
+            <button class="calendar-nav-btn" onclick="calendarNavigate('next')">▶</button>
+        </div>
+        <div class="calendar-grid">
+    `;
+
+    // 요일 헤더
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    days.forEach(day => {
+        html += `<div class="calendar-header-cell">${day}</div>`;
+    });
+
+    // 날짜 셀
+    const startPadding = firstDay.getDay();
+    for (let i = 0; i < startPadding; i++) {
+        html += `<div class="calendar-cell other-month"></div>`;
+    }
+
+    for (let date = 1; date <= lastDay.getDate(); date++) {
+        const cellDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), date);
+        const isToday = cellDate.toDateString() === today.toDateString();
+        const events = getEventsForDate(data.events, cellDate, data.filters);
+
+        html += `
+            <div class="calendar-cell ${isToday ? 'today' : ''}">
+                <div class="calendar-day">${date}</div>
+                ${events.map(e => `
+                    <div class="calendar-event ${e.type}" title="${e.title} - ${e.location || ''}">
+                        ${e.title}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+function renderWeekView(container, data) {
+    const currentDate = new Date(data.selectedDate);
+    const weekStart = new Date(currentDate);
+    weekStart.setDate(currentDate.getDate() - currentDate.getDay());
+
+    let html = `
+        <div class="calendar-navigation">
+            <button class="calendar-nav-btn" onclick="calendarNavigate('prev')">◀</button>
+            <span>${weekStart.toLocaleDateString()} - ${new Date(weekStart.getTime() + 6*24*60*60*1000).toLocaleDateString()}</span>
+            <button class="calendar-nav-btn" onclick="calendarNavigate('next')">▶</button>
+        </div>
+        <div class="week-grid">
+            <div class="week-time-header"></div>
+    `;
+
+    // 요일 헤더
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(weekStart.getTime() + i*24*60*60*1000);
+        html += `<div class="week-day-header">${days[i]}<br>${date.getMonth()+1}/${date.getDate()}</div>`;
+    }
+
+    // 시간 슬롯
+    for (let hour = 0; hour < 24; hour++) {
+        html += `<div class="week-time-slot">${hour}:00</div>`;
+        for (let day = 0; day < 7; day++) {
+            html += `<div class="week-slot"></div>`;
+        }
+    }
+
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+function getEventsForDate(events, date, filters) {
+    return events.filter(e => {
+        const eventDate = new Date(e.start);
+        return eventDate.toDateString() === date.toDateString() && filters.types[e.type];
+    });
+}
+
+function setCalendarView(view) {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'calendar') {
+        tab.data.view = view;
+        saveState();
+        renderCalendarTab(tab);
+    }
+}
+
+function toggleEventType(type) {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'calendar') {
+        tab.data.filters.types[type] = !tab.data.filters.types[type];
+        saveState();
+        renderCalendarRight(tab);
+    }
+}
+
+function calendarNavigate(direction) {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'calendar') {
+        const current = new Date(tab.data.selectedDate);
+        if (tab.data.view === 'month') {
+            if (direction === 'prev') {
+                current.setMonth(current.getMonth() - 1);
+            } else {
+                current.setMonth(current.getMonth() + 1);
+            }
+        } else {
+            if (direction === 'prev') {
+                current.setDate(current.getDate() - 7);
+            } else {
+                current.setDate(current.getDate() + 7);
+            }
+        }
+        tab.data.selectedDate = current.toISOString().split('T')[0];
+        saveState();
+        renderCalendarRight(tab);
+    }
+}
+
+function addCalendarEvent() {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'calendar') {
+        const title = document.getElementById('eventTitle').value;
+        const type = document.getElementById('eventType').value;
+        const start = document.getElementById('eventStart').value;
+        const end = document.getElementById('eventEnd').value;
+        const location = document.getElementById('eventLocation').value;
+        const memo = document.getElementById('eventMemo').value;
+
+        if (!title || !start) {
+            showBanner('error', '제목과 시작 시간을 입력하세요');
+            return;
+        }
+
+        const event = {
+            id: `cal_${Date.now()}`,
+            type,
+            title,
+            start: new Date(start).toISOString(),
+            end: end ? new Date(end).toISOString() : new Date(start).toISOString(),
+            location,
+            memo,
+            owner: '현재 사용자'
+        };
+
+        tab.data.events.push(event);
+        saveState();
+        renderCalendarTab(tab);
+        showBanner('success', '일정이 추가되었습니다');
+    }
+}
+
+// 이메일 탭
+function addEmailTab() {
+    const id = state.nextTabId++;
+    const tab = {
+        id,
+        type: 'email',
+        title: `이메일 ${id}`,
+        data: {
+            compose: { to: '', cc: '', subject: '', body: '', attachQuote: false },
+            threads: [
+                { id: 'em_1', to: 'samsung@example.com', subject: '[견적서] 삼성전자 프로젝트', body: '견적서 송부드립니다.', status: 'SENT', ts: new Date().toISOString(), attachments: [], groupId: 'grp_1' },
+                { id: 'em_2', to: 'lg@example.com', subject: '문의사항 답변', body: '문의하신 내용 답변드립니다.', status: 'DRAFT', ts: new Date().toISOString(), attachments: [], groupId: null }
+            ],
+            groups: [
+                { id: 'grp_1', name: '주요거래처', rules: ['@samsung.com', '@lg.com'], color: '#3b82f6' },
+                { id: 'grp_2', name: '협력업체', rules: ['@partner.com'], color: '#10b981' }
+            ],
+            filters: { start: '', end: '', partner: '', status: '', groupId: '' },
+            selectedThreadId: null
+        }
+    };
+
+    state.tabs.push(tab);
+    state.activeTabId = id;
+    saveState();
+    renderTabs();
+    renderActiveTab();
+}
+
+function renderEmailTab(tab) {
+    renderEmailLeft(tab);
+    renderEmailRight(tab);
+}
+
+function renderEmailLeft(tab) {
+    const leftPanel = document.getElementById('leftPanel');
+    const data = tab.data;
+
+    leftPanel.innerHTML = `
+        <!-- 메일 작성 -->
+        <div class="section">
+            <div class="section-header">메일 작성</div>
+            <div class="section-content">
+                <div class="form-row">
+                    <label class="form-label">받는사람 (To)</label>
+                    <input type="email" class="form-input" id="emailTo" placeholder="email@example.com" value="${data.compose.to}">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">참조 (Cc)</label>
+                    <input type="email" class="form-input" id="emailCc" placeholder="cc@example.com" value="${data.compose.cc}">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">제목</label>
+                    <input type="text" class="form-input" id="emailSubject" placeholder="메일 제목" value="${data.compose.subject}">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">본문</label>
+                    <textarea class="form-textarea" id="emailBody" rows="5" placeholder="메일 내용">${data.compose.body}</textarea>
+                </div>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="attachQuote" ${data.compose.attachQuote ? 'checked' : ''}>
+                    견적서(PDF) 첨부
+                </label>
+                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                    <button class="btn" onclick="saveDraft()">임시저장</button>
+                    <button class="btn btn-primary" onclick="sendEmail()">보내기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 그룹 관리 -->
+        <div class="section">
+            <div class="section-header">그룹 관리</div>
+            <div class="section-content">
+                <div class="form-row cols-2">
+                    <input type="text" class="form-input" id="newGroupName" placeholder="그룹명">
+                    <button class="btn btn-primary" onclick="addEmailGroup()">추가</button>
+                </div>
+                <div class="item-list" style="margin-top: 12px;">
+                    ${data.groups.map(g => `
+                        <div class="list-item">
+                            <span style="display: flex; align-items: center;">
+                                <span style="width: 12px; height: 12px; background: ${g.color}; border-radius: 50%; margin-right: 8px;"></span>
+                                ${g.name}
+                            </span>
+                            <button class="btn btn-small" onclick="deleteEmailGroup('${g.id}')">삭제</button>
+                        </div>
+                    `).join('') || '<div class="list-empty">그룹이 없습니다</div>'}
+                </div>
+                <div class="form-row" style="margin-top: 12px;">
+                    <label class="form-label">자동 분류 규칙 (도메인 또는 이메일)</label>
+                    <input type="text" class="form-input" id="groupRule" placeholder="@domain.com 또는 user@email.com">
+                    <button class="btn btn-small" onclick="addGroupRule()" style="margin-top: 4px;">규칙 추가</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 검색/필터 -->
+        <div class="section">
+            <div class="section-header">검색/필터</div>
+            <div class="section-content">
+                <div class="form-row">
+                    <label class="form-label">그룹</label>
+                    <select class="form-select" id="filterGroup" onchange="filterEmails()">
+                        <option value="">전체</option>
+                        ${data.groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">상태</label>
+                    <select class="form-select" id="filterStatus" onchange="filterEmails()">
+                        <option value="">전체</option>
+                        <option value="SENT">보냄</option>
+                        <option value="DRAFT">임시저장</option>
+                        <option value="FAILED">실패</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">검색어</label>
+                    <input type="text" class="form-input" id="filterKeyword" placeholder="제목 또는 내용 검색" onkeyup="filterEmails()">
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderEmailRight(tab) {
+    const rightPanel = document.getElementById('rightPanel');
+    const data = tab.data;
+
+    if (data.selectedThreadId) {
+        const thread = data.threads.find(t => t.id === data.selectedThreadId);
+        if (thread) {
+            const group = data.groups.find(g => g.id === thread.groupId);
+            rightPanel.innerHTML = `
+                <div style="padding: 20px; border: 1px solid var(--color-border); border-radius: 4px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3>${thread.subject}</h3>
+                        <span class="email-status ${thread.status.toLowerCase()}">${thread.status}</span>
+                    </div>
+                    ${group ? `<span class="email-group-badge" style="background: ${group.color}">${group.name}</span>` : ''}
+                    <div class="settings-kv">
+                        <span>받는사람:</span>
+                        <span>${thread.to}</span>
+                    </div>
+                    <div class="settings-kv">
+                        <span>보낸시간:</span>
+                        <span>${new Date(thread.ts).toLocaleString()}</span>
+                    </div>
+                    <div style="padding: 16px 0; border-top: 1px solid var(--color-border); margin-top: 16px;">
+                        ${thread.body}
+                    </div>
+                    ${thread.attachments.length > 0 ? `
+                        <div style="padding: 12px; background: #f9f9f9; border-radius: 4px; margin-top: 16px;">
+                            <strong>첨부파일:</strong>
+                            ${thread.attachments.map(a => `<div>📎 ${a.name}</div>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+    } else {
+        // 메일 리스트
+        const filteredThreads = filterEmailThreads(data.threads, data.filters);
+        rightPanel.innerHTML = `
+            <h3>메일함 (${filteredThreads.length})</h3>
+            <div style="margin-top: 16px;">
+                ${filteredThreads.map(thread => {
+                    const group = data.groups.find(g => g.id === thread.groupId);
+                    return `
+                        <div class="email-thread ${data.selectedThreadId === thread.id ? 'selected' : ''}" onclick="selectEmailThread('${thread.id}')">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <strong>${thread.subject}</strong>
+                                <span class="email-status ${thread.status.toLowerCase()}">${thread.status}</span>
+                            </div>
+                            <div style="font-size: 13px; color: var(--color-text-subtle); margin-top: 4px;">
+                                ${thread.to} · ${new Date(thread.ts).toLocaleDateString()}
+                                ${group ? `<span class="email-group-badge" style="background: ${group.color}">${group.name}</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('') || '<div class="empty-state"><div class="empty-icon">📭</div><p>메일이 없습니다</p></div>'}
+            </div>
+        `;
+    }
+}
+
+function filterEmailThreads(threads, filters) {
+    return threads.filter(thread => {
+        if (filters.groupId && thread.groupId !== filters.groupId) return false;
+        if (filters.status && thread.status !== filters.status) return false;
+        // 추가 필터 로직...
+        return true;
+    });
+}
+
+function selectEmailThread(threadId) {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'email') {
+        tab.data.selectedThreadId = threadId;
+        saveState();
+        renderEmailRight(tab);
+    }
+}
+
+function saveDraft() {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'email') {
+        const to = document.getElementById('emailTo').value;
+        const subject = document.getElementById('emailSubject').value;
+        const body = document.getElementById('emailBody').value;
+
+        const draft = {
+            id: `em_${Date.now()}`,
+            to,
+            cc: document.getElementById('emailCc').value,
+            subject,
+            body,
+            status: 'DRAFT',
+            ts: new Date().toISOString(),
+            attachments: [],
+            groupId: assignEmailGroup(to, tab.data.groups)
+        };
+
+        tab.data.threads.push(draft);
+        saveState();
+        renderEmailTab(tab);
+        showBanner('success', '임시저장되었습니다');
+    }
+}
+
+function sendEmail() {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'email') {
+        const to = document.getElementById('emailTo').value;
+        const subject = document.getElementById('emailSubject').value;
+
+        if (!to || !subject) {
+            showBanner('error', '받는사람과 제목을 입력하세요');
+            return;
+        }
+
+        const email = {
+            id: `em_${Date.now()}`,
+            to,
+            cc: document.getElementById('emailCc').value,
+            subject,
+            body: document.getElementById('emailBody').value,
+            status: 'SENT',
+            ts: new Date().toISOString(),
+            attachments: document.getElementById('attachQuote').checked ? [{type: 'pdf', name: '견적서.pdf'}] : [],
+            groupId: assignEmailGroup(to, tab.data.groups)
+        };
+
+        tab.data.threads.push(email);
+
+        // 작성 폼 초기화
+        document.getElementById('emailTo').value = '';
+        document.getElementById('emailCc').value = '';
+        document.getElementById('emailSubject').value = '';
+        document.getElementById('emailBody').value = '';
+        document.getElementById('attachQuote').checked = false;
+
+        saveState();
+        renderEmailTab(tab);
+        showBanner('success', '메일이 발송되었습니다');
+    }
+}
+
+function assignEmailGroup(email, groups) {
+    for (const group of groups) {
+        for (const rule of group.rules) {
+            if (rule.startsWith('@')) {
+                // 도메인 매칭
+                if (email.endsWith(rule.substring(1))) {
+                    return group.id;
+                }
+            } else {
+                // 정확한 이메일 매칭
+                if (email === rule) {
+                    return group.id;
+                }
+            }
+        }
+    }
+    return null;
+}
+
+function addEmailGroup() {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'email') {
+        const name = document.getElementById('newGroupName').value;
+        if (!name) {
+            showBanner('error', '그룹명을 입력하세요');
+            return;
+        }
+
+        const group = {
+            id: `grp_${Date.now()}`,
+            name,
+            rules: [],
+            color: '#' + Math.floor(Math.random()*16777215).toString(16)
+        };
+
+        tab.data.groups.push(group);
+        document.getElementById('newGroupName').value = '';
+        saveState();
+        renderEmailLeft(tab);
+        showBanner('success', '그룹이 추가되었습니다');
+    }
+}
+
+function deleteEmailGroup(groupId) {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'email') {
+        tab.data.groups = tab.data.groups.filter(g => g.id !== groupId);
+        // 해당 그룹의 메일들 그룹 해제
+        tab.data.threads.forEach(t => {
+            if (t.groupId === groupId) t.groupId = null;
+        });
+        saveState();
+        renderEmailTab(tab);
+    }
+}
+
+function filterEmails() {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'email') {
+        tab.data.filters.groupId = document.getElementById('filterGroup').value;
+        tab.data.filters.status = document.getElementById('filterStatus').value;
+        saveState();
+        renderEmailRight(tab);
+    }
+}
+
+// 도면 탭
+function addDrawingsTab() {
+    const id = state.nextTabId++;
+    const tab = {
+        id,
+        type: 'drawings',
+        title: `도면 ${id}`,
+        data: {
+            documents: [
+                { id: 'dwg_1', name: 'PANEL-A.dwg', rev: 'A', date: '2024-09-15', author: '김설계', tags: ['MCCB', '옥내'], memo: '초도 설계', history: [], links: [] },
+                { id: 'dwg_2', name: 'LAYOUT-B.pdf', rev: 'B', date: '2024-09-18', author: '이설계', tags: ['배치도'], memo: '수정본', history: [], links: [] }
+            ],
+            filters: { q: '', rev: '', start: '', end: '', tag: '' },
+            selectedId: null
+        }
+    };
+
+    state.tabs.push(tab);
+    state.activeTabId = id;
+    saveState();
+    renderTabs();
+    renderActiveTab();
+}
+
+function renderDrawingsTab(tab) {
+    renderDrawingsLeft(tab);
+    renderDrawingsRight(tab);
+}
+
+function renderDrawingsLeft(tab) {
+    const leftPanel = document.getElementById('leftPanel');
+    const data = tab.data;
+
+    leftPanel.innerHTML = `
+        <!-- 도면 등록 -->
+        <div class="section">
+            <div class="section-header">도면 등록</div>
+            <div class="section-content">
+                <div class="form-row">
+                    <label class="form-label">파일명</label>
+                    <input type="text" class="form-input" id="dwgName" placeholder="예: PANEL-A.dwg">
+                </div>
+                <div class="form-row cols-2">
+                    <div>
+                        <label class="form-label">판번호 (Rev)</label>
+                        <input type="text" class="form-input" id="dwgRev" placeholder="A">
+                    </div>
+                    <div>
+                        <label class="form-label">작성일</label>
+                        <input type="date" class="form-input" id="dwgDate">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">작성자</label>
+                    <input type="text" class="form-input" id="dwgAuthor" placeholder="작성자명">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">태그 (쉼표로 구분)</label>
+                    <input type="text" class="form-input" id="dwgTags" placeholder="MCCB, 옥내, 배치도">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">메모</label>
+                    <textarea class="form-textarea" id="dwgMemo" placeholder="설명 또는 메모"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="addDrawing()">도면 등록</button>
+            </div>
+        </div>
+
+        <!-- 검색/필터 -->
+        <div class="section">
+            <div class="section-header">검색/필터</div>
+            <div class="section-content">
+                <div class="form-row">
+                    <label class="form-label">파일명 검색</label>
+                    <input type="text" class="form-input" id="dwgSearch" placeholder="파일명 검색" onkeyup="filterDrawings()">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">태그</label>
+                    <input type="text" class="form-input" id="dwgTagFilter" placeholder="태그 검색" onkeyup="filterDrawings()">
+                </div>
+                <div class="form-row cols-2">
+                    <div>
+                        <label class="form-label">시작일</label>
+                        <input type="date" class="form-input" id="dwgStartDate" onchange="filterDrawings()">
+                    </div>
+                    <div>
+                        <label class="form-label">종료일</label>
+                        <input type="date" class="form-input" id="dwgEndDate" onchange="filterDrawings()">
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderDrawingsRight(tab) {
+    const rightPanel = document.getElementById('rightPanel');
+    const data = tab.data;
+
+    if (data.selectedId) {
+        const doc = data.documents.find(d => d.id === data.selectedId);
+        if (doc) {
+            rightPanel.innerHTML = `
+                <div style="padding: 20px; border: 1px solid var(--color-border); border-radius: 4px;">
+                    <h3>${doc.name}</h3>
+                    <div class="settings-kv">
+                        <span>판번호:</span>
+                        <span>Rev ${doc.rev}</span>
+                    </div>
+                    <div class="settings-kv">
+                        <span>작성일:</span>
+                        <span>${doc.date}</span>
+                    </div>
+                    <div class="settings-kv">
+                        <span>작성자:</span>
+                        <span>${doc.author}</span>
+                    </div>
+                    <div class="drawing-tags">
+                        ${doc.tags.map(tag => `<span class="drawing-tag">${tag}</span>`).join('')}
+                    </div>
+                    <div style="margin-top: 16px; padding: 12px; background: #f9f9f9; border-radius: 4px;">
+                        <strong>메모:</strong><br>${doc.memo}
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <button class="btn" onclick="linkToEstimate('${doc.id}')">견적 연결</button>
+                        <button class="btn" onclick="addDrawingNote('${doc.id}')">메모 추가</button>
+                    </div>
+                </div>
+            `;
+        }
+    } else {
+        // 도면 리스트
+        rightPanel.innerHTML = `
+            <h3>도면 목록 (${data.documents.length})</h3>
+            <div style="margin-top: 16px;">
+                ${data.documents.map(doc => `
+                    <div class="drawing-card" onclick="selectDrawing('${doc.id}')">
+                        <div style="display: flex; justify-content: space-between;">
+                            <strong>${doc.name}</strong>
+                            <span style="color: var(--color-text-subtle);">Rev ${doc.rev}</span>
+                        </div>
+                        <div style="font-size: 13px; color: var(--color-text-subtle); margin-top: 4px;">
+                            ${doc.author} · ${doc.date}
+                        </div>
+                        <div class="drawing-tags">
+                            ${doc.tags.map(tag => `<span class="drawing-tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                `).join('') || '<div class="empty-state"><div class="empty-icon">📐</div><p>등록된 도면이 없습니다</p></div>'}
+            </div>
+        `;
+    }
+}
+
+function addDrawing() {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'drawings') {
+        const name = document.getElementById('dwgName').value;
+        const rev = document.getElementById('dwgRev').value;
+
+        if (!name || !rev) {
+            showBanner('error', '파일명과 판번호를 입력하세요');
+            return;
+        }
+
+        // 중복 체크
+        const existing = tab.data.documents.find(d => d.name === name && d.rev === rev);
+        if (existing) {
+            if (!confirm('같은 파일명과 판번호가 존재합니다. 덮어쓰시겠습니까?')) {
+                return;
+            }
+            tab.data.documents = tab.data.documents.filter(d => !(d.name === name && d.rev === rev));
+        }
+
+        const doc = {
+            id: `dwg_${Date.now()}`,
+            name,
+            rev,
+            date: document.getElementById('dwgDate').value || new Date().toISOString().split('T')[0],
+            author: document.getElementById('dwgAuthor').value || '미지정',
+            tags: document.getElementById('dwgTags').value.split(',').map(t => t.trim()).filter(t => t),
+            memo: document.getElementById('dwgMemo').value,
+            history: [{ ts: new Date().toISOString(), action: 'REGISTER', note: '초도 등록' }],
+            links: []
+        };
+
+        tab.data.documents.push(doc);
+
+        // 폼 초기화
+        document.getElementById('dwgName').value = '';
+        document.getElementById('dwgRev').value = '';
+        document.getElementById('dwgDate').value = '';
+        document.getElementById('dwgAuthor').value = '';
+        document.getElementById('dwgTags').value = '';
+        document.getElementById('dwgMemo').value = '';
+
+        saveState();
+        renderDrawingsTab(tab);
+        showBanner('success', '도면이 등록되었습니다');
+    }
+}
+
+function selectDrawing(docId) {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'drawings') {
+        tab.data.selectedId = docId;
+        saveState();
+        renderDrawingsRight(tab);
+    }
+}
+
+function filterDrawings() {
+    // 필터 로직 구현
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    if (tab && tab.type === 'drawings') {
+        renderDrawingsRight(tab);
+    }
+}
+
+// 설정 탭
+function addSettingsTab() {
+    // 설정은 싱글톤
+    const existing = state.tabs.find(t => t.type === 'settings');
+    if (existing) {
+        switchTab(existing.id);
+        return;
+    }
+
+    const id = state.nextTabId++;
+    const tab = {
+        id,
+        type: 'settings',
+        title: '설정',
+        data: {} // 설정은 전역 state.settings 사용
+    };
+
+    state.tabs.push(tab);
+    state.activeTabId = id;
+    saveState();
+    renderTabs();
+    renderActiveTab();
+}
+
+function renderSettingsTab(tab) {
+    renderSettingsLeft();
+    renderSettingsRight();
+}
+
+function renderSettingsLeft() {
+    const leftPanel = document.getElementById('leftPanel');
+    const s = state.settings;
+
+    leftPanel.innerHTML = `
+        <!-- 브랜드/형태 기본 -->
+        <div class="section">
+            <div class="section-header">브랜드 / 형태 기본</div>
+            <div class="section-content">
+                <div class="form-row">
+                    <label class="form-label">브랜드</label>
+                    <select class="form-select" id="settingBrand" onchange="updateSetting('brand', this.value)">
+                        <option value="SANGDO" ${s.defaults.brand === 'SANGDO' ? 'selected' : ''}>상도</option>
+                        <option value="LS" ${s.defaults.brand === 'LS' ? 'selected' : ''}>LS</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">형태</label>
+                    <select class="form-select" id="settingForm" onchange="updateSetting('form', this.value)">
+                        <option value="ECONOMIC" ${s.defaults.form === 'ECONOMIC' ? 'selected' : ''}>경제형</option>
+                        <option value="STANDARD" ${s.defaults.form === 'STANDARD' ? 'selected' : ''}>표준형</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 설치 기본 -->
+        <div class="section">
+            <div class="section-header">설치 기본</div>
+            <div class="section-content">
+                <div class="form-row cols-2">
+                    <div>
+                        <label class="form-label">장소</label>
+                        <select class="form-select" onchange="updateSetting('location', this.value)">
+                            <option value="INDOOR" ${s.defaults.location === 'INDOOR' ? 'selected' : ''}>옥내</option>
+                            <option value="OUTDOOR" ${s.defaults.location === 'OUTDOOR' ? 'selected' : ''}>옥외</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">방식</label>
+                        <select class="form-select" onchange="updateSetting('mount', this.value)">
+                            <option value="FLUSH" ${s.defaults.mount === 'FLUSH' ? 'selected' : ''}>매입</option>
+                            <option value="SURFACE" ${s.defaults.mount === 'SURFACE' ? 'selected' : ''}>노출</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 룰 & 치수표 버전 -->
+        <div class="section">
+            <div class="section-header">룰 & 치수표 버전</div>
+            <div class="section-content">
+                <div class="settings-kv">
+                    <span>대표님 지식 버전</span>
+                    <span>rules ${s.knowledgeVersion.rules} / tables ${s.knowledgeVersion.tables}</span>
+                </div>
+                <div class="settings-kv">
+                    <span>최종 업데이트</span>
+                    <span>${s.knowledgeVersion.updated}</span>
+                </div>
+                <label class="checkbox-label">
+                    <input type="checkbox" ${s.rules.singleBrand ? 'checked' : ''} onchange="updateRule('singleBrand', this.checked)">
+                    단일 브랜드 원칙
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" ${s.rules.antiPoleMistake ? 'checked' : ''} onchange="updateRule('antiPoleMistake', this.checked)">
+                    극수 오판 방지
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" ${s.rules.antiDeviceConfuse ? 'checked' : ''} onchange="updateRule('antiDeviceConfuse', this.checked)">
+                    MCCB/ELCB 혼동 방지
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" ${s.rules.antiInstallMismatch ? 'checked' : ''} onchange="updateRule('antiInstallMismatch', this.checked)">
+                    옥내/옥외 · 매입/노출 오류 방지
+                </label>
+            </div>
+        </div>
+
+        <!-- 백업/복구 -->
+        <div class="section">
+            <div class="section-header">백업 / 복구</div>
+            <div class="section-content">
+                <button class="btn" onclick="exportSettings()">JSON 내보내기</button>
+                <textarea class="form-textarea" id="settingsJson" placeholder="JSON 붙여넣기 후 가져오기" style="margin-top: 12px;"></textarea>
+                <button class="btn btn-primary" onclick="importSettings()" style="margin-top: 8px;">가져오기</button>
+            </div>
+        </div>
+    `;
+}
+
+function renderSettingsRight() {
+    const rightPanel = document.getElementById('rightPanel');
+    const s = state.settings;
+
+    rightPanel.innerHTML = `
+        <h3>설정 요약</h3>
+        <div style="margin-top: 20px;">
+            <div class="section">
+                <div class="section-header">현재 설정</div>
+                <div class="section-content">
+                    <div class="settings-kv">
+                        <span>브랜드 기본</span>
+                        <span>${s.defaults.brand}</span>
+                    </div>
+                    <div class="settings-kv">
+                        <span>형태 기본</span>
+                        <span>${s.defaults.form}</span>
+                    </div>
+                    <div class="settings-kv">
+                        <span>설치</span>
+                        <span>${s.defaults.location} / ${s.defaults.mount}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section" style="margin-top: 20px;">
+                <div class="section-header">최근 변경</div>
+                <div class="section-content">
+                    ${(s.history || []).slice(-5).reverse().map(h => `
+                        <div style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
+                            ${new Date(h.ts).toLocaleString()} - ${h.field || h.action}
+                        </div>
+                    `).join('') || '<div style="color: #999;">변경 이력이 없습니다</div>'}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function updateSetting(field, value) {
+    state.settings.defaults[field] = value;
+    state.settings.history.push({
+        ts: new Date().toISOString(),
+        action: 'CHANGE',
+        field: `defaults.${field}`,
+        value
+    });
+    saveState();
+    renderSettingsRight();
+    showBanner('success', '설정이 저장되었습니다');
+}
+
+function updateRule(rule, value) {
+    state.settings.rules[rule] = value;
+    state.settings.history.push({
+        ts: new Date().toISOString(),
+        action: 'CHANGE',
+        field: `rules.${rule}`,
+        value
+    });
+    saveState();
+    renderSettingsRight();
+}
+
+function exportSettings() {
+    const json = JSON.stringify(state.settings, null, 2);
+    document.getElementById('settingsJson').value = json;
+    navigator.clipboard.writeText(json);
+    showBanner('success', '설정을 클립보드에 복사했습니다');
+}
+
+function importSettings() {
+    try {
+        const json = document.getElementById('settingsJson').value;
+        if (!json) {
+            showBanner('error', 'JSON을 입력하세요');
+            return;
+        }
+        state.settings = JSON.parse(json);
+        saveState();
+        renderSettingsTab();
+        showBanner('success', '설정을 가져왔습니다');
+    } catch (e) {
+        showBanner('error', 'JSON 파싱 오류: ' + e.message);
+    }
+}
+
+// 연동 함수들
+function sendEstimateEmail() {
+    const quoteTab = state.tabs.find(t => t.id === state.activeTabId);
+    if (!quoteTab || quoteTab.type !== 'quote') return;
+
+    // 이메일 탭 찾기 또는 생성
+    let emailTab = state.tabs.find(t => t.type === 'email');
+    if (!emailTab) {
+        addEmailTab();
+        emailTab = state.tabs[state.tabs.length - 1];
+    }
+
+    // 이메일 작성 자동 채우기
+    emailTab.data.compose = {
+        to: quoteTab.data.customerInfo.email,
+        cc: '',
+        subject: `[견적서] ${quoteTab.data.customerInfo.company} - ${new Date().toLocaleDateString()}`,
+        body: `안녕하세요, ${quoteTab.data.customerInfo.company}님
+
+요청하신 견적서를 송부드립니다.
+검토 후 문의사항이 있으시면 언제든 연락주시기 바랍니다.
+
+감사합니다.`,
+        attachQuote: true
+    };
+
+    switchTab(emailTab.id);
+    showBanner('success', '이메일 작성 화면으로 이동합니다');
+}
+
+function addEstimateToCalendar() {
+    const quoteTab = state.tabs.find(t => t.id === state.activeTabId);
+    if (!quoteTab || quoteTab.type !== 'quote') return;
+
+    // 캘린더 탭 찾기 또는 생성
+    let calendarTab = state.tabs.find(t => t.type === 'calendar');
+    if (!calendarTab) {
+        addCalendarTab();
+        calendarTab = state.tabs[state.tabs.length - 1];
+    }
+
+    // 납기일 일정 추가
+    const deliveryDate = new Date(Date.now() + 7*24*60*60*1000); // 7일 후
+    const event = {
+        id: `cal_${Date.now()}`,
+        type: 'estimate',
+        title: `${quoteTab.data.customerInfo.company} 납기`,
+        start: deliveryDate.toISOString(),
+        end: deliveryDate.toISOString(),
+        location: quoteTab.data.customerInfo.address,
+        memo: '견적서 기준 납기일',
+        owner: '영업팀'
+    };
+
+    calendarTab.data.events.push(event);
+    saveState();
+    switchTab(calendarTab.id);
+    showBanner('success', '캘린더에 납기 일정이 추가되었습니다');
+}
+
+// 유틸리티
+function showBanner(type, message) {
+    const banner = document.createElement('div');
+    banner.className = `banner ${type}`;
+    banner.textContent = message;
+
+    const rightPanel = document.getElementById('rightPanel');
+    rightPanel.insertBefore(banner, rightPanel.firstChild);
+
+    setTimeout(() => banner.remove(), 3000);
+}
+
+// 앱 시작
+window.addEventListener('DOMContentLoaded', init);
+
+// 외부 클릭으로 드롭다운 닫기
+window.addEventListener('click', (e) => {
+    if (!e.target.closest('.new-tab-dropdown')) {
+        document.getElementById('newTabMenu')?.classList.remove('show');
+    }
+});
+</script>
+</body>
+</html>

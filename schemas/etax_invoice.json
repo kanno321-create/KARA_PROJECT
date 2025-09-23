@@ -1,0 +1,459 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kis-core.com/schemas/etax_invoice.json",
+  "title": "Electronic Tax Invoice Schema",
+  "description": "Korean electronic tax invoice schema compliant with KATIS standards",
+  "type": "object",
+  "properties": {
+    "invoice_id": {
+      "type": "string",
+      "pattern": "^INV-[0-9]{8}-[A-Z0-9]{6}$",
+      "description": "Unique invoice identifier"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "invoice_type": {
+      "type": "string",
+      "enum": ["general", "simplified", "receipt", "credit_note", "debit_note"],
+      "description": "Korean tax invoice type"
+    },
+    "tax_invoice_number": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Official tax invoice number"
+    },
+    "supplier": {
+      "type": "object",
+      "description": "Supplier (invoice issuer) information",
+      "properties": {
+        "business_number": {
+          "type": "string",
+          "pattern": "^[0-9]{3}-[0-9]{2}-[0-9]{5}$",
+          "description": "Korean business registration number"
+        },
+        "corporate_number": {
+          "type": "string",
+          "pattern": "^[0-9]{13}$",
+          "description": "Korean corporate registration number"
+        },
+        "company_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "representative_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "address": {
+          "type": "object",
+          "properties": {
+            "postal_code": {
+              "type": "string",
+              "pattern": "^[0-9]{5}$"
+            },
+            "address_line1": {
+              "type": "string",
+              "minLength": 1
+            },
+            "address_line2": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            },
+            "province": {
+              "type": "string"
+            }
+          },
+          "required": ["address_line1"]
+        },
+        "business_type": {
+          "type": "string",
+          "description": "Korean business type (업태)"
+        },
+        "business_category": {
+          "type": "string",
+          "description": "Korean business category (종목)"
+        },
+        "contact": {
+          "type": "object",
+          "properties": {
+            "phone": {
+              "type": "string"
+            },
+            "fax": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            }
+          }
+        }
+      },
+      "required": ["business_number", "company_name", "representative_name", "address"]
+    },
+    "buyer": {
+      "type": "object",
+      "description": "Buyer (invoice recipient) information",
+      "properties": {
+        "business_number": {
+          "type": "string",
+          "pattern": "^[0-9]{3}-[0-9]{2}-[0-9]{5}$"
+        },
+        "corporate_number": {
+          "type": "string",
+          "pattern": "^[0-9]{13}$"
+        },
+        "company_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "representative_name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "properties": {
+            "postal_code": {
+              "type": "string",
+              "pattern": "^[0-9]{5}$"
+            },
+            "address_line1": {
+              "type": "string",
+              "minLength": 1
+            },
+            "address_line2": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            },
+            "province": {
+              "type": "string"
+            }
+          },
+          "required": ["address_line1"]
+        },
+        "business_type": {
+          "type": "string"
+        },
+        "business_category": {
+          "type": "string"
+        },
+        "contact": {
+          "type": "object",
+          "properties": {
+            "phone": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            }
+          }
+        }
+      },
+      "required": ["company_name", "address"]
+    },
+    "items": {
+      "type": "array",
+      "description": "Invoice line items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "line_number": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "item_code": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "specification": {
+            "type": "string",
+            "description": "Item specification or model"
+          },
+          "unit": {
+            "type": "string",
+            "enum": ["ea", "m", "m2", "m3", "kg", "hr", "day", "set", "lot", "ton"]
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 0
+          },
+          "unit_price": {
+            "type": "number",
+            "minimum": 0
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Line amount before tax"
+          },
+          "vat_rate": {
+            "type": "number",
+            "enum": [0, 0.1],
+            "description": "VAT rate (0% or 10%)"
+          },
+          "vat_amount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "total_amount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Line total including VAT"
+          },
+          "tax_category": {
+            "type": "string",
+            "enum": ["taxable", "zero_rated", "exempt"],
+            "description": "Korean tax category"
+          }
+        },
+        "required": ["line_number", "description", "unit", "quantity", "unit_price", "amount", "vat_rate", "vat_amount", "total_amount"]
+      },
+      "minItems": 1
+    },
+    "totals": {
+      "type": "object",
+      "description": "Invoice totals",
+      "properties": {
+        "net_amount": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total amount before VAT"
+        },
+        "vat_amount": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total VAT amount"
+        },
+        "grand_total": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total amount including VAT"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "default": "KRW"
+        },
+        "exchange_rate": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Exchange rate if foreign currency"
+        },
+        "rounding_adjustment": {
+          "type": "number",
+          "description": "Rounding adjustment amount"
+        }
+      },
+      "required": ["net_amount", "vat_amount", "grand_total", "currency"]
+    },
+    "dates": {
+      "type": "object",
+      "properties": {
+        "issue_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Invoice issue date"
+        },
+        "transaction_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Transaction date"
+        },
+        "due_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Payment due date"
+        },
+        "delivery_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Goods/service delivery date"
+        }
+      },
+      "required": ["issue_date", "transaction_date"]
+    },
+    "payment_terms": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["cash", "bank_transfer", "check", "credit_card", "promissory_note"]
+        },
+        "terms": {
+          "type": "string",
+          "description": "Payment terms description"
+        },
+        "bank_account": {
+          "type": "object",
+          "properties": {
+            "bank_name": {
+              "type": "string"
+            },
+            "account_number": {
+              "type": "string"
+            },
+            "account_holder": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "references": {
+      "type": "object",
+      "properties": {
+        "purchase_order": {
+          "type": "string",
+          "description": "Buyer's purchase order number"
+        },
+        "contract_number": {
+          "type": "string",
+          "description": "Related contract number"
+        },
+        "estimate_id": {
+          "type": "string",
+          "pattern": "^EST-[0-9]{8}-[A-Z0-9]{6}$",
+          "description": "Related estimate identifier"
+        },
+        "delivery_note": {
+          "type": "string",
+          "description": "Delivery note reference"
+        }
+      }
+    },
+    "status": {
+      "type": "object",
+      "properties": {
+        "current_status": {
+          "type": "string",
+          "enum": ["draft", "issued", "transmitted", "received", "processed", "paid", "cancelled", "rejected"]
+        },
+        "transmission_status": {
+          "type": "string",
+          "enum": ["pending", "transmitted", "acknowledged", "failed"]
+        },
+        "payment_status": {
+          "type": "string",
+          "enum": ["unpaid", "partial", "paid", "overdue"]
+        },
+        "nts_submission_status": {
+          "type": "string",
+          "enum": ["pending", "submitted", "accepted", "rejected"],
+          "description": "National Tax Service submission status"
+        }
+      },
+      "required": ["current_status"]
+    },
+    "digital_signature": {
+      "type": "object",
+      "properties": {
+        "certificate_serial": {
+          "type": "string",
+          "description": "Digital certificate serial number"
+        },
+        "signature_value": {
+          "type": "string",
+          "description": "Digital signature value"
+        },
+        "signature_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "issuer": {
+          "type": "string",
+          "description": "Certificate issuer"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "description": "Evidence and audit trail",
+      "properties": {
+        "source_system": {
+          "type": "string",
+          "description": "Source ERP/invoice system"
+        },
+        "extraction_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evidence_files": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Paths to PNG/SVG/CSV/JSON evidence files"
+          }
+        },
+        "pdf_path": {
+          "type": "string",
+          "description": "Path to official PDF invoice"
+        },
+        "xml_path": {
+          "type": "string",
+          "description": "Path to XML e-tax invoice file"
+        },
+        "data_quality_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": ["source_system", "extraction_timestamp"]
+    },
+    "audit_trail": {
+      "type": "object",
+      "properties": {
+        "created_by": {
+          "type": "string"
+        },
+        "created_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "last_modified_by": {
+          "type": "string"
+        },
+        "last_modified_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "work_id": {
+          "type": "string"
+        },
+        "input_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "output_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": ["created_by", "created_timestamp", "work_id"]
+    }
+  },
+  "required": [
+    "invoice_id",
+    "version",
+    "invoice_type",
+    "tax_invoice_number",
+    "supplier",
+    "buyer",
+    "items",
+    "totals",
+    "dates",
+    "status",
+    "evidence",
+    "audit_trail"
+  ]
+}

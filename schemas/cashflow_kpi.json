@@ -1,0 +1,596 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kis-core.com/schemas/cashflow_kpi.json",
+  "title": "Cash Flow KPI Schema",
+  "description": "Cash flow KPI calculations and risk flags for Korean business context",
+  "type": "object",
+  "properties": {
+    "kpi_id": {
+      "type": "string",
+      "pattern": "^KPI-[0-9]{8}-[A-Z0-9]{6}$",
+      "description": "Unique KPI report identifier"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "reporting_period": {
+      "type": "object",
+      "properties": {
+        "start_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "period_type": {
+          "type": "string",
+          "enum": ["monthly", "quarterly", "yearly", "custom"]
+        },
+        "fiscal_year": {
+          "type": "integer",
+          "minimum": 2000,
+          "maximum": 2100
+        },
+        "fiscal_quarter": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4
+        }
+      },
+      "required": ["start_date", "end_date", "period_type", "fiscal_year"]
+    },
+    "dso": {
+      "type": "object",
+      "description": "Days Sales Outstanding",
+      "properties": {
+        "current_value": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Current DSO in days"
+        },
+        "previous_period": {
+          "type": "number",
+          "minimum": 0
+        },
+        "year_over_year": {
+          "type": "number",
+          "minimum": 0
+        },
+        "industry_benchmark": {
+          "type": "number",
+          "minimum": 0
+        },
+        "calculation_method": {
+          "type": "string",
+          "enum": ["rolling_average", "period_end", "weighted_average"]
+        },
+        "components": {
+          "type": "object",
+          "properties": {
+            "accounts_receivable": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Total A/R in KRW"
+            },
+            "daily_sales": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Average daily sales in KRW"
+            },
+            "total_sales": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Total sales for period in KRW"
+            },
+            "period_days": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["accounts_receivable", "daily_sales", "total_sales", "period_days"]
+        },
+        "trend_analysis": {
+          "type": "object",
+          "properties": {
+            "trend_direction": {
+              "type": "string",
+              "enum": ["improving", "stable", "deteriorating"]
+            },
+            "variance_percentage": {
+              "type": "number",
+              "description": "Percentage change from previous period"
+            },
+            "confidence_level": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      },
+      "required": ["current_value", "calculation_method", "components"]
+    },
+    "dpo": {
+      "type": "object",
+      "description": "Days Payable Outstanding",
+      "properties": {
+        "current_value": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Current DPO in days"
+        },
+        "previous_period": {
+          "type": "number",
+          "minimum": 0
+        },
+        "year_over_year": {
+          "type": "number",
+          "minimum": 0
+        },
+        "industry_benchmark": {
+          "type": "number",
+          "minimum": 0
+        },
+        "calculation_method": {
+          "type": "string",
+          "enum": ["rolling_average", "period_end", "weighted_average"]
+        },
+        "components": {
+          "type": "object",
+          "properties": {
+            "accounts_payable": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Total A/P in KRW"
+            },
+            "daily_purchases": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Average daily purchases in KRW"
+            },
+            "total_purchases": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Total purchases for period in KRW"
+            },
+            "period_days": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["accounts_payable", "daily_purchases", "total_purchases", "period_days"]
+        },
+        "trend_analysis": {
+          "type": "object",
+          "properties": {
+            "trend_direction": {
+              "type": "string",
+              "enum": ["improving", "stable", "deteriorating"]
+            },
+            "variance_percentage": {
+              "type": "number"
+            },
+            "confidence_level": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      },
+      "required": ["current_value", "calculation_method", "components"]
+    },
+    "inventory_days": {
+      "type": "object",
+      "description": "Days Inventory Outstanding (DIO)",
+      "properties": {
+        "current_value": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Current inventory days"
+        },
+        "previous_period": {
+          "type": "number",
+          "minimum": 0
+        },
+        "year_over_year": {
+          "type": "number",
+          "minimum": 0
+        },
+        "industry_benchmark": {
+          "type": "number",
+          "minimum": 0
+        },
+        "calculation_method": {
+          "type": "string",
+          "enum": ["rolling_average", "period_end", "weighted_average"]
+        },
+        "components": {
+          "type": "object",
+          "properties": {
+            "average_inventory": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Average inventory value in KRW"
+            },
+            "cogs": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Cost of Goods Sold in KRW"
+            },
+            "daily_cogs": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Average daily COGS in KRW"
+            },
+            "period_days": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["average_inventory", "cogs", "daily_cogs", "period_days"]
+        },
+        "breakdown": {
+          "type": "object",
+          "properties": {
+            "raw_materials_days": {
+              "type": "number",
+              "minimum": 0
+            },
+            "work_in_progress_days": {
+              "type": "number",
+              "minimum": 0
+            },
+            "finished_goods_days": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "trend_analysis": {
+          "type": "object",
+          "properties": {
+            "trend_direction": {
+              "type": "string",
+              "enum": ["improving", "stable", "deteriorating"]
+            },
+            "variance_percentage": {
+              "type": "number"
+            },
+            "confidence_level": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      },
+      "required": ["current_value", "calculation_method", "components"]
+    },
+    "ccc": {
+      "type": "object",
+      "description": "Cash Conversion Cycle",
+      "properties": {
+        "current_value": {
+          "type": "number",
+          "description": "Current CCC in days (can be negative)"
+        },
+        "previous_period": {
+          "type": "number"
+        },
+        "year_over_year": {
+          "type": "number"
+        },
+        "industry_benchmark": {
+          "type": "number"
+        },
+        "calculation": {
+          "type": "object",
+          "properties": {
+            "formula": {
+              "type": "string",
+              "enum": ["DSO + DIO - DPO"]
+            },
+            "dso_component": {
+              "type": "number"
+            },
+            "dio_component": {
+              "type": "number"
+            },
+            "dpo_component": {
+              "type": "number"
+            }
+          },
+          "required": ["formula", "dso_component", "dio_component", "dpo_component"]
+        },
+        "interpretation": {
+          "type": "object",
+          "properties": {
+            "performance_rating": {
+              "type": "string",
+              "enum": ["excellent", "good", "fair", "poor", "critical"]
+            },
+            "cash_flow_impact": {
+              "type": "string",
+              "enum": ["very_positive", "positive", "neutral", "negative", "very_negative"]
+            },
+            "working_capital_efficiency": {
+              "type": "string",
+              "enum": ["highly_efficient", "efficient", "moderate", "inefficient", "very_inefficient"]
+            }
+          }
+        },
+        "trend_analysis": {
+          "type": "object",
+          "properties": {
+            "trend_direction": {
+              "type": "string",
+              "enum": ["improving", "stable", "deteriorating"]
+            },
+            "variance_percentage": {
+              "type": "number"
+            },
+            "confidence_level": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      },
+      "required": ["current_value", "calculation", "interpretation"]
+    },
+    "risk_flags": {
+      "type": "array",
+      "description": "Risk indicators based on KPI analysis",
+      "items": {
+        "type": "object",
+        "properties": {
+          "flag_id": {
+            "type": "string"
+          },
+          "risk_type": {
+            "type": "string",
+            "enum": ["liquidity", "credit", "operational", "collection", "payment", "inventory", "working_capital"]
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "threshold_value": {
+            "type": "number",
+            "description": "Threshold that triggered this flag"
+          },
+          "current_value": {
+            "type": "number",
+            "description": "Current KPI value that triggered flag"
+          },
+          "variance_from_threshold": {
+            "type": "number",
+            "description": "How much current value deviates from threshold"
+          },
+          "impact_assessment": {
+            "type": "object",
+            "properties": {
+              "cash_flow_impact": {
+                "type": "string",
+                "enum": ["minimal", "moderate", "significant", "severe"]
+              },
+              "business_continuity_risk": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "critical"]
+              },
+              "estimated_financial_impact": {
+                "type": "number",
+                "description": "Estimated financial impact in KRW"
+              }
+            }
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "priority": {
+                  "type": "string",
+                  "enum": ["low", "medium", "high", "urgent"]
+                },
+                "timeline": {
+                  "type": "string",
+                  "description": "Recommended timeline for action"
+                },
+                "expected_impact": {
+                  "type": "string"
+                }
+              },
+              "required": ["action", "priority"]
+            }
+          },
+          "triggered_timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "auto_generated": {
+            "type": "boolean",
+            "description": "Whether this flag was automatically generated"
+          }
+        },
+        "required": ["flag_id", "risk_type", "severity", "description", "triggered_timestamp"]
+      }
+    },
+    "additional_metrics": {
+      "type": "object",
+      "properties": {
+        "working_capital": {
+          "type": "object",
+          "properties": {
+            "current_assets": {
+              "type": "number",
+              "minimum": 0
+            },
+            "current_liabilities": {
+              "type": "number",
+              "minimum": 0
+            },
+            "net_working_capital": {
+              "type": "number"
+            },
+            "working_capital_ratio": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "liquidity_ratios": {
+          "type": "object",
+          "properties": {
+            "current_ratio": {
+              "type": "number",
+              "minimum": 0
+            },
+            "quick_ratio": {
+              "type": "number",
+              "minimum": 0
+            },
+            "cash_ratio": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "efficiency_ratios": {
+          "type": "object",
+          "properties": {
+            "asset_turnover": {
+              "type": "number",
+              "minimum": 0
+            },
+            "receivables_turnover": {
+              "type": "number",
+              "minimum": 0
+            },
+            "inventory_turnover": {
+              "type": "number",
+              "minimum": 0
+            },
+            "payables_turnover": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "source_systems": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Source ERP/accounting systems"
+          }
+        },
+        "calculation_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "data_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source_type": {
+                "type": "string",
+                "enum": ["ledger", "ar_aging", "ap_aging", "inventory_report", "trial_balance"]
+              },
+              "file_path": {
+                "type": "string",
+                "description": "Path to source data file"
+              },
+              "hash": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": ["source_type", "file_path", "hash"]
+          }
+        },
+        "calculation_worksheets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Paths to CSV/JSON calculation worksheets"
+          }
+        },
+        "validation_reports": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Paths to validation and reconciliation reports"
+          }
+        },
+        "data_quality_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": ["source_systems", "calculation_timestamp", "data_sources"]
+    },
+    "audit_trail": {
+      "type": "object",
+      "properties": {
+        "created_by": {
+          "type": "string"
+        },
+        "created_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "last_modified_by": {
+          "type": "string"
+        },
+        "last_modified_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "work_id": {
+          "type": "string"
+        },
+        "input_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "output_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": ["created_by", "created_timestamp", "work_id"]
+    }
+  },
+  "required": [
+    "kpi_id",
+    "version",
+    "reporting_period",
+    "dso",
+    "dpo",
+    "inventory_days",
+    "ccc",
+    "risk_flags",
+    "evidence",
+    "audit_trail"
+  ]
+}

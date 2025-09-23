@@ -1,7 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import { EstimateService } from '../services/estimate.service.js';
 import { EstimateRequestJSONSchema, EstimateResponseJSONSchema } from '../lib/json-schemas.js';
+import { handleIdempotencyStart, handleIdempotencyFinish } from '../lib/idempotency.js';
+import { normalizeResponse } from '../lib/normalize.js';
 import { errors } from '../lib/errors.js';
+import { preGateEstimateInput } from '../lib/pre-gates.js';
 
 // ============================================
 // 견적 라우트
@@ -41,9 +44,26 @@ export async function estimateRoutes(fastify: FastifyInstance) {
       },
     },
     handler: async (request, reply) => {
+      // Pre-Gate 검증 (서비스 호출 전)
+      const preGateResult = preGateEstimateInput(request.body);
+      if (!preGateResult.ok) {
+        reply.status(422);
+        return {
+          code: preGateResult.code,
+          message: preGateResult.message,
+          path: preGateResult.path,
+          hint: preGateResult.hint,
+        };
+      }
+
       try {
         const result = await estimateService.validateEstimate(request.body as any);
-        return result;
+        return {
+          valid: result.isValid,
+          resolved_brand: preGateResult.resolvedBrand,
+          knowledge_hits: result.knowledgeHits || [],
+          warnings: result.warnings || [],
+        };
       } catch (error: any) {
         if (error.statusCode === 422) {
           reply.status(422);
@@ -66,6 +86,14 @@ export async function estimateRoutes(fastify: FastifyInstance) {
       body: EstimateRequestJSONSchema,
       response: {
         201: EstimateResponseJSONSchema,
+        409: {
+          type: 'object',
+          properties: {
+            code: { type: 'string' },
+            message: { type: 'string' },
+            hint: { type: 'string' },
+          },
+        },
         422: {
           type: 'object',
           properties: {
@@ -78,11 +106,60 @@ export async function estimateRoutes(fastify: FastifyInstance) {
       },
     },
     handler: async (request, reply) => {
+      // 1. 멱등성 키 추출
+      const idempotencyKey = request.headers['idempotency-key'] as string;
+      const actor = request.headers['x-kis-actor'] as string;
+
+      // 2. Pre-Gate 검증 (서비스 호출 전)
+      const preGateResult = preGateEstimateInput(request.body);
+      if (!preGateResult.ok) {
+        reply.status(422);
+        return {
+          code: preGateResult.code,
+          message: preGateResult.message,
+          path: preGateResult.path,
+          hint: preGateResult.hint,
+        };
+      }
+
       try {
+        // 3. 멱등성 처리 시작
+        const idempotencyResult = await handleIdempotencyStart(fastify.prisma, {
+          key: idempotencyKey,
+          scope: 'POST /v1/estimate/create',
+          actor,
+          body: request.body,
+        });
+
+        // 4. 멱등성 재생 모드
+        if (idempotencyResult.mode === 'REPLAY') {
+          reply.status(201);
+          return idempotencyResult.response;
+        }
+
+        // 5. 바이패스 또는 신규 저장 모드
         const estimate = await estimateService.createEstimate(request.body as any);
+
+        // 6. 멱등성 완료 처리 (신규 저장 모드만)
+        if (idempotencyResult.mode === 'STORE') {
+          const normalizedResponse = normalizeResponse(estimate);
+          await handleIdempotencyFinish(fastify.prisma, {
+            key: idempotencyKey,
+            response: normalizedResponse,
+          });
+        }
+
         reply.status(201);
         return estimate;
       } catch (error: any) {
+        if (error.statusCode === 409 && error.code === 'IDEMPOTENCY_BODY_MISMATCH') {
+          reply.status(409);
+          return {
+            code: error.code,
+            message: error.message,
+            hint: error.hint,
+          };
+        }
         if (error.statusCode === 422) {
           reply.status(422);
           return error.toJSON();
@@ -405,6 +482,83 @@ export async function estimateRoutes(fastify: FastifyInstance) {
         if (error.statusCode === 404) {
           reply.status(404);
           return error.toJSON();
+        }
+        throw error;
+      }
+    },
+  });
+
+  // ========================================
+  // POST /v1/estimate/:id/evidence/verify - 증거 서명 검증
+  // ========================================
+
+  fastify.post('/estimate/:id/evidence/verify', {
+    schema: {
+      summary: '증거 패키지 서명 검증',
+      description: '증거 패키지의 암호화 서명을 검증합니다',
+      tags: ['estimate'],
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+        },
+        required: ['id'],
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            isValid: { type: 'boolean' },
+            verifiedAt: { type: 'string' },
+            signatureStatus: { type: 'string' },
+            evidenceHash: { type: 'string' },
+            verificationDetails: {
+              type: 'object',
+              properties: {
+                snapshotHashValid: { type: 'boolean' },
+                rulesVersionValid: { type: 'boolean' },
+                knowledgeVersionValid: { type: 'boolean' },
+                tableHashesValid: { type: 'boolean' },
+                signatureValid: { type: 'boolean' },
+              },
+            },
+          },
+        },
+        404: {
+          type: 'object',
+          properties: {
+            code: { type: 'string' },
+            message: { type: 'string' },
+          },
+        },
+        422: {
+          type: 'object',
+          properties: {
+            code: { type: 'string' },
+            message: { type: 'string' },
+            details: { type: 'string' },
+          },
+        },
+      },
+    },
+    handler: async (request, reply) => {
+      const { id } = request.params as { id: string };
+
+      try {
+        const verificationResult = await estimateService.verifyEvidenceSignature(id);
+        return verificationResult;
+      } catch (error: any) {
+        if (error.statusCode === 404) {
+          reply.status(404);
+          return error.toJSON();
+        }
+        if (error.statusCode === 422) {
+          reply.status(422);
+          return {
+            code: 'SIGNATURE_VERIFICATION_FAILED',
+            message: '증거 패키지 서명 검증에 실패했습니다',
+            details: error.message,
+          };
         }
         throw error;
       }

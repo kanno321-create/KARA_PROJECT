@@ -1,0 +1,614 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kis-core.com/schemas/estimate_request.json",
+  "title": "Estimate Request Schema",
+  "description": "Request schema for AI-powered estimation with Korean industrial context",
+  "type": "object",
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "pattern": "^REQ-[0-9]{8}-[A-Z0-9]{6}$",
+      "description": "Unique estimate request identifier"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "estimate_type": {
+      "type": "string",
+      "enum": ["preliminary", "detailed", "budget", "change_order", "revision"],
+      "description": "Type of estimate being requested"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "normal", "high", "urgent"],
+      "default": "normal"
+    },
+    "project_info": {
+      "type": "object",
+      "properties": {
+        "project_code": {
+          "type": "string",
+          "pattern": "^[A-Z0-9]{3,10}$"
+        },
+        "project_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "project_type": {
+          "type": "string",
+          "enum": ["manufacturing", "construction", "installation", "maintenance", "engineering", "consulting"]
+        },
+        "industry_sector": {
+          "type": "string",
+          "enum": ["automotive", "shipbuilding", "petrochemical", "electronics", "steel", "machinery", "construction", "energy"]
+        },
+        "location": {
+          "type": "object",
+          "properties": {
+            "country": {
+              "type": "string",
+              "default": "KR"
+            },
+            "city": {
+              "type": "string"
+            },
+            "site_type": {
+              "type": "string",
+              "enum": ["urban", "suburban", "rural", "industrial_complex", "offshore"]
+            },
+            "accessibility": {
+              "type": "string",
+              "enum": ["excellent", "good", "limited", "difficult"]
+            }
+          },
+          "required": ["country"]
+        },
+        "schedule": {
+          "type": "object",
+          "properties": {
+            "required_completion_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "preferred_start_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "duration_months": {
+              "type": "number",
+              "minimum": 0
+            },
+            "schedule_flexibility": {
+              "type": "string",
+              "enum": ["fixed", "flexible", "negotiable"]
+            }
+          }
+        }
+      },
+      "required": ["project_code", "project_name", "project_type", "industry_sector", "location"]
+    },
+    "customer_info": {
+      "type": "object",
+      "properties": {
+        "company_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "business_number": {
+          "type": "string",
+          "pattern": "^[0-9]{3}-[0-9]{2}-[0-9]{5}$",
+          "description": "Korean business registration number"
+        },
+        "customer_type": {
+          "type": "string",
+          "enum": ["large_enterprise", "sme", "government", "public_institution", "foreign_company"]
+        },
+        "credit_rating": {
+          "type": "string",
+          "enum": ["AAA", "AA", "A", "BBB", "BB", "B", "CCC", "unrated"]
+        },
+        "payment_terms_preference": {
+          "type": "object",
+          "properties": {
+            "payment_method": {
+              "type": "string",
+              "enum": ["bank_transfer", "letter_of_credit", "cash", "installment"]
+            },
+            "payment_schedule": {
+              "type": "string",
+              "enum": ["advance", "progress", "completion", "net30", "net60", "custom"]
+            },
+            "advance_payment_percentage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        },
+        "contact": {
+          "type": "object",
+          "properties": {
+            "primary_contact_name": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "phone": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": ["company_name", "customer_type"]
+    },
+    "scope_definition": {
+      "type": "object",
+      "properties": {
+        "work_breakdown": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "wbs_code": {
+                "type": "string",
+                "pattern": "^[0-9]+(\\.[0-9]+)*$"
+              },
+              "work_package_name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": {
+                "type": "string"
+              },
+              "category": {
+                "type": "string",
+                "enum": ["engineering", "procurement", "construction", "installation", "testing", "commissioning"]
+              },
+              "deliverables": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "estimated_effort_hours": {
+                "type": "number",
+                "minimum": 0
+              },
+              "complexity": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "expert"]
+              },
+              "risk_factors": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["technical_complexity", "schedule_pressure", "resource_availability", "regulatory_compliance", "weather_dependency", "site_conditions"]
+                }
+              }
+            },
+            "required": ["wbs_code", "work_package_name", "category", "complexity"]
+          },
+          "minItems": 1
+        },
+        "technical_specifications": {
+          "type": "object",
+          "properties": {
+            "applicable_standards": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "KS, ASTM, ISO, JIS, etc."
+              }
+            },
+            "design_parameters": {
+              "type": "object",
+              "additionalProperties": {
+                "type": ["string", "number"]
+              }
+            },
+            "material_requirements": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "material_type": {
+                    "type": "string"
+                  },
+                  "grade_specification": {
+                    "type": "string"
+                  },
+                  "estimated_quantity": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "unit": {
+                    "type": "string",
+                    "enum": ["ea", "m", "m2", "m3", "kg", "ton", "set", "lot"]
+                  }
+                },
+                "required": ["material_type", "estimated_quantity", "unit"]
+              }
+            },
+            "quality_requirements": {
+              "type": "object",
+              "properties": {
+                "inspection_level": {
+                  "type": "string",
+                  "enum": ["basic", "standard", "enhanced", "critical"]
+                },
+                "testing_requirements": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "certification_required": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "exclusions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Work explicitly excluded from scope"
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Key assumptions for the estimate"
+        }
+      },
+      "required": ["work_breakdown"]
+    },
+    "estimation_parameters": {
+      "type": "object",
+      "properties": {
+        "estimation_method": {
+          "type": "string",
+          "enum": ["parametric", "analogous", "bottom_up", "three_point", "ai_hybrid"]
+        },
+        "confidence_level": {
+          "type": "string",
+          "enum": ["preliminary", "budget", "definitive", "control"]
+        },
+        "contingency_requirements": {
+          "type": "object",
+          "properties": {
+            "design_contingency_percent": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "construction_contingency_percent": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "escalation_allowance": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "sensitivity_analysis": {
+          "type": "object",
+          "properties": {
+            "include_scenarios": {
+              "type": "boolean",
+              "default": false
+            },
+            "cost_sensitivity_factors": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["material_prices", "labor_rates", "schedule_compression", "scope_changes", "regulatory_changes"]
+              }
+            },
+            "schedule_sensitivity_factors": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["resource_availability", "weather", "permits", "approvals", "vendor_delays"]
+              }
+            }
+          }
+        },
+        "benchmarking": {
+          "type": "object",
+          "properties": {
+            "use_historical_data": {
+              "type": "boolean",
+              "default": true
+            },
+            "similar_projects": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Reference project codes"
+              }
+            },
+            "industry_benchmarks": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      },
+      "required": ["estimation_method", "confidence_level"]
+    },
+    "supporting_documents": {
+      "type": "object",
+      "properties": {
+        "drawings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "drawing_id": {
+                "type": "string",
+                "pattern": "^DWG-[0-9]{8}-[A-Z0-9]{6}$"
+              },
+              "file_path": {
+                "type": "string"
+              },
+              "drawing_type": {
+                "type": "string",
+                "enum": ["general_arrangement", "detail", "assembly", "piping", "electrical", "instrumentation"]
+              },
+              "revision": {
+                "type": "string"
+              },
+              "auto_extract_bom": {
+                "type": "boolean",
+                "default": true
+              }
+            },
+            "required": ["drawing_id", "file_path", "drawing_type"]
+          }
+        },
+        "specifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "spec_id": {
+                "type": "string"
+              },
+              "file_path": {
+                "type": "string"
+              },
+              "spec_type": {
+                "type": "string",
+                "enum": ["technical", "material", "quality", "safety", "environmental"]
+              },
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": ["spec_id", "file_path", "spec_type"]
+          }
+        },
+        "reference_estimates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "estimate_id": {
+                "type": "string",
+                "pattern": "^EST-[0-9]{8}-[A-Z0-9]{6}$"
+              },
+              "project_similarity": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "use_as_baseline": {
+                "type": "boolean",
+                "default": false
+              }
+            },
+            "required": ["estimate_id", "project_similarity"]
+          }
+        },
+        "vendor_quotes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "vendor_name": {
+                "type": "string"
+              },
+              "quote_reference": {
+                "type": "string"
+              },
+              "file_path": {
+                "type": "string"
+              },
+              "quote_validity_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "items_covered": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["vendor_name", "quote_reference", "file_path"]
+          }
+        }
+      }
+    },
+    "ai_preferences": {
+      "type": "object",
+      "properties": {
+        "use_ai_optimization": {
+          "type": "boolean",
+          "default": true
+        },
+        "ai_confidence_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.8
+        },
+        "include_ai_reasoning": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include AI reasoning and decision factors in output"
+        },
+        "fallback_to_traditional": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use traditional methods if AI confidence is low"
+        },
+        "learning_mode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use this estimate to improve AI models"
+        }
+      }
+    },
+    "output_requirements": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "type": "string",
+          "enum": ["detailed", "summary", "executive"],
+          "default": "detailed"
+        },
+        "include_change_impact": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include change_impact.json analysis"
+        },
+        "include_sensitivity_scenarios": {
+          "type": "boolean",
+          "default": false
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "default": "KRW"
+        },
+        "language": {
+          "type": "string",
+          "enum": ["ko", "en"],
+          "default": "ko"
+        },
+        "delivery_method": {
+          "type": "string",
+          "enum": ["api_response", "email", "report_generation"],
+          "default": "api_response"
+        },
+        "required_approval_level": {
+          "type": "string",
+          "enum": ["none", "supervisor", "manager", "director", "executive"]
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "request_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "requested_by": {
+          "type": "object",
+          "properties": {
+            "user_id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "department": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            }
+          },
+          "required": ["user_id", "name"]
+        },
+        "deadline": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When estimate is needed"
+        },
+        "business_justification": {
+          "type": "string",
+          "description": "Business reason for this estimate"
+        },
+        "competition_context": {
+          "type": "object",
+          "properties": {
+            "competitive_bid": {
+              "type": "boolean"
+            },
+            "bid_deadline": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "number_of_competitors": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "known_competitors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "required": ["request_timestamp", "requested_by"]
+    },
+    "audit_trail": {
+      "type": "object",
+      "properties": {
+        "created_by": {
+          "type": "string"
+        },
+        "created_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "work_id": {
+          "type": "string"
+        },
+        "input_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": ["created_by", "created_timestamp", "work_id"]
+    }
+  },
+  "required": [
+    "request_id",
+    "version",
+    "estimate_type",
+    "project_info",
+    "customer_info",
+    "scope_definition",
+    "estimation_parameters",
+    "metadata",
+    "audit_trail"
+  ]
+}

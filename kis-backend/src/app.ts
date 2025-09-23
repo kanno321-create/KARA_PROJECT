@@ -3,6 +3,9 @@ import { PrismaClient } from '@prisma/client';
 import { config } from './config.js';
 import { errorHandler } from './lib/errors.js';
 import { initSizeTables } from './lib/size-tables.js';
+import { loadActiveKnowledge } from './lib/size-tables-v2.js';
+import { registerSecurityMiddlewares } from './lib/security-middleware.js';
+import { scheduleIdempotencyCleanup } from './jobs/cleanup-idempotency.js';
 
 // Routes
 import { estimateRoutes } from './routes/estimate.js';
@@ -10,12 +13,19 @@ import { calendarRoutes } from './routes/calendar.js';
 import { emailRoutes } from './routes/email.js';
 import { drawingRoutes } from './routes/drawing.js';
 import { settingsRoutes } from './routes/settings.js';
+import { adminRoutes } from './routes/admin.js';
+import { adminKnowledgeRoutes } from './routes/admin-knowledge.js';
 
 // ============================================
 // Fastify 앱 생성
 // ============================================
 
 export async function createApp() {
+  // EVIDENCE_SECRET 필수 검증
+  if (!config.security.evidenceSecret) {
+    throw new Error('EVIDENCE_SECRET environment variable is required for production');
+  }
+
   // Fastify 인스턴스 생성
   const app = Fastify({
     logger: config.logging.pretty
@@ -33,29 +43,63 @@ export async function createApp() {
       : {
           level: config.logging.level,
         },
+    bodyLimit: config.maxJsonSize, // 256KB 제한
   });
+
+  // ========================================
+  // 보안 미들웨어 등록 (최우선)
+  // ========================================
+  registerSecurityMiddlewares(app);
 
   // ========================================
   // 플러그인 등록
   // ========================================
 
-  // CORS 지원
+  // CORS 지원 (화이트리스트 적용)
   await app.register(import('@fastify/cors'), {
-    origin: true,
+    origin: (origin, callback) => {
+      // 개발 환경에서는 origin이 없을 수 있음 (직접 호출)
+      if (!origin) return callback(null, true);
+
+      if (config.security.allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Not allowed by CORS'), false);
+    },
     credentials: true,
   });
 
-  // Rate Limiting
+  // Rate Limiting (엔드포인트별 차등)
   await app.register(import('@fastify/rate-limit'), {
-    max: 100,
+    max: config.rateLimitRefined.default,
     timeWindow: '1 minute',
     cache: 10000,
-    allowList: ['127.0.0.1'],
+    allowList: ['127.0.0.1', '::1'],
     addHeaders: {
       'x-ratelimit-limit': true,
       'x-ratelimit-remaining': true,
       'x-ratelimit-reset': true,
       'retry-after': true
+    },
+    keyGenerator: (request) => {
+      // estimate/create는 더 엄격한 제한
+      if (request.url.includes('/estimate/create')) {
+        return `estimate-create:${request.ip}`;
+      }
+      if (request.url.includes('/estimate/validate')) {
+        return `estimate-validate:${request.ip}`;
+      }
+      return `default:${request.ip}`;
+    },
+    max: (request) => {
+      if (request.url.includes('/estimate/create')) {
+        return config.rateLimitRefined.estimateCreate;
+      }
+      if (request.url.includes('/estimate/validate')) {
+        return config.rateLimitRefined.estimateValidate;
+      }
+      return config.rateLimitRefined.default;
     }
   });
 
@@ -83,6 +127,8 @@ export async function createApp() {
         { name: 'email', description: '이메일 관리' },
         { name: 'drawings', description: '도면 관리' },
         { name: 'settings', description: '설정 관리' },
+        { name: 'admin', description: '관리자 기능' },
+        { name: 'abstain', description: 'ABSTAIN 큐 관리' },
       ],
     },
   });
@@ -235,6 +281,8 @@ export async function createApp() {
       await fastify.register(emailRoutes);
       await fastify.register(drawingRoutes);
       await fastify.register(settingsRoutes);
+      await fastify.register(adminRoutes);
+      await fastify.register(adminKnowledgeRoutes);
     },
     { prefix: config.apiBasePath }
   );
@@ -261,13 +309,21 @@ export async function createApp() {
     console.log('🚀 Initializing KIS ERP Backend...');
 
     try {
-      // 치수표 초기화
-      console.log('📊 Loading size tables...');
+      // 치수표 초기화 (레거시)
+      console.log('📊 Loading legacy size tables...');
       initSizeTables();
+
+      // 새 지식 캐시 초기화
+      console.log('🧠 Loading knowledge cache...');
+      await loadActiveKnowledge(prisma);
 
       // 데이터베이스 연결 확인
       console.log('🔗 Testing database connection...');
       await prisma.$queryRaw`SELECT 1`;
+
+      // 멱등성 키 정리 작업 스케줄링
+      console.log('🧹 Starting idempotency key cleanup job...');
+      await scheduleIdempotencyCleanup(prisma);
 
       console.log('✅ KIS ERP Backend initialized successfully!');
     } catch (error) {

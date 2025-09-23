@@ -1,0 +1,23 @@
+{
+  "timestamp": "2025-09-24T00:27:38.339336",
+  "mode": "audit",
+  "root_path": ".",
+  "scanned_files": 9362,
+  "violations_count": 2,
+  "sanitized_count": 0,
+  "violations": [
+    {
+      "file": "deploy\\fastmcp\\payload_samples\\mock_scenarios_v1.json",
+      "path": "scenarios[0].response.evidence.rules_doc",
+      "value": "KIS_Enclosure_Rules.md#input-gates-and-brand-policy",
+      "type": "unauthorized_source"
+    },
+    {
+      "file": "deploy\\fastmcp\\payload_samples\\mock_scenarios_v1.json",
+      "path": "scenarios[1].response.evidence.rules_doc",
+      "value": "KIS_Enclosure_Rules.md#input-gates",
+      "type": "unauthorized_source"
+    }
+  ],
+  "status": "FAILED"
+}

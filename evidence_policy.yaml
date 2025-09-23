@@ -1,0 +1,102 @@
+# Evidence Policy Configuration
+# 원칙: "증거는 오직 대표의 지식만"
+# 외부 문서(카탈로그/데이터시트/블로그 등) 영구 차단
+
+version: 1.0.0
+created_at: 2025-01-23
+created_by: CEO_APPROVED
+
+# 허용된 증거 출처 (대표 승인 문서만)
+allowed_docs:
+  - "KIS_Enclosure_Rules.md"
+  - "KIS_Enclosure_Rules.md#input-gates-and-brand-policy"
+  - "KIS_Enclosure_Rules.md#input-gates"
+  - "KIS_Installation_Guide.md"
+  - "KIS_Brand_Policy.md"
+  - "KIS_Device_Specifications.md"
+  - "KIS_Safety_Standards.md"
+  - "KIS_Tax_Rules.md"
+  - "KIS_Margin_Policy.md"
+  - "CEO_Knowledge_Base.md"
+  - "Internal_Approved_Standards.md"
+
+# 허용된 경로 접두사
+allowed_prefixes:
+  - "KIS/Knowledge/"
+  - "KIS/Rules/"
+  - "KIS/Templates/"
+  - "evidence/approved/"
+  - "internal/ceo_approved/"
+
+# 금지된 패턴 (정규식)
+deny_patterns:
+  - ".*\\.pdf$"  # 외부 PDF 카탈로그
+  - ".*datasheet.*"  # 데이터시트
+  - ".*catalog.*"  # 카탈로그
+  - ".*manual.*"  # 외부 매뉴얼
+  - "https?://.*"  # 외부 URL
+  - ".*blog.*"  # 블로그
+  - ".*wikipedia.*"  # 위키피디아
+  - ".*vendor.*"  # 벤더 문서
+  - ".*competitor.*"  # 경쟁사 자료
+
+# 테이블 소스 허용 목록
+allowed_table_sources:
+  - "LS Metasol MCCB size table"  # CEO 승인 테이블
+  - "SANGDO MCCB dimensions"  # CEO 승인 테이블
+  - "KIS_Internal_Size_Matrix"  # 내부 승인 매트릭스
+  - "CEO_Approved_Specifications"  # 대표 승인 사양
+  - "KIS_Standard_Dimensions"  # KIS 표준 치수
+
+# 위반 시 동작
+actions:
+  on_violation: "fail"  # fail | sanitize | warn
+  on_audit_fail: "block_deployment"  # 배포 차단
+  sanitize_replacement: "CEO_APPROVED_SOURCE"  # 정화 시 대체 텍스트
+  
+# 감사 설정
+audit:
+  enabled: true
+  scan_patterns:
+    - "**/*.json"
+    - "**/*.jsonl"
+    - "**/*.yaml"
+    - "**/*.yml"
+  exclude_dirs:
+    - "node_modules/"
+    - ".git/"
+    - "dist/"
+    - "build/"
+  report_path: "audit_reports/"
+  
+# 게이트 통합
+gate_integration:
+  fix4_gate:
+    enabled: true
+    fail_on_violation: true
+    auto_sanitize: false
+  ci_pipeline:
+    enabled: true
+    stage: "pre-deploy"
+    mandatory: true
+
+# 메타데이터 요구사항
+metadata:
+  required_fields:
+    - "knowledge_source: CEO_APPROVED"
+    - "audit_status: PASSED"
+    - "evidence_integrity: VERIFIED"
+  evidence_bundle:
+    format: "ZIP"
+    must_include:
+      - "evidence_manifest.json"
+      - "audit_report.json"
+      - "source_verification.json"
+
+# 정화 규칙
+sanitization:
+  preserve_original: true  # 원본 보존
+  output_dir: "sanitized_out/"
+  suffix: "_SANITIZED"
+  log_changes: true
+  change_log_path: "sanitization_log.json"

@@ -1,0 +1,460 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kis-core.com/schemas/stock_snapshot.json",
+  "title": "Stock Snapshot Schema",
+  "description": "Inventory and stock management schema for Korean industrial context",
+  "type": "object",
+  "properties": {
+    "snapshot_id": {
+      "type": "string",
+      "pattern": "^STK-[0-9]{8}-[A-Z0-9]{6}$",
+      "description": "Unique stock snapshot identifier"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "snapshot_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when snapshot was taken"
+    },
+    "warehouse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^WH[0-9]{3}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "location": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["main", "consignment", "transit", "quarantine", "finished_goods", "raw_materials"]
+        }
+      },
+      "required": ["code", "name", "type"]
+    },
+    "items": {
+      "type": "array",
+      "description": "Stock items in this snapshot",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Stock Keeping Unit identifier"
+          },
+          "item_code": {
+            "type": "string",
+            "description": "Internal item code"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "object",
+            "properties": {
+              "primary": {
+                "type": "string",
+                "enum": ["raw_materials", "work_in_progress", "finished_goods", "consumables", "tools", "spare_parts"]
+              },
+              "secondary": {
+                "type": "string"
+              },
+              "korean_classification": {
+                "type": "string",
+                "description": "Korean Standard Industrial Classification"
+              }
+            },
+            "required": ["primary"]
+          },
+          "unit": {
+            "type": "string",
+            "enum": ["ea", "m", "m2", "m3", "kg", "g", "ton", "set", "lot", "roll", "sheet"]
+          },
+          "quantities": {
+            "type": "object",
+            "properties": {
+              "on_hand": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Physical quantity in stock"
+              },
+              "allocated": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Quantity allocated to orders"
+              },
+              "available": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Available quantity (on_hand - allocated)"
+              },
+              "in_transit": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Quantity in transit to warehouse"
+              },
+              "on_order": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Quantity on purchase orders"
+              },
+              "reserved": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Quantity reserved for special purposes"
+              }
+            },
+            "required": ["on_hand", "allocated", "available"]
+          },
+          "reorder_parameters": {
+            "type": "object",
+            "properties": {
+              "reorder_point": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Minimum stock level triggering reorder"
+              },
+              "reorder_quantity": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Standard reorder quantity (EOQ)"
+              },
+              "maximum_stock": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Maximum stock level"
+              },
+              "safety_stock": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Safety stock quantity"
+              },
+              "lead_time_days": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Supplier lead time in days"
+              },
+              "demand_variability": {
+                "type": "object",
+                "properties": {
+                  "average_monthly_demand": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "demand_std_deviation": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "seasonality_factor": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
+            },
+            "required": ["reorder_point", "lead_time_days", "safety_stock"]
+          },
+          "valuation": {
+            "type": "object",
+            "properties": {
+              "unit_cost": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Unit cost in KRW"
+              },
+              "total_value": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Total inventory value"
+              },
+              "valuation_method": {
+                "type": "string",
+                "enum": ["fifo", "lifo", "average_cost", "standard_cost"]
+              },
+              "last_updated": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": ["unit_cost", "total_value", "valuation_method"]
+          },
+          "location_details": {
+            "type": "object",
+            "properties": {
+              "zone": {
+                "type": "string",
+                "description": "Warehouse zone identifier"
+              },
+              "aisle": {
+                "type": "string"
+              },
+              "rack": {
+                "type": "string"
+              },
+              "shelf": {
+                "type": "string"
+              },
+              "bin": {
+                "type": "string"
+              },
+              "lot_numbers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "lot_number": {
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "expiry_date": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "manufacture_date": {
+                      "type": "string",
+                      "format": "date"
+                    }
+                  },
+                  "required": ["lot_number", "quantity"]
+                }
+              }
+            }
+          },
+          "quality_status": {
+            "type": "object",
+            "properties": {
+              "quality_grade": {
+                "type": "string",
+                "enum": ["A", "B", "C", "defective", "quarantine", "rework"]
+              },
+              "inspection_status": {
+                "type": "string",
+                "enum": ["pending", "passed", "failed", "conditional"]
+              },
+              "last_inspection_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "expiry_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "shelf_life_remaining": {
+                "type": "integer",
+                "description": "Remaining shelf life in days"
+              }
+            }
+          },
+          "supplier_info": {
+            "type": "object",
+            "properties": {
+              "primary_supplier": {
+                "type": "string"
+              },
+              "supplier_code": {
+                "type": "string"
+              },
+              "last_purchase_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "last_purchase_price": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "movement_history": {
+            "type": "object",
+            "properties": {
+              "last_movement_date": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "movement_type": {
+                "type": "string",
+                "enum": ["receipt", "issue", "transfer", "adjustment", "cycle_count"]
+              },
+              "avg_monthly_usage": {
+                "type": "number",
+                "minimum": 0
+              },
+              "turnover_rate": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Annual inventory turnover rate"
+              },
+              "days_on_hand": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Days of inventory on hand"
+              }
+            }
+          },
+          "alerts": {
+            "type": "object",
+            "properties": {
+              "stockout_risk": {
+                "type": "string",
+                "enum": ["none", "low", "medium", "high", "critical"]
+              },
+              "overstock_risk": {
+                "type": "string",
+                "enum": ["none", "low", "medium", "high"]
+              },
+              "slow_moving": {
+                "type": "boolean",
+                "description": "Item has low turnover rate"
+              },
+              "obsolete_risk": {
+                "type": "boolean",
+                "description": "Item at risk of obsolescence"
+              },
+              "expiry_warning": {
+                "type": "boolean",
+                "description": "Item approaching expiry date"
+              }
+            }
+          }
+        },
+        "required": ["sku", "description", "category", "unit", "quantities", "reorder_parameters", "valuation"]
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_items": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_value": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total inventory value in KRW"
+        },
+        "by_category": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "item_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "total_value": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "alerts_summary": {
+          "type": "object",
+          "properties": {
+            "stockout_alerts": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "overstock_alerts": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expiry_alerts": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "slow_moving_items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "required": ["total_items", "total_value"]
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "source_system": {
+          "type": "string",
+          "description": "Source inventory management system"
+        },
+        "extraction_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evidence_files": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Paths to PNG/SVG/CSV/JSON evidence files"
+          }
+        },
+        "cycle_count_reference": {
+          "type": "string",
+          "description": "Reference to physical count validation"
+        },
+        "data_quality_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": ["source_system", "extraction_timestamp"]
+    },
+    "audit_trail": {
+      "type": "object",
+      "properties": {
+        "created_by": {
+          "type": "string"
+        },
+        "created_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "last_modified_by": {
+          "type": "string"
+        },
+        "last_modified_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "work_id": {
+          "type": "string"
+        },
+        "input_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "output_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": ["created_by", "created_timestamp", "work_id"]
+    }
+  },
+  "required": [
+    "snapshot_id",
+    "version",
+    "snapshot_date",
+    "warehouse",
+    "items",
+    "summary",
+    "evidence",
+    "audit_trail"
+  ]
+}

@@ -1,0 +1,455 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kis-core.com/schemas/erp_view_request.json",
+  "title": "ERP View Request Schema",
+  "description": "Request schema for ERP data queries and analysis",
+  "type": "object",
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "pattern": "^REQ-[0-9]{8}-[A-Z0-9]{6}$",
+      "description": "Unique request identifier"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "request_type": {
+      "type": "string",
+      "enum": ["ledger_query", "invoice_analysis", "stock_report", "kpi_calculation", "custom_query"],
+      "description": "Type of ERP data request"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "normal", "high", "urgent"],
+      "default": "normal"
+    },
+    "requester": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "department": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["executive", "manager", "analyst", "accountant", "administrator"]
+        },
+        "access_level": {
+          "type": "string",
+          "enum": ["view_only", "standard", "advanced", "full_access"]
+        }
+      },
+      "required": ["user_id", "name", "role"]
+    },
+    "query_parameters": {
+      "type": "object",
+      "properties": {
+        "date_range": {
+          "type": "object",
+          "properties": {
+            "start_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "end_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "period_type": {
+              "type": "string",
+              "enum": ["daily", "weekly", "monthly", "quarterly", "yearly", "custom"]
+            },
+            "fiscal_year": {
+              "type": "integer",
+              "minimum": 2000,
+              "maximum": 2100
+            }
+          },
+          "required": ["start_date", "end_date"]
+        },
+        "filters": {
+          "type": "object",
+          "properties": {
+            "account_codes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[0-9]{4,8}$"
+              },
+              "description": "Specific account codes to filter"
+            },
+            "cost_centers": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^CC[0-9]{4}$"
+              }
+            },
+            "project_codes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Z0-9]{3,10}$"
+              }
+            },
+            "counterparties": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Business registration numbers or names"
+              }
+            },
+            "transaction_types": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["sales", "purchases", "payments", "receipts", "adjustments", "transfers"]
+              }
+            },
+            "amount_range": {
+              "type": "object",
+              "properties": {
+                "min_amount": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "max_amount": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "currency": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$",
+                  "default": "KRW"
+                }
+              }
+            },
+            "document_types": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["invoice", "receipt", "voucher", "journal", "payment", "contract"]
+              }
+            },
+            "tax_codes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["10", "0", "EXEMPT", "ZERO_RATED"]
+              }
+            },
+            "approval_status": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["draft", "pending", "approved", "rejected"]
+              }
+            }
+          }
+        },
+        "grouping": {
+          "type": "object",
+          "properties": {
+            "group_by": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["account", "month", "quarter", "year", "cost_center", "project", "counterparty", "document_type"]
+              }
+            },
+            "sort_by": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "enum": ["date", "amount", "account", "counterparty"]
+                },
+                "direction": {
+                  "type": "string",
+                  "enum": ["asc", "desc"]
+                }
+              },
+              "required": ["field", "direction"]
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000,
+              "description": "Maximum number of records to return"
+            }
+          }
+        },
+        "aggregations": {
+          "type": "object",
+          "properties": {
+            "calculate_totals": {
+              "type": "boolean",
+              "default": true
+            },
+            "calculate_averages": {
+              "type": "boolean",
+              "default": false
+            },
+            "calculate_variances": {
+              "type": "boolean",
+              "default": false
+            },
+            "period_comparisons": {
+              "type": "boolean",
+              "default": false,
+              "description": "Compare with previous periods"
+            },
+            "budget_comparisons": {
+              "type": "boolean",
+              "default": false,
+              "description": "Compare with budget figures"
+            }
+          }
+        }
+      },
+      "required": ["date_range"]
+    },
+    "output_preferences": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "type": "string",
+          "enum": ["json", "csv", "excel", "pdf"],
+          "default": "json"
+        },
+        "include_evidence": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include evidence files and links"
+        },
+        "executive_summary": {
+          "type": "boolean",
+          "default": false,
+          "description": "Generate 5-line executive summary"
+        },
+        "detailed_analysis": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include detailed analytical insights"
+        },
+        "visualization_charts": {
+          "type": "boolean",
+          "default": false,
+          "description": "Generate charts and graphs"
+        },
+        "risk_assessment": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include risk flags and assessments"
+        },
+        "next_actions": {
+          "type": "boolean",
+          "default": false,
+          "description": "Suggest next 3 actions"
+        },
+        "language": {
+          "type": "string",
+          "enum": ["ko", "en"],
+          "default": "ko",
+          "description": "Output language preference"
+        }
+      }
+    },
+    "kpi_calculations": {
+      "type": "object",
+      "description": "Specific KPI calculations requested",
+      "properties": {
+        "include_dso": {
+          "type": "boolean",
+          "default": false
+        },
+        "include_dpo": {
+          "type": "boolean",
+          "default": false
+        },
+        "include_inventory_days": {
+          "type": "boolean",
+          "default": false
+        },
+        "include_ccc": {
+          "type": "boolean",
+          "default": false
+        },
+        "include_liquidity_ratios": {
+          "type": "boolean",
+          "default": false
+        },
+        "include_profitability_ratios": {
+          "type": "boolean",
+          "default": false
+        },
+        "include_efficiency_ratios": {
+          "type": "boolean",
+          "default": false
+        },
+        "benchmark_comparison": {
+          "type": "boolean",
+          "default": false,
+          "description": "Compare with industry benchmarks"
+        },
+        "trend_analysis": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include trend analysis over time"
+        }
+      }
+    },
+    "custom_sql": {
+      "type": "object",
+      "description": "For advanced users with custom query needs",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "query": {
+          "type": "string",
+          "description": "Custom SQL query (read-only operations only)"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Parameters for parameterized queries"
+        },
+        "validation_required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require admin validation for custom queries"
+        }
+      }
+    },
+    "security_context": {
+      "type": "object",
+      "properties": {
+        "data_classification": {
+          "type": "string",
+          "enum": ["public", "internal", "confidential", "restricted"]
+        },
+        "access_restrictions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Data access restrictions based on role"
+          }
+        },
+        "audit_requirements": {
+          "type": "boolean",
+          "default": true,
+          "description": "Log this request for audit purposes"
+        },
+        "retention_period": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2555,
+          "description": "Data retention period in days"
+        }
+      }
+    },
+    "performance_hints": {
+      "type": "object",
+      "properties": {
+        "max_execution_time": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 300,
+          "description": "Maximum execution time in seconds"
+        },
+        "cache_results": {
+          "type": "boolean",
+          "default": true,
+          "description": "Cache results for repeated queries"
+        },
+        "parallel_processing": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use parallel processing for large datasets"
+        },
+        "estimated_data_size": {
+          "type": "string",
+          "enum": ["small", "medium", "large", "very_large"],
+          "description": "Expected size of result set"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "request_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "client_info": {
+          "type": "object",
+          "properties": {
+            "application": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "ip_address": {
+              "type": "string",
+              "format": "ipv4"
+            }
+          }
+        },
+        "correlation_id": {
+          "type": "string",
+          "description": "For tracking related requests"
+        },
+        "parent_request_id": {
+          "type": "string",
+          "pattern": "^REQ-[0-9]{8}-[A-Z0-9]{6}$",
+          "description": "Parent request if this is a sub-request"
+        },
+        "business_context": {
+          "type": "string",
+          "description": "Business reason for this request"
+        }
+      },
+      "required": ["request_timestamp"]
+    },
+    "audit_trail": {
+      "type": "object",
+      "properties": {
+        "created_by": {
+          "type": "string"
+        },
+        "created_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "work_id": {
+          "type": "string"
+        },
+        "input_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": ["created_by", "created_timestamp", "work_id"]
+    }
+  },
+  "required": [
+    "request_id",
+    "version",
+    "request_type",
+    "requester",
+    "query_parameters",
+    "metadata",
+    "audit_trail"
+  ]
+}

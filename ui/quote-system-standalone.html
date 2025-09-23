@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIS 견적 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+            background: white;
+            overflow: hidden;
+        }
+
+        :root {
+            --color-brand: #10a37f;
+            --color-brand-strong: #0E8F71;
+        }
+
+        .quote-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tab-container {
+            background: white;
+            border-bottom: 1px solid #e1dfdd;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            height: 50px;
+        }
+
+        .tab {
+            padding: 10px 16px;
+            border: 1px solid #d1d1d1;
+            border-bottom: none;
+            background: #f9f9f9;
+            cursor: pointer;
+            margin-right: 2px;
+            display: flex;
+            align-items: center;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            background: white;
+            border-color: var(--color-brand);
+            color: var(--color-brand);
+        }
+
+        .tab:hover:not(.active) {
+            background: #f0f0f0;
+        }
+
+        .tab-close {
+            margin-left: 8px;
+            cursor: pointer;
+            color: #999;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .tab-close:hover {
+            background: #e1dfdd;
+            color: #666;
+        }
+
+        .new-tab {
+            padding: 6px 10px;
+            background: var(--color-brand);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            box-shadow: 0 2px 6px rgba(16, 163, 127, 0.25);
+            transition: all 0.2s ease;
+            font-size: 13px;
+        }
+
+        .new-tab:hover {
+            background: var(--color-brand-strong);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(16, 163, 127, 0.35);
+        }
+
+        .content-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+        }
+
+        .left-panel {
+            width: 500px;
+            min-width: 500px;
+            max-width: 500px;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #e1dfdd;
+            flex-shrink: 0;
+        }
+
+        .right-panel {
+            flex: 1;
+            min-width: 0;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .right-panel-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-height: 400px;
+        }
+
+        .center-generate-button {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-brand) 0%, #0E8F71 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: 700;
+            box-shadow:
+                0 8px 32px rgba(16, 163, 127, 0.4),
+                inset 0 2px 8px rgba(255, 255, 255, 0.2),
+                inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-glow 3s ease-in-out infinite;
+            margin-left: -100px;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow:
+                    0 8px 32px rgba(16, 163, 127, 0.4),
+                    inset 0 2px 8px rgba(255, 255, 255, 0.2),
+                    inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+            }
+            50% {
+                transform: scale(1.02);
+                box-shadow:
+                    0 12px 40px rgba(16, 163, 127, 0.5),
+                    inset 0 2px 8px rgba(255, 255, 255, 0.25),
+                    inset 0 -2px 8px rgba(0, 0, 0, 0.15);
+            }
+        }
+
+        .center-generate-button:hover {
+            transform: scale(1.05);
+            box-shadow:
+                0 12px 40px rgba(16, 163, 127, 0.6),
+                inset 0 3px 12px rgba(255, 255, 255, 0.3),
+                inset 0 -3px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .section {
+            margin-bottom: 20px;
+            border: 1px solid #e1dfdd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .section-header {
+            background: #f9f9f9;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e1dfdd;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-content {
+            padding: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            color: #605e5c;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .form-input, .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d1d1d1;
+            border-radius: 2px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-brand);
+        }
+
+        .grid-2x2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .header-toggle {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 20px;
+            padding: 2px;
+            border: 1px solid #d1d1d1;
+        }
+
+        .header-toggle-option {
+            padding: 4px 12px;
+            border-radius: 18px;
+            background: transparent;
+            color: #666;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .header-toggle-option.active {
+            background: var(--color-brand);
+            color: white;
+        }
+
+        .oval-toggle-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .oval-toggle-container.vertical {
+            flex-direction: column;
+            gap: 6px;
+            width: 100px;
+        }
+
+        .oval-toggle {
+            padding: 8px 16px;
+            border: 2px solid #d1d1d1;
+            border-radius: 25px;
+            background: white;
+            color: #666;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .oval-toggle.active {
+            background: var(--color-brand);
+            border-color: var(--color-brand);
+            color: white;
+        }
+
+        .oval-toggle.elb.active {
+            background: #d13438;
+            border-color: #d13438;
+            color: white;
+        }
+
+        .breaker-settings-btn {
+            padding: 8px 16px;
+            background: var(--color-brand);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(16, 163, 127, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .breaker-settings-btn:hover {
+            background: var(--color-brand-strong);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 163, 127, 0.4);
+        }
+
+        .main-breaker-layout {
+            display: flex;
+            gap: 20px;
+            align-items: start;
+            position: relative;
+        }
+
+        .generate-estimate-section {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e1dfdd;
+            background: #f9f9f9;
+        }
+
+        .generate-estimate-btn {
+            padding: 12px 32px;
+            font-size: 15px;
+            font-weight: 600;
+            background: var(--color-brand);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(16, 163, 127, 0.3);
+        }
+
+        .generate-estimate-btn:hover {
+            background: var(--color-brand-strong);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(16, 163, 127, 0.4);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d1d1d1;
+            border-radius: 2px;
+            background: white;
+            color: #323130;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--color-brand);
+            color: white;
+            border-color: var(--color-brand);
+            box-shadow: 0 2px 6px rgba(16, 163, 127, 0.25);
+            transition: all 0.2s ease;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-brand-strong);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(16, 163, 127, 0.35);
+        }
+
+        .branch-list, .accessories-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e1dfdd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .branch-item, .accessories-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f3f2f1;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .branch-list-empty, .accessories-list-empty {
+            padding: 20px;
+            text-align: center;
+            color: #999;
+            font-style: italic;
+        }
+
+        .estimate-table {
+            border: 1px solid #e1dfdd;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1dfdd;
+        }
+
+        th {
+            background: #f9f9f9;
+            font-weight: 600;
+            font-size: 14px;
+            color: #323130;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="quote-container">
+        <div class="main-content">
+            <!-- 탭 컨테이너 -->
+            <div class="tab-container">
+                <div class="tab active" onclick="switchTab(1)">
+                    견적서 1
+                    <span class="tab-close" onclick="event.stopPropagation(); closeTab(1)">×</span>
+                </div>
+                <button class="new-tab" onclick="addNewTab()">+ 새 탭</button>
+            </div>
+
+            <!-- 콘텐츠 컨테이너 -->
+            <div class="content-container">
+                <!-- 좌측 패널 -->
+                <div class="left-panel">
+                    <!-- 고객정보 섹션 -->
+                    <div class="section">
+                        <div class="section-header">
+                            <span>고객정보</span>
+                        </div>
+                        <div class="section-content">
+                            <div class="grid-2x2">
+                                <div class="form-row">
+                                    <label class="form-label">업체명</label>
+                                    <input type="text" class="form-input" id="company" placeholder="업체명을 입력하세요">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">연락처</label>
+                                    <input type="text" class="form-input" id="contact" placeholder="연락처를 입력하세요">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">이메일</label>
+                                    <input type="email" class="form-input" id="email" placeholder="이메일을 입력하세요">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">주소</label>
+                                    <input type="text" class="form-input" id="address" placeholder="주소를 입력하세요">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 외함정보 섹션 -->
+                    <div class="section">
+                        <div class="section-header">
+                            <span>외함정보</span>
+                            <div class="header-toggle">
+                                <button class="header-toggle-option active" onclick="toggleEnclosureType(this, '옥내')">옥내</button>
+                                <button class="header-toggle-option" onclick="toggleEnclosureType(this, '옥외')">옥외</button>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="grid-2x2">
+                                <div class="form-row">
+                                    <label class="form-label">함체타입</label>
+                                    <select class="form-select" id="boxType">
+                                        <option value="">선택하세요</option>
+                                        <option value="기성함">기성함</option>
+                                        <option value="제작함">제작함</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">재질</label>
+                                    <select class="form-select" id="material">
+                                        <option value="">선택하세요</option>
+                                        <option value="STEEL 1.6T">STEEL 1.6T</option>
+                                        <option value="STEEL 2.0T">STEEL 2.0T</option>
+                                        <option value="STS 1.5T">STS 1.5T</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label">특이사항</label>
+                                <input type="text" class="form-input" id="request" placeholder="특이사항을 입력하세요">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 메인 차단기 섹션 -->
+                    <div class="section">
+                        <div class="section-header">
+                            <span>메인 차단기</span>
+                            <button class="breaker-settings-btn" onclick="openBreakerSettings()">차단기 설정</button>
+                        </div>
+                        <div class="section-content">
+                            <div class="main-breaker-layout">
+                                <div class="oval-toggle-container vertical">
+                                    <button class="oval-toggle active" onclick="toggleBreakerType(this, 'MCCB')">MCCB</button>
+                                    <button class="oval-toggle elb" onclick="toggleBreakerType(this, 'ELB')">ELB</button>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div class="grid-2x2">
+                                        <div class="form-row">
+                                            <label class="form-label">극수</label>
+                                            <select class="form-select" id="mainPoles">
+                                                <option value="">선택</option>
+                                                <option value="2P">2P</option>
+                                                <option value="3P">3P</option>
+                                                <option value="4P">4P</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-row">
+                                            <label class="form-label">용량</label>
+                                            <select class="form-select" id="mainCapacity">
+                                                <option value="">선택</option>
+                                                <option value="100A">100A</option>
+                                                <option value="125A">125A</option>
+                                                <option value="150A">150A</option>
+                                                <option value="175A">175A</option>
+                                                <option value="200A">200A</option>
+                                                <option value="225A">225A</option>
+                                                <option value="250A">250A</option>
+                                                <option value="300A">300A</option>
+                                                <option value="350A">350A</option>
+                                                <option value="400A">400A</option>
+                                                <option value="500A">500A</option>
+                                                <option value="600A">600A</option>
+                                                <option value="700A">700A</option>
+                                                <option value="800A">800A</option>
+                                                <option value="1000A">1000A</option>
+                                                <option value="1200A">1200A</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 분기 차단기 섹션 -->
+                    <div class="section">
+                        <div class="section-header">
+                            <span>분기 차단기</span>
+                        </div>
+                        <div class="section-content">
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <div style="width: 60px;">
+                                    <label class="form-label">종류</label>
+                                    <select class="form-select" id="branchType" style="width: 60px; font-size: 12px; padding: 6px 4px;">
+                                        <option value="">선택</option>
+                                        <option value="MCCB">MCCB</option>
+                                        <option value="ELB">ELB</option>
+                                    </select>
+                                </div>
+                                <div style="width: 60px;">
+                                    <label class="form-label">극수</label>
+                                    <select class="form-select" id="branchPoles" style="width: 60px; font-size: 12px; padding: 6px 4px;">
+                                        <option value="">선택</option>
+                                        <option value="2P">2P</option>
+                                        <option value="3P">3P</option>
+                                        <option value="4P">4P</option>
+                                    </select>
+                                </div>
+                                <div style="width: 60px;">
+                                    <label class="form-label">용량</label>
+                                    <select class="form-select" id="branchCapacity" style="width: 60px; font-size: 12px; padding: 6px 4px;">
+                                        <option value="">선택</option>
+                                        <option value="15A">15A</option>
+                                        <option value="20A">20A</option>
+                                        <option value="30A">30A</option>
+                                        <option value="40A">40A</option>
+                                        <option value="50A">50A</option>
+                                        <option value="60A">60A</option>
+                                        <option value="75A">75A</option>
+                                        <option value="100A">100A</option>
+                                    </select>
+                                </div>
+                                <div style="width: 50px;">
+                                    <label class="form-label">수량</label>
+                                    <input type="number" class="form-input" id="branchQuantity" value="1" min="1" max="10"
+                                           style="width: 50px; font-size: 12px; padding: 6px 4px; text-align: center;">
+                                </div>
+                                <div style="width: 55px;">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button class="btn btn-primary" onclick="addBranchBreaker()"
+                                            style="width: 55px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 11px;">
+                                        확인
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="branch-list" id="branchList">
+                                <div class="branch-list-empty">추가된 분기 차단기가 없습니다</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 견적 생성 버튼 -->
+                    <div class="generate-estimate-section">
+                        <button class="generate-estimate-btn" onclick="generateEstimate()">견적 생성</button>
+                    </div>
+                </div>
+
+                <!-- 우측 패널 -->
+                <div class="right-panel">
+                    <div id="emptyState" class="right-panel-empty">
+                        <button class="center-generate-button" onclick="generateEstimate()">
+                            <div style="font-size: 24px; font-weight: 700;">견적 생성</div>
+                        </button>
+                        <p style="margin-top: 24px; margin-left: -100px; color: #666; text-align: center; font-size: 14px;">
+                            좌측에서 필요한 정보를 입력한 후<br>
+                            견적 생성 버튼을 클릭하세요
+                        </p>
+                    </div>
+
+                    <div id="estimateView" class="hidden">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #f9f9f9; border-radius: 4px; margin-bottom: 15px;">
+                            <div style="font-size: 16px; font-weight: 600;">견적서</div>
+                            <div style="font-size: 16px; font-weight: 600; color: var(--color-brand);">총액: <span id="totalAmount">0</span>원</div>
+                        </div>
+
+                        <div class="estimate-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>항목</th>
+                                        <th class="text-center">수량</th>
+                                        <th class="text-right">단가</th>
+                                        <th class="text-right">금액</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="estimateTableBody">
+                                    <!-- 동적으로 생성됨 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button class="btn">PDF 다운로드</button>
+                            <button class="btn">Excel 다운로드</button>
+                            <button class="btn btn-primary">견적서 전송</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 전역 상태 관리
+        let currentTabId = 1;
+        let nextTabId = 2;
+        let tabs = [{
+            id: 1,
+            title: '견적서 1',
+            data: {
+                customer: {},
+                enclosure: { type: '옥내' },
+                mainBreaker: { type: 'MCCB' },
+                branchBreakers: [],
+                accessories: []
+            }
+        }];
+
+        // 외함 타입 토글
+        function toggleEnclosureType(btn, type) {
+            document.querySelectorAll('.header-toggle-option').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            tabs.find(t => t.id === currentTabId).data.enclosure.type = type;
+        }
+
+        // 메인 차단기 타입 토글
+        function toggleBreakerType(btn, type) {
+            const container = btn.parentElement;
+            container.querySelectorAll('.oval-toggle').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (type === 'ELB') {
+                btn.classList.add('elb');
+            }
+            tabs.find(t => t.id === currentTabId).data.mainBreaker.type = type;
+        }
+
+        // 분기 차단기 추가
+        function addBranchBreaker() {
+            const type = document.getElementById('branchType').value;
+            const poles = document.getElementById('branchPoles').value;
+            const capacity = document.getElementById('branchCapacity').value;
+            const quantity = parseInt(document.getElementById('branchQuantity').value);
+
+            if (!type || !poles || !capacity) {
+                alert('모든 항목을 선택해주세요.');
+                return;
+            }
+
+            const currentTab = tabs.find(t => t.id === currentTabId);
+            currentTab.data.branchBreakers.push({ type, poles, capacity, quantity });
+
+            updateBranchList();
+
+            // 입력 초기화
+            document.getElementById('branchType').value = '';
+            document.getElementById('branchPoles').value = '';
+            document.getElementById('branchCapacity').value = '';
+            document.getElementById('branchQuantity').value = '1';
+        }
+
+        // 분기 차단기 목록 업데이트
+        function updateBranchList() {
+            const list = document.getElementById('branchList');
+            const currentTab = tabs.find(t => t.id === currentTabId);
+            const breakers = currentTab.data.branchBreakers;
+
+            if (breakers.length === 0) {
+                list.innerHTML = '<div class="branch-list-empty">추가된 분기 차단기가 없습니다</div>';
+            } else {
+                list.innerHTML = breakers.map((item, index) => `
+                    <div class="branch-item">
+                        <span>${item.type} ${item.poles} ${item.capacity} (수량: ${item.quantity})</span>
+                        <button class="btn" style="padding: 4px 8px; font-size: 12px;" onclick="removeBranchBreaker(${index})">삭제</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 분기 차단기 삭제
+        function removeBranchBreaker(index) {
+            const currentTab = tabs.find(t => t.id === currentTabId);
+            currentTab.data.branchBreakers.splice(index, 1);
+            updateBranchList();
+        }
+
+        // 견적 생성
+        function generateEstimate() {
+            const currentTab = tabs.find(t => t.id === currentTabId);
+
+            // 고객 정보 저장
+            currentTab.data.customer = {
+                company: document.getElementById('company').value || '미입력',
+                contact: document.getElementById('contact').value || '미입력',
+                email: document.getElementById('email').value || '미입력',
+                address: document.getElementById('address').value || '미입력'
+            };
+
+            // 외함 정보 저장
+            currentTab.data.enclosure.boxType = document.getElementById('boxType').value || '기성함';
+            currentTab.data.enclosure.material = document.getElementById('material').value || 'STEEL 1.6T';
+
+            // 메인 차단기 정보 저장
+            currentTab.data.mainBreaker.poles = document.getElementById('mainPoles').value || '4P';
+            currentTab.data.mainBreaker.capacity = document.getElementById('mainCapacity').value || '200A';
+
+            // 견적 테이블 생성
+            let tableHTML = '';
+            let total = 0;
+
+            // 외함
+            tableHTML += `
+                <tr>
+                    <td>외함 (${currentTab.data.enclosure.boxType} - ${currentTab.data.enclosure.material})</td>
+                    <td class="text-center">1</td>
+                    <td class="text-right">850,000</td>
+                    <td class="text-right">850,000</td>
+                </tr>
+            `;
+            total += 850000;
+
+            // 메인 차단기
+            tableHTML += `
+                <tr>
+                    <td>메인차단기 (${currentTab.data.mainBreaker.type} ${currentTab.data.mainBreaker.poles} ${currentTab.data.mainBreaker.capacity})</td>
+                    <td class="text-center">1</td>
+                    <td class="text-right">450,000</td>
+                    <td class="text-right">450,000</td>
+                </tr>
+            `;
+            total += 450000;
+
+            // 분기 차단기
+            currentTab.data.branchBreakers.forEach(item => {
+                const price = 75000 * item.quantity;
+                tableHTML += `
+                    <tr>
+                        <td>분기차단기 (${item.type} ${item.poles} ${item.capacity})</td>
+                        <td class="text-center">${item.quantity}</td>
+                        <td class="text-right">75,000</td>
+                        <td class="text-right">${price.toLocaleString()}</td>
+                    </tr>
+                `;
+                total += price;
+            });
+
+            // 테이블 업데이트
+            document.getElementById('estimateTableBody').innerHTML = tableHTML;
+            document.getElementById('totalAmount').textContent = total.toLocaleString();
+
+            // 뷰 전환
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('estimateView').classList.remove('hidden');
+        }
+
+        // 탭 추가
+        function addNewTab() {
+            const newTab = {
+                id: nextTabId,
+                title: `견적서 ${nextTabId}`,
+                data: {
+                    customer: {},
+                    enclosure: { type: '옥내' },
+                    mainBreaker: { type: 'MCCB' },
+                    branchBreakers: [],
+                    accessories: []
+                }
+            };
+
+            tabs.push(newTab);
+            nextTabId++;
+
+            renderTabs();
+            switchTab(newTab.id);
+        }
+
+        // 탭 전환
+        function switchTab(tabId) {
+            // 현재 데이터 저장
+            saveCurrentTabData();
+
+            currentTabId = tabId;
+
+            // 탭 활성화 표시
+            renderTabs();
+
+            // 새 탭 데이터 로드
+            loadTabData(tabId);
+        }
+
+        // 탭 닫기
+        function closeTab(tabId) {
+            if (tabs.length === 1) return;
+
+            tabs = tabs.filter(t => t.id !== tabId);
+
+            if (tabId === currentTabId) {
+                switchTab(tabs[0].id);
+            }
+
+            renderTabs();
+        }
+
+        // 탭 렌더링
+        function renderTabs() {
+            const container = document.querySelector('.tab-container');
+            container.innerHTML = tabs.map(tab => `
+                <div class="tab ${tab.id === currentTabId ? 'active' : ''}" onclick="switchTab(${tab.id})">
+                    ${tab.title}
+                    ${tabs.length > 1 ? `<span class="tab-close" onclick="event.stopPropagation(); closeTab(${tab.id})">×</span>` : ''}
+                </div>
+            `).join('') + '<button class="new-tab" onclick="addNewTab()">+ 새 탭</button>';
+        }
+
+        // 현재 탭 데이터 저장
+        function saveCurrentTabData() {
+            const currentTab = tabs.find(t => t.id === currentTabId);
+            if (!currentTab) return;
+
+            currentTab.data.customer = {
+                company: document.getElementById('company').value,
+                contact: document.getElementById('contact').value,
+                email: document.getElementById('email').value,
+                address: document.getElementById('address').value
+            };
+
+            currentTab.data.enclosure.boxType = document.getElementById('boxType').value;
+            currentTab.data.enclosure.material = document.getElementById('material').value;
+            currentTab.data.enclosure.request = document.getElementById('request').value;
+
+            currentTab.data.mainBreaker.poles = document.getElementById('mainPoles').value;
+            currentTab.data.mainBreaker.capacity = document.getElementById('mainCapacity').value;
+        }
+
+        // 탭 데이터 로드
+        function loadTabData(tabId) {
+            const tab = tabs.find(t => t.id === tabId);
+            if (!tab) return;
+
+            // 고객 정보
+            document.getElementById('company').value = tab.data.customer.company || '';
+            document.getElementById('contact').value = tab.data.customer.contact || '';
+            document.getElementById('email').value = tab.data.customer.email || '';
+            document.getElementById('address').value = tab.data.customer.address || '';
+
+            // 외함 정보
+            document.getElementById('boxType').value = tab.data.enclosure.boxType || '';
+            document.getElementById('material').value = tab.data.enclosure.material || '';
+            document.getElementById('request').value = tab.data.enclosure.request || '';
+
+            // 메인 차단기
+            document.getElementById('mainPoles').value = tab.data.mainBreaker.poles || '';
+            document.getElementById('mainCapacity').value = tab.data.mainBreaker.capacity || '';
+
+            // 분기 차단기 목록
+            updateBranchList();
+
+            // 견적 뷰 초기화
+            document.getElementById('emptyState').classList.remove('hidden');
+            document.getElementById('estimateView').classList.add('hidden');
+        }
+
+        // 차단기 설정 팝업
+        function openBreakerSettings() {
+            alert('차단기 설정 기능은 준비 중입니다.');
+        }
+    </script>
+</body>
+</html>

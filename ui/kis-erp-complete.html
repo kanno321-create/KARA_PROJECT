@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIS ERP System - 한국산업소프트웨어</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', 'Noto Sans KR', -apple-system, system-ui, sans-serif;
+            background: #f7f7f8;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        :root {
+            --color-brand: #10a37f;
+            --color-brand-strong: #0e8f71;
+            --color-surface: #ffffff;
+            --color-border: #e5e7eb;
+            --color-text: #1f2328;
+            --color-text-subtle: #6b7280;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            background: #f7f7f8;
+        }
+
+        /* 사이드바 */
+        .sidebar {
+            width: 240px;
+            background: white;
+            border-right: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 60px;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--color-brand);
+        }
+
+        .sidebar.collapsed .logo {
+            display: none;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--color-text);
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .menu-item {
+            margin-bottom: 4px;
+        }
+
+        .menu-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: none;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--color-text);
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .menu-button:hover {
+            background: #f0f0f0;
+        }
+
+        .menu-button.active {
+            background: #e8f5f1;
+            color: var(--color-brand);
+        }
+
+        .menu-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .sidebar.collapsed .menu-text {
+            display: none;
+        }
+
+        .menu-text {
+            flex: 1;
+        }
+
+        .menu-arrow {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s;
+        }
+
+        .menu-arrow.expanded {
+            transform: rotate(90deg);
+        }
+
+        .submenu {
+            padding-left: 32px;
+            display: none;
+        }
+
+        .submenu.open {
+            display: block;
+        }
+
+        .submenu-item {
+            padding: 8px 12px;
+            font-size: 13px;
+            color: var(--color-text-subtle);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .submenu-item:hover {
+            background: #f0f0f0;
+            color: var(--color-text);
+        }
+
+        /* 메인 콘텐츠 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 상단 헤더 */
+        .top-header {
+            background: white;
+            border-bottom: 1px solid var(--color-border);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f5f5f5;
+            border-radius: 20px;
+            padding: 8px 16px;
+            width: 300px;
+        }
+
+        .search-input {
+            background: none;
+            border: none;
+            outline: none;
+            flex: 1;
+            margin-left: 8px;
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            color: var(--color-text);
+            position: relative;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+        }
+
+        /* 퀵 액세스 탭 */
+        .quick-access-tabs {
+            background: white;
+            padding: 12px 20px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .quick-tab {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .quick-tab:hover {
+            background: #f9f9f9;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .quick-tab.active {
+            background: var(--color-brand);
+            color: white;
+            border-color: var(--color-brand);
+        }
+
+        .quick-tab-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+        }
+
+        /* 콘텐츠 영역 */
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* 대시보드 그리드 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        /* 차트 영역 */
+        .chart-container {
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f9f9f9;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+
+        .pie-chart {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--color-brand) 0deg 216deg,
+                #ef4444 216deg 360deg
+            );
+            position: relative;
+        }
+
+        .pie-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 150px;
+            padding: 10px;
+        }
+
+        .bar {
+            width: 30px;
+            background: var(--color-brand);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+        }
+
+        .bar:nth-child(even) {
+            background: #ef4444;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        /* 테이블 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: #f9f9f9;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .data-table td {
+            padding: 12px;
+            font-size: 13px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        /* 통계 카드 */
+        .stat-card {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--color-text-subtle);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-text);
+        }
+
+        /* AI 채팅 버튼 */
+        .ai-chat-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            background: var(--color-brand);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(16, 163, 127, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.2s;
+            z-index: 1000;
+        }
+
+        .ai-chat-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(16, 163, 127, 0.5);
+        }
+
+        /* AI 채팅 팝업 */
+        .ai-chat-popup {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 380px;
+            height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 999;
+        }
+
+        .ai-chat-popup.open {
+            display: flex;
+        }
+
+        .ai-chat-header {
+            background: var(--color-brand);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-chat-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .ai-chat-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .ai-chat-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .ai-message {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .ai-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-brand);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .ai-bubble {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            max-width: 80%;
+        }
+
+        .user-message {
+            flex-direction: row-reverse;
+        }
+
+        .user-message .ai-bubble {
+            background: var(--color-brand);
+            color: white;
+        }
+
+        .user-message .ai-avatar {
+            background: #6b7280;
+        }
+
+        .ai-chat-input {
+            padding: 16px;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            gap: 8px;
+        }
+
+        .ai-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .ai-send {
+            background: var(--color-brand);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 견적 시스템 (탭 콘텐츠) */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .quote-system {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+
+        .quote-left {
+            width: 500px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .quote-right {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+        }
+
+        .form-header {
+            background: #f9f9f9;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--color-border);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-content {
+            padding: 16px;
+        }
+
+        .form-row {
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            color: var(--color-text-subtle);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--color-brand);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-brand-strong);
+        }
+
+        .generate-button {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-brand), var(--color-brand-strong));
+            color: white;
+            border: none;
+            font-size: 24px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(16,163,127,0.4);
+            transition: all 0.3s;
+            margin-left: -100px;
+        }
+
+        .generate-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 40px rgba(16,163,127,0.6);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 사이드바 -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">KIS ERP</div>
+                <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item">
+                    <button class="menu-button active" onclick="showDashboard()">
+                        <span class="menu-icon">🏠</span>
+                        <span class="menu-text">대시보드</span>
+                    </button>
+                </div>
+                <div class="menu-item">
+                    <button class="menu-button" onclick="toggleSubmenu(this)">
+                        <span class="menu-icon">📝</span>
+                        <span class="menu-text">전표작성</span>
+                        <span class="menu-arrow">▶</span>
+                    </button>
+                    <div class="submenu">
+                        <div class="submenu-item">매출전표</div>
+                        <div class="submenu-item">매입전표</div>
+                        <div class="submenu-item">지급전표</div>
+                        <div class="submenu-item">수금전표</div>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <button class="menu-button" onclick="toggleSubmenu(this)">
+                        <span class="menu-icon">📊</span>
+                        <span class="menu-text">보고서</span>
+                        <span class="menu-arrow">▶</span>
+                    </button>
+                    <div class="submenu">
+                        <div class="submenu-item">일계표</div>
+                        <div class="submenu-item">월계표</div>
+                        <div class="submenu-item">재무제표</div>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <button class="menu-button" onclick="toggleSubmenu(this)">
+                        <span class="menu-icon">📦</span>
+                        <span class="menu-text">재고관리</span>
+                        <span class="menu-arrow">▶</span>
+                    </button>
+                    <div class="submenu">
+                        <div class="submenu-item">재고현황</div>
+                        <div class="submenu-item">입고관리</div>
+                        <div class="submenu-item">출고관리</div>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <button class="menu-button">
+                        <span class="menu-icon">⚙️</span>
+                        <span class="menu-text">환경설정</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 콘텐츠 -->
+        <div class="main-content">
+            <!-- 상단 헤더 -->
+            <div class="top-header">
+                <div class="search-bar">
+                    <span>🔍</span>
+                    <input type="text" class="search-input" placeholder="검색...">
+                </div>
+                <div class="header-actions">
+                    <button class="header-button">
+                        🔔
+                        <span class="notification-badge"></span>
+                    </button>
+                    <button class="header-button">👤</button>
+                    <button class="header-button">⚙️</button>
+                </div>
+            </div>
+
+            <!-- 퀵 액세스 탭 -->
+            <div class="quick-access-tabs">
+                <button class="quick-tab active" onclick="showDashboard()">
+                    <span class="quick-tab-icon">🏠</span>
+                    대시보드
+                </button>
+                <button class="quick-tab" onclick="showTab('customer')">
+                    <span class="quick-tab-icon">👥</span>
+                    거래처정보
+                </button>
+                <button class="quick-tab" onclick="showTab('inventory')">
+                    <span class="quick-tab-icon">📦</span>
+                    실시간재고
+                </button>
+                <button class="quick-tab" onclick="showTab('sales')">
+                    <span class="quick-tab-icon">📈</span>
+                    매출전표
+                </button>
+                <button class="quick-tab" onclick="showTab('purchase')">
+                    <span class="quick-tab-icon">📉</span>
+                    매입전표
+                </button>
+                <button class="quick-tab" onclick="showTab('payment')">
+                    <span class="quick-tab-icon">💳</span>
+                    지급전표
+                </button>
+                <button class="quick-tab" onclick="showTab('collection')">
+                    <span class="quick-tab-icon">💰</span>
+                    수금전표
+                </button>
+                <button class="quick-tab" onclick="showTab('expense')">
+                    <span class="quick-tab-icon">💼</span>
+                    입출금(경비)
+                </button>
+                <button class="quick-tab" onclick="showTab('etax')">
+                    <span class="quick-tab-icon">📄</span>
+                    전자세금계산서
+                </button>
+                <button class="quick-tab" onclick="showTab('sms')">
+                    <span class="quick-tab-icon">💬</span>
+                    문자발송
+                </button>
+                <button class="quick-tab" onclick="showTab('fax')">
+                    <span class="quick-tab-icon">🖨️</span>
+                    팩스전송
+                </button>
+                <button class="quick-tab" onclick="showQuoteTab()">
+                    <span class="quick-tab-icon">📋</span>
+                    견적서
+                </button>
+                <button class="quick-tab" onclick="showTab('order')">
+                    <span class="quick-tab-icon">🛒</span>
+                    발주서발행
+                </button>
+            </div>
+
+            <!-- 콘텐츠 영역 -->
+            <div class="content-area">
+                <!-- 대시보드 -->
+                <div id="dashboard-content" class="tab-content active">
+                    <!-- 통계 카드 -->
+                    <div class="dashboard-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #dcfce7;">💰</div>
+                            <div class="stat-content">
+                                <div class="stat-label">오늘의 매출</div>
+                                <div class="stat-value">₩3,250,000</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #fee2e2;">📉</div>
+                            <div class="stat-content">
+                                <div class="stat-label">오늘의 매입</div>
+                                <div class="stat-value">₩1,950,000</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #fef3c7;">⏳</div>
+                            <div class="stat-content">
+                                <div class="stat-label">미수금</div>
+                                <div class="stat-value">₩15,750,000</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #dbeafe;">📦</div>
+                            <div class="stat-content">
+                                <div class="stat-label">재고금액</div>
+                                <div class="stat-value">₩48,300,000</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 차트 섹션 -->
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">매입매출 비교</h3>
+                            </div>
+                            <div class="chart-container">
+                                <div class="pie-chart">
+                                    <div class="pie-center">60:40</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: center; gap: 20px; font-size: 13px;">
+                                <span>🟢 매출: 60%</span>
+                                <span>🔴 매입: 40%</span>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">월별 매출 추이</h3>
+                            </div>
+                            <div class="chart-container">
+                                <div class="bar-chart">
+                                    <div class="bar" style="height: 60%;">
+                                        <span class="bar-label">1월</span>
+                                    </div>
+                                    <div class="bar" style="height: 75%;">
+                                        <span class="bar-label">2월</span>
+                                    </div>
+                                    <div class="bar" style="height: 85%;">
+                                        <span class="bar-label">3월</span>
+                                    </div>
+                                    <div class="bar" style="height: 70%;">
+                                        <span class="bar-label">4월</span>
+                                    </div>
+                                    <div class="bar" style="height: 90%;">
+                                        <span class="bar-label">5월</span>
+                                    </div>
+                                    <div class="bar" style="height: 95%;">
+                                        <span class="bar-label">6월</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 미수금 현황 테이블 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">미수금 현황 TOP 10</h3>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>업체명</th>
+                                    <th>연락처</th>
+                                    <th>미수금액</th>
+                                    <th>출고일</th>
+                                    <th>경과일수</th>
+                                    <th>상태</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>삼성전자</td>
+                                    <td>02-1234-5678</td>
+                                    <td>₩5,200,000</td>
+                                    <td>2024-08-15</td>
+                                    <td>35일</td>
+                                    <td><span class="status-badge status-danger">위험</span></td>
+                                </tr>
+                                <tr>
+                                    <td>현대자동차</td>
+                                    <td>02-2345-6789</td>
+                                    <td>₩3,800,000</td>
+                                    <td>2024-08-20</td>
+                                    <td>30일</td>
+                                    <td><span class="status-badge status-warning">주의</span></td>
+                                </tr>
+                                <tr>
+                                    <td>LG전자</td>
+                                    <td>02-3456-7890</td>
+                                    <td>₩2,100,000</td>
+                                    <td>2024-09-01</td>
+                                    <td>18일</td>
+                                    <td><span class="status-badge status-warning">주의</span></td>
+                                </tr>
+                                <tr>
+                                    <td>SK하이닉스</td>
+                                    <td>031-1234-5678</td>
+                                    <td>₩1,500,000</td>
+                                    <td>2024-09-05</td>
+                                    <td>14일</td>
+                                    <td><span class="status-badge status-success">정상</span></td>
+                                </tr>
+                                <tr>
+                                    <td>포스코</td>
+                                    <td>054-1234-5678</td>
+                                    <td>₩1,200,000</td>
+                                    <td>2024-09-08</td>
+                                    <td>11일</td>
+                                    <td><span class="status-badge status-success">정상</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 견적서 탭 -->
+                <div id="quote-content" class="tab-content">
+                    <div class="quote-system">
+                        <div class="quote-left">
+                            <div class="form-section">
+                                <div class="form-header">고객정보</div>
+                                <div class="form-content">
+                                    <div class="form-row">
+                                        <label class="form-label">업체명</label>
+                                        <input type="text" class="form-input" placeholder="업체명을 입력하세요">
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label">연락처</label>
+                                        <input type="text" class="form-input" placeholder="연락처를 입력하세요">
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label">이메일</label>
+                                        <input type="email" class="form-input" placeholder="이메일을 입력하세요">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <div class="form-header">외함정보</div>
+                                <div class="form-content">
+                                    <div class="form-row">
+                                        <label class="form-label">함체타입</label>
+                                        <select class="form-select">
+                                            <option>기성함</option>
+                                            <option>제작함</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label">재질</label>
+                                        <select class="form-select">
+                                            <option>STEEL 1.6T</option>
+                                            <option>STEEL 2.0T</option>
+                                            <option>STS 1.5T</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <div class="form-header">메인 차단기</div>
+                                <div class="form-content">
+                                    <div class="form-row">
+                                        <label class="form-label">극수</label>
+                                        <select class="form-select">
+                                            <option>2P</option>
+                                            <option>3P</option>
+                                            <option selected>4P</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label">용량</label>
+                                        <select class="form-select">
+                                            <option>100A</option>
+                                            <option>150A</option>
+                                            <option selected>200A</option>
+                                            <option>250A</option>
+                                            <option>300A</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center; padding: 20px;">
+                                <button class="btn-primary" onclick="generateQuote()">견적 생성</button>
+                            </div>
+                        </div>
+
+                        <div class="quote-right" id="quoteResult">
+                            <button class="generate-button" onclick="generateQuote()">
+                                견적 생성
+                            </button>
+                            <p style="margin-top: 24px; margin-left: -100px; color: #666; text-align: center; font-size: 14px;">
+                                좌측에서 필요한 정보를 입력한 후<br>
+                                견적 생성 버튼을 클릭하세요
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 다른 탭 콘텐츠 (placeholder) -->
+                <div id="other-content" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title" id="tab-title">탭 콘텐츠</h3>
+                        </div>
+                        <div style="padding: 40px; text-align: center; color: #999;">
+                            해당 기능은 준비 중입니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 채팅 버튼 -->
+    <button class="ai-chat-button" onclick="toggleAIChat()">🤖</button>
+
+    <!-- AI 채팅 팝업 -->
+    <div class="ai-chat-popup" id="aiChatPopup">
+        <div class="ai-chat-header">
+            <div class="ai-chat-title">AI 도우미</div>
+            <button class="ai-chat-close" onclick="toggleAIChat()">×</button>
+        </div>
+        <div class="ai-chat-body">
+            <div class="ai-message">
+                <div class="ai-avatar">AI</div>
+                <div class="ai-bubble">
+                    안녕하세요! KIS ERP 시스템 사용을 도와드리겠습니다. 무엇을 도와드릴까요?
+                </div>
+            </div>
+            <div class="ai-message user-message">
+                <div class="ai-avatar">👤</div>
+                <div class="ai-bubble">
+                    견적서를 작성하고 싶습니다.
+                </div>
+            </div>
+            <div class="ai-message">
+                <div class="ai-avatar">AI</div>
+                <div class="ai-bubble">
+                    견적서 작성을 도와드리겠습니다. 상단의 '견적서' 탭을 클릭하시거나, 좌측 메뉴에서 선택하실 수 있습니다. 고객 정보와 제품 정보를 입력하신 후 '견적 생성' 버튼을 클릭하시면 됩니다.
+                </div>
+            </div>
+        </div>
+        <div class="ai-chat-input">
+            <input type="text" class="ai-input" placeholder="메시지를 입력하세요..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button class="ai-send" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        // 사이드바 토글
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+
+        // 서브메뉴 토글
+        function toggleSubmenu(button) {
+            const submenu = button.nextElementSibling;
+            const arrow = button.querySelector('.menu-arrow');
+
+            if (submenu) {
+                submenu.classList.toggle('open');
+                arrow.classList.toggle('expanded');
+            }
+        }
+
+        // 대시보드 표시
+        function showDashboard() {
+            // 모든 탭 콘텐츠 숨기기
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // 대시보드 표시
+            document.getElementById('dashboard-content').classList.add('active');
+
+            // 퀵탭 활성화 상태 업데이트
+            document.querySelectorAll('.quick-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector('.quick-tab').classList.add('active');
+
+            // 사이드바 메뉴 활성화 상태 업데이트
+            document.querySelectorAll('.menu-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector('.menu-button').classList.add('active');
+        }
+
+        // 견적서 탭 표시
+        function showQuoteTab() {
+            // 모든 탭 콘텐츠 숨기기
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // 견적서 표시
+            document.getElementById('quote-content').classList.add('active');
+
+            // 퀵탭 활성화 상태 업데이트
+            document.querySelectorAll('.quick-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        // 기타 탭 표시
+        function showTab(tabName) {
+            // 모든 탭 콘텐츠 숨기기
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // 기타 콘텐츠 표시
+            document.getElementById('other-content').classList.add('active');
+
+            // 탭 제목 업데이트
+            const titles = {
+                customer: '거래처정보',
+                inventory: '실시간재고',
+                sales: '매출전표',
+                purchase: '매입전표',
+                payment: '지급전표',
+                collection: '수금전표',
+                expense: '입출금(경비)',
+                etax: '전자세금계산서',
+                sms: '문자발송',
+                fax: '팩스전송',
+                order: '발주서발행'
+            };
+            document.getElementById('tab-title').textContent = titles[tabName] || '탭 콘텐츠';
+
+            // 퀵탭 활성화 상태 업데이트
+            document.querySelectorAll('.quick-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        // 견적 생성
+        function generateQuote() {
+            const quoteResult = document.getElementById('quoteResult');
+            quoteResult.innerHTML = `
+                <div style="width: 100%; background: white; padding: 20px;">
+                    <h3 style="margin-bottom: 20px;">견적서</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>항목</th>
+                                <th>수량</th>
+                                <th>단가</th>
+                                <th>금액</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>외함 (기성함 - STEEL 1.6T)</td>
+                                <td>1</td>
+                                <td>850,000</td>
+                                <td>850,000</td>
+                            </tr>
+                            <tr>
+                                <td>메인차단기 (MCCB 4P 200A)</td>
+                                <td>1</td>
+                                <td>450,000</td>
+                                <td>450,000</td>
+                            </tr>
+                            <tr>
+                                <td>분기차단기</td>
+                                <td>5</td>
+                                <td>75,000</td>
+                                <td>375,000</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" style="text-align: right; font-weight: bold;">총액</td>
+                                <td style="font-weight: bold; color: var(--color-brand);">1,675,000원</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button class="btn-primary">PDF 다운로드</button>
+                        <button class="btn-primary">Excel 다운로드</button>
+                        <button class="btn-primary">견적서 전송</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // AI 채팅 토글
+        function toggleAIChat() {
+            const popup = document.getElementById('aiChatPopup');
+            popup.classList.toggle('open');
+        }
+
+        // 메시지 전송
+        function sendMessage() {
+            const input = document.querySelector('.ai-input');
+            const message = input.value.trim();
+
+            if (message) {
+                const chatBody = document.querySelector('.ai-chat-body');
+
+                // 사용자 메시지 추가
+                chatBody.innerHTML += `
+                    <div class="ai-message user-message">
+                        <div class="ai-avatar">👤</div>
+                        <div class="ai-bubble">${message}</div>
+                    </div>
+                `;
+
+                // AI 응답 추가 (시뮬레이션)
+                setTimeout(() => {
+                    chatBody.innerHTML += `
+                        <div class="ai-message">
+                            <div class="ai-avatar">AI</div>
+                            <div class="ai-bubble">
+                                "${message}"에 대해 도움을 드리겠습니다. 구체적으로 어떤 기능을 사용하시겠습니까?
+                            </div>
+                        </div>
+                    `;
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                }, 1000);
+
+                input.value = '';
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>

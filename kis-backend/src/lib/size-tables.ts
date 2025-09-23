@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { parse } from 'csv-parse/sync';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createHash } from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -327,4 +328,44 @@ export function initSizeTables(): void {
     console.error('Failed to initialize size tables:', error);
     throw error;
   }
+}
+
+// ============================================
+// 테이블 체크섬 조회 (증거 서명용)
+// ============================================
+
+export function getTableHashes(): Record<string, string> {
+  if (!cache) {
+    loadSizeTables();
+  }
+
+  // 각 테이블별 체크섬 생성
+  const lsHash = createHash('sha256')
+    .update(JSON.stringify(cache!.lsMetasol))
+    .digest('hex');
+
+  const sangdoHash = createHash('sha256')
+    .update(JSON.stringify(cache!.sangdo))
+    .digest('hex');
+
+  return {
+    'LS_Metasol_MCCB_dimensions_by_AF_and_poles.csv': lsHash,
+    'Sangdo_MCCB_dimensions_by_AF_model_poles.csv': sangdoHash,
+    'cache_checksum': cache!.checksum
+  };
+}
+
+// ============================================
+// 현재 지식 버전 조회
+// ============================================
+
+export function getCurrentKnowledgeVersion(): {
+  rules: string;
+  tables: string;
+} {
+  // Use default values for now - this will be properly implemented in config integration
+  return {
+    rules: '1.0.0',
+    tables: '1.0.0',
+  };
 }

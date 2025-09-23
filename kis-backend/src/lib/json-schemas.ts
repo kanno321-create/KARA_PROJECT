@@ -24,21 +24,25 @@ export const EstimateRequestJSONSchema = {
     },
     device: {
       type: 'object',
-      required: ['purpose', 'feeder', 'gates'],
+      required: ['type'],
       properties: {
+        type: { type: 'string' },
         purpose: { type: 'string' },
-        feeder: { type: 'string', enum: ['PRIMARY', 'SECONDARY', 'SUB'] },
+        feeder: { type: 'string' },
         gates: { type: 'number', minimum: 1 }
       }
     },
     main: {
       type: 'object',
-      required: ['enabled', 'AF', 'AT', 'poles'],
+      required: ['enabled'],
       properties: {
         enabled: { type: 'boolean' },
         AF: { type: 'number' },
         AT: { type: 'number' },
-        poles: { type: 'number', enum: [3, 4] }
+        af: { type: 'number' },
+        at: { type: 'number' },
+        poles: { type: 'number', enum: [1, 2, 3, 4] },
+        model: { type: 'string' }
       }
     },
     branches: {
@@ -46,19 +50,23 @@ export const EstimateRequestJSONSchema = {
       minItems: 1,
       items: {
         type: 'object',
-        required: ['AF', 'AT', 'poles', 'count'],
+        required: ['poles', 'count'],
         properties: {
           AF: { type: 'number' },
           AT: { type: 'number' },
+          af: { type: 'number' },
+          at: { type: 'number' },
           poles: { type: 'number', enum: [1, 2, 3, 4] },
           count: { type: 'number', minimum: 1 },
+          qty: { type: 'number', minimum: 1 },
+          model: { type: 'string' },
           remark: { type: 'string' }
         }
       }
     },
     accessories: {
       type: 'object',
-      required: ['enabled', 'items'],
+      required: ['enabled'],
       properties: {
         enabled: { type: 'boolean' },
         items: {

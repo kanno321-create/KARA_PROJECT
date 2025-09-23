@@ -27,7 +27,7 @@ import { ProjectsView } from "./components/projects-view";
 import { WorkspaceSettings } from "./components/workspace-settings";
 import { WorkPanel, WorkContent, WorkNotification } from "./components/work-panel";
 import { QuoteSystem } from "./components/quote-system";
-import { ERPSystem } from "./components/erp-system";
+import { ERPSystemSimple } from "./components/erp-system-simple";
 import { Button } from "./components/ui/button";
 
 type ViewState = 'hero' | 'chat' | 'projects' | 'quote' | 'erp';
@@ -510,7 +510,7 @@ export default function App() {
         />;
       
       case 'erp':
-        return <ERPSystem />;
+        return <ERPSystemSimple />;
       
       default:
         return null;

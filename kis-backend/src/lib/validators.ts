@@ -129,6 +129,12 @@ export const EvidenceSchema = z.object({
   tables: z.array(EvidenceTableRowSchema),
   brandPolicy: z.string(),
   snapshot: z.record(z.any()),
+  snapshotHash: z.string(),
+  rulesVersion: z.string(),
+  knowledgeVersion: z.string(),
+  usedRows: z.array(z.string()),
+  tableHashes: z.record(z.string()),
+  signature: z.string(),
   version: z.object({
     rules: z.string(),
     tables: z.string(),
