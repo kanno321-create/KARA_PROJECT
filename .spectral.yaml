@@ -1,0 +1,93 @@
+extends: ["spectral:oas", "spectral:asyncapi"]
+
+rules:
+  # 필수 규칙들
+  operation-operationId: error
+  operation-description: error
+  operation-summary: error
+  info-contact: off  # 선택사항으로 설정
+  info-description: error
+  oas3-schema: error
+
+  # 보안 관련
+  operation-security-defined: warn
+
+  # 응답 관련
+  operation-success-response: error
+
+  # 태그 관련
+  operation-tag-defined: error
+  operation-tags: error
+
+  # 스키마 관련
+  component-description: warn
+  schema-description: warn
+
+  # 예시 관련
+  examples-value-or-externalValue: warn
+
+  # 사용자 정의 규칙들
+  no-untyped-objects:
+    description: 모든 객체는 타입이 명시되어야 합니다
+    type: style
+    given: "$..[?(@.type == 'object')]"
+    then:
+      field: properties
+      function: truthy
+    severity: warn
+
+  require-error-responses:
+    description: 모든 operation은 422와 500 에러 응답을 가져야 합니다
+    type: style
+    given: "$.paths[*][*].responses"
+    then:
+      - field: "422"
+        function: truthy
+      - field: "500"
+        function: truthy
+    severity: error
+
+  admin-endpoints-require-security:
+    description: Admin 엔드포인트는 보안이 정의되어야 합니다
+    type: style
+    given: "$.paths[*][?(@.tags && @.tags[0] == 'Admin')]"
+    then:
+      field: security
+      function: truthy
+    severity: error
+
+  knowledge-endpoints-require-security:
+    description: Knowledge 엔드포인트는 보안이 정의되어야 합니다
+    type: style
+    given: "$.paths[*][?(@.tags && @.tags[0] == 'Knowledge')]"
+    then:
+      field: security
+      function: truthy
+    severity: error
+
+  estimate-create-requires-idempotency:
+    description: 견적 생성 엔드포인트는 멱등성 키 파라미터가 필요합니다
+    type: style
+    given: "$.paths['/v1/estimate/create'].post.parameters"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: array
+          contains:
+            type: object
+            properties:
+              name:
+                const: "Idempotency-Key"
+    severity: error
+
+  responses-have-examples:
+    description: 응답은 예시를 포함해야 합니다
+    type: style
+    given: "$.paths[*][*].responses[*].content[*]"
+    then:
+      - field: examples
+        function: truthy
+      - field: example
+        function: truthy
+    severity: warn

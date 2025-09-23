@@ -2,6 +2,7 @@ import type { EstimateRequest, Evidence, EvidenceTableRowSchema } from './valida
 import type { MCCBDimension } from './size-tables.js';
 import { getSize } from './size-tables.js';
 import { config } from '../config.js';
+import { createHash, createHmac } from 'crypto';
 
 // ============================================
 // 증거 패키지 생성
@@ -10,19 +11,51 @@ import { config } from '../config.js';
 export function generateEvidence(
   estimateId: string,
   request: EstimateRequest,
-  usedDimensions: MCCBDimension[]
+  usedDimensions: MCCBDimension[],
+  knowledgeVersion: { id: number; label: string; active: boolean; createdAt: Date; tables?: any[] },
+  tableHashes: Record<string, string>
 ): Omit<Evidence, 'id' | 'createdAt'> {
   console.log('Generating evidence package for estimate:', estimateId);
+
+  // 1. 입력 정규화 스냅샷 생성
+  const snapshot = generateSnapshot(request);
+  const snapshotHash = createHash('sha256')
+    .update(JSON.stringify(snapshot))
+    .digest('hex');
+
+  // 2. 지식 버전 정보 (새로운 버전 시스템 사용)
+  const rulesVersion = config.knowledge.rulesVersion;
+  const tablesVersion = knowledgeVersion.label;
+
+  // 3. 사용된 테이블 행 정보
+  const usedRows = generateUsedRows(usedDimensions);
+
+  // 4. 테이블 체크섬 (버전별 해시 사용)
+  const finalTableHashes = tableHashes;
+
+  // 5. 증거 서명 생성
+  const signature = generateEvidenceSignature(
+    snapshotHash,
+    rulesVersion,
+    tablesVersion,
+    usedRows
+  );
 
   return {
     estimateId,
     rulesDoc: generateRulesDocReference(request),
     tables: generateTablesReference(usedDimensions),
     brandPolicy: generateBrandPolicy(request),
-    snapshot: generateSnapshot(request),
+    snapshot,
+    snapshotHash,
+    rulesVersion,
+    knowledgeVersion: tablesVersion,
+    usedRows,
+    tableHashes: finalTableHashes,
+    signature,
     version: {
-      rules: config.knowledge.rulesVersion,
-      tables: config.knowledge.tablesVersion,
+      rules: rulesVersion,
+      tables: tablesVersion,
     },
   };
 }
@@ -267,6 +300,100 @@ export function generateEvidenceSummary(evidence: Evidence): {
 }
 
 // ============================================
+// 사용된 테이블 행 정보 생성
+// ============================================
+
+function generateUsedRows(usedDimensions: MCCBDimension[]): string[] {
+  return usedDimensions.map(dimension => {
+    if (dimension.brand === 'LS') {
+      return `LS_Metasol_MCCB_dimensions_by_AF_and_poles.csv:METASOL-${dimension.af}(${dimension.poles})`;
+    } else if (dimension.brand === 'SANGDO') {
+      return `Sangdo_MCCB_dimensions_by_AF_model_poles.csv:${dimension.model}(${dimension.poles})`;
+    } else {
+      return `unknown_table.csv:unknown_row`;
+    }
+  });
+}
+
+// ============================================
+// 증거 서명 생성
+// ============================================
+
+function generateEvidenceSignature(
+  snapshotHash: string,
+  rulesVersion: string,
+  knowledgeVersion: string,
+  usedRows: string[]
+): string {
+  if (!config.security.evidenceSecret) {
+    throw new Error('EVIDENCE_SECRET is required for evidence signature generation');
+  }
+
+  // 서명 데이터 구성: snapshotHash + rulesVersion + knowledgeVersion + usedRows.join('|')
+  const signatureData = [
+    snapshotHash,
+    rulesVersion,
+    knowledgeVersion,
+    usedRows.join('|')
+  ].join('');
+
+  return createHmac('sha256', config.security.evidenceSecret)
+    .update(signatureData)
+    .digest('hex');
+}
+
+// ============================================
+// 증거 서명 검증
+// ============================================
+
+export function verifyEvidenceSignature(evidence: Evidence): boolean {
+  try {
+    if (!config.security.evidenceSecret) {
+      throw new Error('EVIDENCE_SECRET is required for evidence signature verification');
+    }
+
+    // 필수 필드 확인
+    if (!evidence.snapshotHash || !evidence.rulesVersion ||
+        !evidence.knowledgeVersion || !evidence.usedRows || !evidence.signature) {
+      return false;
+    }
+
+    // 예상 서명 계산
+    const expectedSignature = generateEvidenceSignature(
+      evidence.snapshotHash,
+      evidence.rulesVersion,
+      evidence.knowledgeVersion,
+      evidence.usedRows
+    );
+
+    // 타이밍 공격 방지를 위한 상수 시간 비교
+    return timingSafeEqual(
+      Buffer.from(evidence.signature, 'hex'),
+      Buffer.from(expectedSignature, 'hex')
+    );
+  } catch (error) {
+    console.error('Evidence signature verification error:', error);
+    return false;
+  }
+}
+
+// ============================================
+// 타이밍 안전 비교 함수
+// ============================================
+
+function timingSafeEqual(a: Buffer, b: Buffer): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a[i] ^ b[i];
+  }
+  return result === 0;
+}
+
+// ============================================
 // 증거 패키지 비교 (버전 관리용)
 // ============================================
 
@@ -275,6 +402,7 @@ export function compareEvidence(evidence1: Evidence, evidence2: Evidence): {
   sameTables: boolean;
   samePolicy: boolean;
   sameVersion: boolean;
+  sameSignature: boolean;
 } {
   return {
     sameRules: evidence1.rulesDoc === evidence2.rulesDoc,
@@ -282,5 +410,6 @@ export function compareEvidence(evidence1: Evidence, evidence2: Evidence): {
     samePolicy: evidence1.brandPolicy === evidence2.brandPolicy,
     sameVersion: evidence1.version.rules === evidence2.version.rules &&
                  evidence1.version.tables === evidence2.version.tables,
+    sameSignature: evidence1.signature === evidence2.signature,
   };
 }

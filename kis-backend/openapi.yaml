@@ -1,0 +1,1292 @@
+openapi: 3.1.0
+info:
+  title: KIS ERP Backend API
+  version: 1.0.0
+  description: >
+    한국 산업용 전기 견적 시스템(KIS) - Evidence-based Industrial Estimation System
+
+    핵심 원칙:
+    - 단일 진실원천: 내부 지식 데이터베이스
+    - 모르면 ABSTAIN (422 반환)
+    - Evidence 서명/무결성 보장
+    - 지식 버전 관리/핫스왑/회귀 테스트
+    - 트랜잭션/멱등성 보장
+
+    안전망 7종:
+    1. Pre-Gate Input Validation
+    2. ABSTAIN Queue System
+    3. Evidence Signature/Integrity
+    4. Prisma Transactions/Idempotency
+    5. Size Table Cache/Versioning/Hot Swap
+    6. OpenAPI Contract Documentation
+    7. CI/CD Audit Pipeline
+  contact:
+    name: KIS ERP Team
+    email: support@kis-erp.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:3001
+    description: Development server
+  - url: https://stage-api.kis-erp.com
+    description: Staging server
+  - url: https://api.kis-erp.com
+    description: Production server
+
+security:
+  - {}
+  - AdminApiKey: []
+  - ActorHeader: []
+
+components:
+  securitySchemes:
+    AdminApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Admin API 키 (지식 관리 및 ABSTAIN 큐 관리용)
+    ActorHeader:
+      type: apiKey
+      in: header
+      name: X-KIS-Actor
+      description: 감사 로그 식별자 (선택사항)
+
+  parameters:
+    ActorHeaderParam:
+      name: X-KIS-Actor
+      in: header
+      required: false
+      schema:
+        type: string
+        example: "김대표"
+      description: 감사 로그 추적을 위한 액터 식별자
+
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+        pattern: '^[a-zA-Z0-9\-_]{1,255}$'
+        example: "estimate-2025-001"
+      description: 멱등성 키 - 동일 본문 재시도시 결과 재생산
+
+    EstimateId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-zA-Z0-9\-_]{1,255}$'
+      description: 견적 ID
+
+    AbstainId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-zA-Z0-9\-_]{1,255}$'
+      description: ABSTAIN 항목 ID
+
+  schemas:
+    Brand:
+      type: string
+      enum: [SANGDO, LS, MIXED]
+      description: 차단기 브랜드
+
+    FormType:
+      type: string
+      enum: [ECONOMIC, STANDARD]
+      description: 외함 형태
+
+    Poles:
+      type: string
+      enum: ["1P", "2P", "3P", "4P"]
+      description: 차단기 극수
+
+    DeviceType:
+      type: string
+      enum: [MCCB, ELCB]
+      description: 차단기 종류
+
+    LocationType:
+      type: string
+      enum: [INDOOR, OUTDOOR]
+      description: 설치 위치
+
+    MountType:
+      type: string
+      enum: [FLUSH, SURFACE]
+      description: 설치 방식
+
+    Installation:
+      type: object
+      required: [location, mount]
+      properties:
+        location:
+          $ref: '#/components/schemas/LocationType'
+        mount:
+          $ref: '#/components/schemas/MountType'
+      description: 설치 조건
+
+    Device:
+      type: object
+      required: [type]
+      properties:
+        type:
+          $ref: '#/components/schemas/DeviceType'
+        purpose:
+          type: string
+          description: 장치 용도 (선택사항)
+      description: 차단기 장치 정보
+
+    MainBreaker:
+      type: object
+      required: [poles]
+      properties:
+        model:
+          type: string
+          description: 모델명 (예: SBS-603)
+        af:
+          type: integer
+          minimum: 15
+          maximum: 6300
+          description: 정격전류 (AF)
+        poles:
+          $ref: '#/components/schemas/Poles'
+      description: 메인 차단기 스펙
+      oneOf:
+        - required: [model]
+        - required: [af]
+
+    BranchBreaker:
+      type: object
+      required: [poles, qty]
+      properties:
+        model:
+          type: string
+          description: 모델명 (예: SBS-203)
+        af:
+          type: integer
+          minimum: 15
+          maximum: 800
+          description: 정격전류 (AF)
+        poles:
+          $ref: '#/components/schemas/Poles'
+        qty:
+          type: integer
+          minimum: 1
+          maximum: 20
+          description: 수량
+      description: 분기 차단기 스펙
+      oneOf:
+        - required: [model]
+        - required: [af]
+
+    AccessoryItem:
+      type: object
+      required: [code, qty]
+      properties:
+        code:
+          type: string
+          pattern: '^[A-Z0-9\-]{3,20}$'
+          description: 부속자재 코드
+        name:
+          type: string
+          description: 부속자재 명칭
+        qty:
+          type: integer
+          minimum: 1
+          description: 수량
+      description: 부속자재 항목
+
+    Accessories:
+      type: object
+      required: [enabled]
+      properties:
+        enabled:
+          type: boolean
+          description: 부속자재 사용 여부
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessoryItem'
+          description: 부속자재 목록 (enabled=true일 때 필수)
+      description: 부속자재 정보
+
+    EstimateRequest:
+      type: object
+      required: [brand, form, installation, device, main, branches, accessories]
+      properties:
+        brand:
+          $ref: '#/components/schemas/Brand'
+        form:
+          $ref: '#/components/schemas/FormType'
+        installation:
+          $ref: '#/components/schemas/Installation'
+        device:
+          $ref: '#/components/schemas/Device'
+        main:
+          $ref: '#/components/schemas/MainBreaker'
+        branches:
+          type: array
+          items:
+            $ref: '#/components/schemas/BranchBreaker'
+          minItems: 1
+          maxItems: 20
+          description: 분기 차단기 목록
+        accessories:
+          $ref: '#/components/schemas/Accessories'
+      description: 견적 요청 데이터
+      example:
+        brand: SANGDO
+        form: ECONOMIC
+        installation:
+          location: INDOOR
+          mount: SURFACE
+        device:
+          type: MCCB
+        main:
+          model: "SBS-603"
+          poles: "3P"
+        branches:
+          - model: "SBS-203"
+            poles: "3P"
+            qty: 4
+        accessories:
+          enabled: false
+
+    Enclosure:
+      type: object
+      required: [W, H, D, form]
+      properties:
+        W:
+          type: integer
+          minimum: 100
+          maximum: 2000
+          description: 폭 (mm)
+        H:
+          type: integer
+          minimum: 200
+          maximum: 2500
+          description: 높이 (mm)
+        D:
+          type: integer
+          minimum: 100
+          maximum: 800
+          description: 깊이 (mm)
+        form:
+          $ref: '#/components/schemas/FormType'
+      description: 계산된 외함 치수
+      example:
+        W: 400
+        H: 500
+        D: 250
+        form: ECONOMIC
+
+    Evidence:
+      type: object
+      required: [estimateId, rulesDoc, snapshot, snapshotHash, rulesVersion, knowledgeVersion, usedRows, tableHashes, signature]
+      properties:
+        estimateId:
+          type: string
+          description: 견적 ID
+        rulesDoc:
+          type: string
+          description: 적용된 규칙 문서 참조
+        tables:
+          type: string
+          description: 사용된 테이블 참조
+        brandPolicy:
+          type: string
+          description: 브랜드 정책
+        snapshot:
+          type: object
+          additionalProperties: true
+          description: 입력 정규화 스냅샷
+        snapshotHash:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+          description: 스냅샷 SHA-256 해시
+        rulesVersion:
+          type: string
+          description: 규칙 버전
+        knowledgeVersion:
+          type: string
+          description: 지식 테이블 버전
+        usedRows:
+          type: array
+          items:
+            type: string
+          description: 사용된 지식 행 목록
+        tableHashes:
+          type: object
+          additionalProperties:
+            type: string
+          description: 테이블별 해시값
+        signature:
+          type: string
+          pattern: '^[a-f0-9]{64,}$'
+          description: Evidence 무결성 서명
+        version:
+          type: object
+          required: [rules, tables]
+          properties:
+            rules:
+              type: string
+            tables:
+              type: string
+          description: 버전 정보 요약
+      description: 견적 증거 패키지
+
+    EstimateResponse:
+      type: object
+      required: [id, brand, form, installation, device, main, branches, accessories, enclosure, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          description: 견적 ID
+        brand:
+          $ref: '#/components/schemas/Brand'
+        form:
+          $ref: '#/components/schemas/FormType'
+        installation:
+          $ref: '#/components/schemas/Installation'
+        device:
+          $ref: '#/components/schemas/Device'
+        main:
+          $ref: '#/components/schemas/MainBreaker'
+        branches:
+          type: array
+          items:
+            $ref: '#/components/schemas/BranchBreaker'
+        accessories:
+          $ref: '#/components/schemas/Accessories'
+        enclosure:
+          $ref: '#/components/schemas/Enclosure'
+        status:
+          type: string
+          enum: [validated, failed, draft]
+          description: 견적 상태
+        createdAt:
+          type: string
+          format: date-time
+          description: 생성 시각
+        updatedAt:
+          type: string
+          format: date-time
+          description: 수정 시각
+      description: 견적 응답
+      example:
+        id: "est_123456"
+        brand: SANGDO
+        form: ECONOMIC
+        enclosure:
+          W: 400
+          H: 500
+          D: 250
+          form: ECONOMIC
+        status: validated
+        createdAt: "2025-09-24T03:00:00Z"
+        updatedAt: "2025-09-24T03:00:00Z"
+
+    ValidationResponse:
+      type: object
+      required: [isValid, errors, warnings]
+      properties:
+        isValid:
+          type: boolean
+          description: 검증 통과 여부
+        errors:
+          type: array
+          items:
+            type: string
+          description: 오류 목록
+        warnings:
+          type: array
+          items:
+            type: string
+          description: 경고 목록
+        resolvedBrand:
+          $ref: '#/components/schemas/Brand'
+        knowledgeHits:
+          type: array
+          items:
+            type: string
+          description: 히트된 지식 항목
+      description: 검증 결과
+      example:
+        isValid: true
+        errors: []
+        warnings: ["부속자재가 비활성화되어 있습니다"]
+        resolvedBrand: SANGDO
+        knowledgeHits: ["SANGDO|SBS|SBS-603|3P", "SANGDO|SBS|SBS-203|3P"]
+
+    Error422:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum: [
+            VALIDATION_ERROR,
+            BRAND_RULE_VIOLATION,
+            MIXED_BRAND_NOT_ALLOWED,
+            ACCESSORY_CONFLICT,
+            NEED_KNOWLEDGE_UPDATE,
+            INVALID_INPUT
+          ]
+          description: 오류 코드
+        message:
+          type: string
+          description: 사용자 친화적 오류 메시지
+        path:
+          type: string
+          description: 오류 발생 경로
+        hint:
+          type: string
+          description: 해결 방법 힌트
+        timestamp:
+          type: string
+          format: date-time
+          description: 오류 발생 시각
+      description: 처리 불가능한 엔터티 오류
+      example:
+        code: NEED_KNOWLEDGE_UPDATE
+        message: "SANGDO 메인 차단기 SBS-803(3P) 치수 행이 없습니다"
+        path: "main.model"
+        hint: "width_mm, height_mm, depth_mm를 알려주시면 즉시 반영하겠습니다"
+
+    Error409:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum: [IDEMPOTENCY_MISMATCH]
+        message:
+          type: string
+        existingResponse:
+          type: object
+          additionalProperties: true
+          description: 기존 멱등성 응답
+        timestamp:
+          type: string
+          format: date-time
+      description: 멱등성 충돌 오류
+
+    AbstainStatus:
+      type: string
+      enum: [pending, answered, merged, rejected]
+      description: ABSTAIN 항목 상태
+
+    AbstainItem:
+      type: object
+      required: [id, status, requestPath, missingData, suggestion, createdAt]
+      properties:
+        id:
+          type: string
+          description: ABSTAIN 항목 ID
+        estimateId:
+          type: string
+          description: 관련 견적 ID
+        status:
+          $ref: '#/components/schemas/AbstainStatus'
+        requestPath:
+          type: string
+          description: 오류 발생 경로
+        missingData:
+          type: string
+          description: 부족한 데이터 설명
+        suggestion:
+          type: string
+          description: 제안 사항
+        answer:
+          type: object
+          additionalProperties: true
+          description: 관리자 답변 (answered 상태일 때)
+        resolvedAt:
+          type: string
+          format: date-time
+          description: 해결 시각
+        createdAt:
+          type: string
+          format: date-time
+          description: 생성 시각
+      description: ABSTAIN 큐 항목
+
+    KnowledgeImportRequest:
+      type: object
+      required: [format, data]
+      properties:
+        format:
+          type: string
+          enum: [CSV, JSON]
+          description: 데이터 형식
+        data:
+          type: string
+          description: CSV 문자열 또는 JSON 문자열
+        actor:
+          type: string
+          description: 작업자 식별자
+      description: 지식 테이블 Import 요청
+
+    KnowledgeImportResponse:
+      type: object
+      required: [stagingId, summary, tableHashes]
+      properties:
+        stagingId:
+          type: string
+          description: 스테이징 ID
+        summary:
+          type: object
+          required: [total, valid, invalid, duplicateKeys]
+          properties:
+            total:
+              type: integer
+            valid:
+              type: integer
+            invalid:
+              type: integer
+            duplicateKeys:
+              type: integer
+        tableHashes:
+          type: array
+          items:
+            type: string
+          description: 테이블 해시 목록
+      description: 지식 테이블 Import 응답
+
+    KnowledgeValidateResponse:
+      type: object
+      required: [ok, samples, errors]
+      properties:
+        ok:
+          type: boolean
+          description: 검증 통과 여부
+        samples:
+          type: array
+          items:
+            type: string
+          description: 샘플 테스트 결과
+        errors:
+          type: array
+          items:
+            type: string
+          description: 검증 오류 목록
+      description: 지식 검증 응답
+
+    KnowledgeActivateRequest:
+      type: object
+      required: [stagingId, label]
+      properties:
+        stagingId:
+          type: string
+          description: 스테이징 ID
+        label:
+          type: string
+          pattern: '^v\d{4}-\d{2}-\d{2}-\d{2}$'
+          example: "v2025-09-24-01"
+          description: 버전 라벨
+      description: 지식 활성화 요청
+
+    RegressionSummary:
+      type: object
+      required: [passed, changed, failed, total, reportId]
+      properties:
+        passed:
+          type: integer
+          description: 통과한 테스트 수
+        changed:
+          type: integer
+          description: 변경된 테스트 수
+        failed:
+          type: integer
+          description: 실패한 테스트 수
+        total:
+          type: integer
+          description: 전체 테스트 수
+        reportId:
+          type: string
+          description: 리포트 ID
+        reportPath:
+          type: string
+          description: 리포트 파일 경로
+      description: 회귀 테스트 요약
+
+    KnowledgeActivateResponse:
+      type: object
+      required: [versionId, label, count, regression]
+      properties:
+        versionId:
+          type: integer
+          description: 새 버전 ID
+        label:
+          type: string
+          description: 버전 라벨
+        count:
+          type: integer
+          description: 로드된 행 수
+        regression:
+          $ref: '#/components/schemas/RegressionSummary'
+      description: 지식 활성화 응답
+
+    Pagination:
+      type: object
+      required: [page, limit, total, totalPages]
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          description: 현재 페이지
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: 페이지당 항목 수
+        total:
+          type: integer
+          description: 전체 항목 수
+        totalPages:
+          type: integer
+          description: 전체 페이지 수
+      description: 페이지네이션 정보
+
+    HealthResponse:
+      type: object
+      required: [status, timestamp, uptime, database, sizeTables]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        timestamp:
+          type: string
+          format: date-time
+        uptime:
+          type: number
+          description: 서버 가동 시간 (초)
+        database:
+          type: string
+          enum: [ok, error]
+        sizeTables:
+          type: object
+          required: [loaded, lsCount, sangdoCount]
+          properties:
+            loaded:
+              type: boolean
+            lsCount:
+              type: integer
+            sangdoCount:
+              type: integer
+      description: 헬스 체크 응답
+
+  responses:
+    UnprocessableEntity422:
+      description: 입력 검증 실패 또는 지식 부족으로 처리 불가능
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error422'
+          examples:
+            validation_error:
+              summary: 입력 검증 오류
+              value:
+                code: VALIDATION_ERROR
+                message: "brand는 필수 항목입니다"
+                path: "brand"
+                timestamp: "2025-09-24T03:00:00Z"
+            knowledge_missing:
+              summary: 지식 부족 (ABSTAIN)
+              value:
+                code: NEED_KNOWLEDGE_UPDATE
+                message: "SANGDO 메인 차단기 SBS-803(3P) 치수 행이 없습니다"
+                path: "main.model"
+                hint: "width_mm, height_mm, depth_mm를 알려주시면 즉시 반영하겠습니다"
+                timestamp: "2025-09-24T03:00:00Z"
+
+    Conflict409:
+      description: 멱등성 키 충돌 - 동일 키에 다른 본문
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error409'
+          example:
+            code: IDEMPOTENCY_MISMATCH
+            message: "동일한 멱등성 키로 다른 본문이 전송되었습니다"
+            existingResponse:
+              id: "est_123456"
+              status: "validated"
+            timestamp: "2025-09-24T03:00:00Z"
+
+    Unauthorized401:
+      description: 인증 실패 - API 키 누락 또는 잘못됨
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                enum: [UNAUTHORIZED]
+              message:
+                type: string
+          example:
+            code: UNAUTHORIZED
+            message: "Valid X-API-Key required"
+
+    Forbidden403:
+      description: 권한 없음
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                enum: [FORBIDDEN]
+              message:
+                type: string
+          example:
+            code: FORBIDDEN
+            message: "Access denied"
+
+    NotFound404:
+      description: 리소스를 찾을 수 없음
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                enum: [NOT_FOUND]
+              message:
+                type: string
+              timestamp:
+                type: string
+                format: date-time
+          example:
+            code: NOT_FOUND
+            message: "견적을 찾을 수 없습니다"
+            timestamp: "2025-09-24T03:00:00Z"
+
+    InternalServerError500:
+      description: 서버 내부 오류
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                enum: [INTERNAL_ERROR]
+              message:
+                type: string
+              timestamp:
+                type: string
+                format: date-time
+          example:
+            code: INTERNAL_ERROR
+            message: "서버 내부 오류가 발생했습니다"
+            timestamp: "2025-09-24T03:00:00Z"
+
+paths:
+  /health:
+    get:
+      summary: 헬스 체크
+      description: 서버 상태와 의존성 확인
+      tags: [System]
+      responses:
+        '200':
+          description: 서버 정상
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+                timestamp: "2025-09-24T03:00:00Z"
+                uptime: 3600
+                database: ok
+                sizeTables:
+                  loaded: true
+                  lsCount: 18
+                  sangdoCount: 26
+
+  /info:
+    get:
+      summary: API 정보
+      description: API 버전 및 기본 정보
+      tags: [System]
+      responses:
+        '200':
+          description: API 정보
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  version:
+                    type: string
+                  description:
+                    type: string
+                  apiVersion:
+                    type: string
+                  environment:
+                    type: string
+                  knowledgeVersion:
+                    type: object
+                    properties:
+                      rules:
+                        type: string
+                      tables:
+                        type: string
+
+  /v1/estimate/validate:
+    post:
+      summary: 견적 요청 검증
+      description: 견적 생성 전 입력 데이터 검증 (Pre-Gate)
+      tags: [Estimate]
+      parameters:
+        - $ref: '#/components/parameters/ActorHeaderParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstimateRequest'
+            examples:
+              valid_sangdo:
+                summary: 유효한 SANGDO 견적
+                value:
+                  brand: SANGDO
+                  form: ECONOMIC
+                  installation:
+                    location: INDOOR
+                    mount: SURFACE
+                  device:
+                    type: MCCB
+                  main:
+                    model: "SBS-603"
+                    poles: "3P"
+                  branches:
+                    - model: "SBS-203"
+                      poles: "3P"
+                      qty: 4
+                  accessories:
+                    enabled: false
+              valid_ls_af:
+                summary: 유효한 LS AF 기준 견적
+                value:
+                  brand: LS
+                  form: ECONOMIC
+                  installation:
+                    location: INDOOR
+                    mount: FLUSH
+                  device:
+                    type: MCCB
+                  main:
+                    af: 630
+                    poles: "3P"
+                  branches:
+                    - af: 225
+                      poles: "3P"
+                      qty: 3
+                  accessories:
+                    enabled: false
+      responses:
+        '200':
+          description: 검증 통과
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+              examples:
+                valid:
+                  summary: 검증 성공
+                  value:
+                    isValid: true
+                    errors: []
+                    warnings: []
+                    resolvedBrand: SANGDO
+                    knowledgeHits: ["SANGDO|SBS|SBS-603|3P", "SANGDO|SBS|SBS-203|3P"]
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity422'
+        '500':
+          $ref: '#/components/responses/InternalServerError500'
+
+  /v1/estimate/create:
+    post:
+      summary: 견적 생성
+      description: 트랜잭션/멱등성을 보장하며 견적을 생성하고 Evidence 패키지 생성
+      tags: [Estimate]
+      parameters:
+        - $ref: '#/components/parameters/ActorHeaderParam'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstimateRequest'
+      responses:
+        '200':
+          description: 견적 생성 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstimateResponse'
+        '409':
+          $ref: '#/components/responses/Conflict409'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity422'
+        '500':
+          $ref: '#/components/responses/InternalServerError500'
+
+  /v1/estimate/{id}:
+    get:
+      summary: 견적 조회
+      description: 견적 ID로 견적 정보 조회
+      tags: [Estimate]
+      parameters:
+        - $ref: '#/components/parameters/EstimateId'
+      responses:
+        '200':
+          description: 견적 정보
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstimateResponse'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '500':
+          $ref: '#/components/responses/InternalServerError500'
+
+  /v1/estimate:
+    get:
+      summary: 견적 목록 조회
+      description: 견적 목록을 페이지네이션으로 조회
+      tags: [Estimate]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: brand
+          in: query
+          schema:
+            $ref: '#/components/schemas/Brand'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [validated, failed, draft]
+      responses:
+        '200':
+          description: 견적 목록
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  estimates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EstimateResponse'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /v1/estimate/{id}/evidence:
+    get:
+      summary: Evidence 패키지 조회
+      description: 견적의 Evidence 패키지 조회 및 서명 검증
+      tags: [Estimate]
+      parameters:
+        - $ref: '#/components/parameters/EstimateId'
+        - name: verify
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: 서명 검증 수행 여부
+      responses:
+        '200':
+          description: Evidence 패키지
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Evidence'
+                  - type: object
+                    properties:
+                      verification:
+                        type: object
+                        properties:
+                          isValid:
+                            type: boolean
+                          verifiedAt:
+                            type: string
+                            format: date-time
+                          signatureStatus:
+                            type: string
+                            enum: [VALID, INVALID]
+        '404':
+          $ref: '#/components/responses/NotFound404'
+
+  /v1/admin/abstain/queue:
+    get:
+      summary: ABSTAIN 큐 조회
+      description: ABSTAIN 큐 목록 및 통계 조회
+      tags: [Admin]
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/AbstainStatus'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: ABSTAIN 큐 목록
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AbstainItem'
+                  stats:
+                    type: object
+                    properties:
+                      pending:
+                        type: integer
+                      answered:
+                        type: integer
+                      merged:
+                        type: integer
+                      rejected:
+                        type: integer
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+
+  /v1/admin/abstain/{id}/resolve:
+    post:
+      summary: ABSTAIN 항목 해결
+      description: ABSTAIN 항목에 대한 답변 제공
+      tags: [Admin]
+      security:
+        - AdminApiKey: []
+      parameters:
+        - $ref: '#/components/parameters/AbstainId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [providedData, updatedVersion]
+              properties:
+                providedData:
+                  type: object
+                  additionalProperties: true
+                  description: 제공된 데이터
+                updatedVersion:
+                  type: string
+                  description: 업데이트된 버전
+      responses:
+        '200':
+          description: 해결 완료
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  status:
+                    $ref: '#/components/schemas/AbstainStatus'
+                  resolvedAt:
+                    type: string
+                    format: date-time
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+
+  /v1/knowledge/tables/import:
+    post:
+      summary: 지식 테이블 Import
+      description: CSV 또는 JSON 형식으로 지식 데이터를 스테이징에 업로드
+      tags: [Knowledge]
+      security:
+        - AdminApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeImportRequest'
+            examples:
+              csv_import:
+                summary: CSV 데이터 Import
+                value:
+                  format: CSV
+                  data: "brand,series,model,af,poles,width_mm,height_mm,depth_mm,meta\nSANGDO,SBS,SBS-603,,3P,210,275,103,{}\nLS,,AF630,630,3P,220,280,110,{}"
+                  actor: "관리자"
+      responses:
+        '200':
+          description: Import 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeImportResponse'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity422'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+
+  /v1/knowledge/tables/validate:
+    post:
+      summary: 스테이징 데이터 검증
+      description: 스테이징된 지식 데이터의 유효성 검증
+      tags: [Knowledge]
+      security:
+        - AdminApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [stagingId]
+              properties:
+                stagingId:
+                  type: string
+      responses:
+        '200':
+          description: 검증 결과
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeValidateResponse'
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+
+  /v1/knowledge/tables/activate:
+    post:
+      summary: 지식 버전 활성화
+      description: 검증된 스테이징 데이터를 운영 버전으로 활성화 (Hot Swap + 골든셋 회귀 테스트)
+      tags: [Knowledge]
+      security:
+        - AdminApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeActivateRequest'
+            example:
+              stagingId: "staging_123"
+              label: "v2025-09-24-01"
+      responses:
+        '200':
+          description: 활성화 성공 및 회귀 테스트 결과
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeActivateResponse'
+              example:
+                versionId: 42
+                label: "v2025-09-24-01"
+                count: 156
+                regression:
+                  passed: 18
+                  changed: 2
+                  failed: 0
+                  total: 20
+                  reportId: "audit_123"
+                  reportPath: "/test/reports/regression-v2025-09-24-01-audit_123.json"
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity422'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+
+  /v1/knowledge/tables/rollback:
+    post:
+      summary: 지식 버전 롤백
+      description: 이전 지식 버전으로 롤백
+      tags: [Knowledge]
+      security:
+        - AdminApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [toVersionId]
+              properties:
+                toVersionId:
+                  type: integer
+                  description: 롤백할 버전 ID
+      responses:
+        '200':
+          description: 롤백 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  activeVersionId:
+                    type: integer
+        '404':
+          $ref: '#/components/responses/NotFound404'
+        '401':
+          $ref: '#/components/responses/Unauthorized401'
+
+tags:
+  - name: System
+    description: 시스템 상태 및 정보
+  - name: Estimate
+    description: 견적 관리
+  - name: Admin
+    description: 관리자 기능
+  - name: Knowledge
+    description: 지식 관리

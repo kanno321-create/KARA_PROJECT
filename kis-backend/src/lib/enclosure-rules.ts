@@ -1,5 +1,6 @@
 import type { EstimateRequest, EnclosureResult, Form } from './validators.js';
 import { getSize, type MCCBDimension } from './size-tables.js';
+import { findDimensionKeyed, type MCCBDimension as NewMCCBDimension } from './size-tables-v2.js';
 import { errors } from './errors.js';
 
 // ============================================
@@ -12,7 +13,7 @@ interface BreakerItem {
   af?: number;
   poles: string;
   qty: number;
-  dimensions: MCCBDimension;
+  dimensions: NewMCCBDimension;
   index?: number; // 분기의 경우 인덱스
 }
 
@@ -103,10 +104,11 @@ function collectBreakerItems(request: EstimateRequest): BreakerItem[] {
 // 메인 차단기 치수 조회
 // ============================================
 
-function getMainBreakerDimensions(request: EstimateRequest): MCCBDimension | null {
+function getMainBreakerDimensions(request: EstimateRequest): NewMCCBDimension | null {
   const { brand, main } = request;
 
-  const dimensions = getSize(brand, main.model, main.af, main.poles);
+  // Use the new versioned knowledge system
+  const dimensions = findDimensionKeyed(brand, main.model, main.af, main.poles?.toString());
 
   if (!dimensions) {
     // ABSTAIN: 메인 차단기 치수 정보 부족
@@ -127,10 +129,11 @@ function getBranchBreakerDimensions(
   request: EstimateRequest,
   branch: any,
   index: number
-): MCCBDimension | null {
+): NewMCCBDimension | null {
   const { brand } = request;
 
-  const dimensions = getSize(brand, branch.model, branch.af, branch.poles);
+  // Use the new versioned knowledge system
+  const dimensions = findDimensionKeyed(brand, branch.model, branch.af, branch.poles?.toString());
 
   if (!dimensions) {
     // ABSTAIN: 분기 차단기 치수 정보 부족
@@ -170,7 +173,7 @@ function calculateLayout(items: BreakerItem[], form: Form): LayoutResult {
 function sortBranches(branches: BreakerItem[]): BreakerItem[] {
   return branches.sort((a, b) => {
     // 1. 프레임 크기 (width_mm 기준)
-    const widthDiff = b.dimensions.width_mm - a.dimensions.width_mm;
+    const widthDiff = b.dimensions.W - a.dimensions.W;
     if (widthDiff !== 0) return widthDiff;
 
     // 2. 극수 (4P > 3P > 2P)
@@ -196,9 +199,9 @@ function calculateEconomicLayout(mainItems: BreakerItem[], branchItems: BreakerI
   if (mainItems.length > 0) {
     const firstRow: LayoutRow = {
       items: [...mainItems],
-      totalWidth: mainItems.reduce((sum, item) => sum + item.dimensions.width_mm, 0),
-      maxHeight: Math.max(...mainItems.map(item => item.dimensions.height_mm)),
-      maxDepth: Math.max(...mainItems.map(item => item.dimensions.depth_mm)),
+      totalWidth: mainItems.reduce((sum, item) => sum + item.dimensions.W, 0),
+      maxHeight: Math.max(...mainItems.map(item => item.dimensions.H)),
+      maxDepth: Math.max(...mainItems.map(item => item.dimensions.D)),
     };
     rows.push(firstRow);
   }
@@ -214,15 +217,15 @@ function calculateEconomicLayout(mainItems: BreakerItem[], branchItems: BreakerI
   for (const branchItem of branchItems) {
     // 수량만큼 반복
     for (let i = 0; i < branchItem.qty; i++) {
-      const itemWidth = branchItem.dimensions.width_mm;
+      const itemWidth = branchItem.dimensions.W;
 
       // 현재 행에 추가할 수 있는지 확인
       if (currentRow.totalWidth + itemWidth <= MAX_ROW_WIDTH) {
         // 현재 행에 추가
         currentRow.items.push(branchItem);
         currentRow.totalWidth += itemWidth;
-        currentRow.maxHeight = Math.max(currentRow.maxHeight, branchItem.dimensions.height_mm);
-        currentRow.maxDepth = Math.max(currentRow.maxDepth, branchItem.dimensions.depth_mm);
+        currentRow.maxHeight = Math.max(currentRow.maxHeight, branchItem.dimensions.H);
+        currentRow.maxDepth = Math.max(currentRow.maxDepth, branchItem.dimensions.D);
       } else {
         // 현재 행이 가득 참, 새 행 시작
         if (currentRow.items.length > 0) {
@@ -232,8 +235,8 @@ function calculateEconomicLayout(mainItems: BreakerItem[], branchItems: BreakerI
         currentRow = {
           items: [branchItem],
           totalWidth: itemWidth,
-          maxHeight: branchItem.dimensions.height_mm,
-          maxDepth: branchItem.dimensions.depth_mm,
+          maxHeight: branchItem.dimensions.H,
+          maxDepth: branchItem.dimensions.D,
         };
       }
     }
@@ -274,9 +277,9 @@ function calculateStandardLayout(mainItems: BreakerItem[], branchItems: BreakerI
   if (mainItems.length > 0) {
     const firstRow: LayoutRow = {
       items: [...mainItems],
-      totalWidth: mainItems.reduce((sum, item) => sum + item.dimensions.width_mm, 0),
-      maxHeight: Math.max(...mainItems.map(item => item.dimensions.height_mm)),
-      maxDepth: Math.max(...mainItems.map(item => item.dimensions.depth_mm)),
+      totalWidth: mainItems.reduce((sum, item) => sum + item.dimensions.W, 0),
+      maxHeight: Math.max(...mainItems.map(item => item.dimensions.H)),
+      maxDepth: Math.max(...mainItems.map(item => item.dimensions.D)),
     };
     rows.push(firstRow);
   }
@@ -291,13 +294,13 @@ function calculateStandardLayout(mainItems: BreakerItem[], branchItems: BreakerI
 
   for (const branchItem of branchItems) {
     for (let i = 0; i < branchItem.qty; i++) {
-      const itemWidth = branchItem.dimensions.width_mm;
+      const itemWidth = branchItem.dimensions.W;
 
       if (currentRow.totalWidth + itemWidth <= MAX_ROW_WIDTH) {
         currentRow.items.push(branchItem);
         currentRow.totalWidth += itemWidth;
-        currentRow.maxHeight = Math.max(currentRow.maxHeight, branchItem.dimensions.height_mm);
-        currentRow.maxDepth = Math.max(currentRow.maxDepth, branchItem.dimensions.depth_mm);
+        currentRow.maxHeight = Math.max(currentRow.maxHeight, branchItem.dimensions.H);
+        currentRow.maxDepth = Math.max(currentRow.maxDepth, branchItem.dimensions.D);
       } else {
         if (currentRow.items.length > 0) {
           rows.push(currentRow);
@@ -306,8 +309,8 @@ function calculateStandardLayout(mainItems: BreakerItem[], branchItems: BreakerI
         currentRow = {
           items: [branchItem],
           totalWidth: itemWidth,
-          maxHeight: branchItem.dimensions.height_mm,
-          maxDepth: branchItem.dimensions.depth_mm,
+          maxHeight: branchItem.dimensions.H,
+          maxDepth: branchItem.dimensions.D,
         };
       }
     }
