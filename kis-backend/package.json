@@ -1,0 +1,62 @@
+{
+  "name": "kis-backend",
+  "version": "1.0.0",
+  "description": "KIS견적 AI ERP 백엔드 - Evidence-based Industrial Estimation System",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon --exec tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write 'src/**/*.ts'",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:reset": "prisma migrate reset",
+    "prepare": "husky"
+  },
+  "keywords": [
+    "kis",
+    "erp",
+    "estimation",
+    "industrial",
+    "evidence"
+  ],
+  "author": "KARA PROJECT Team",
+  "license": "PROPRIETARY",
+  "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "@fastify/rate-limit": "^10.3.0",
+    "@fastify/swagger": "^9.5.1",
+    "@fastify/swagger-ui": "^5.2.3",
+    "@prisma/client": "^6.16.2",
+    "csv-parse": "^6.1.0",
+    "dotenv": "^17.2.2",
+    "duckdb": "^1.4.0",
+    "fastify": "^5.6.1",
+    "pino": "^9.11.0",
+    "pino-pretty": "^13.1.1",
+    "prisma": "^6.16.2",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "@types/supertest": "^6.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "@vitest/ui": "^3.2.4",
+    "eslint": "^9.36.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
+    "supertest": "^7.1.4",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,172 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// 설정 (싱글톤)
+// ============================================
+model Setting {
+  id               String   @id @default(cuid())
+  defaultBrand     String   @default("SANGDO") // 'SANGDO' | 'LS'
+  defaultForm      String   @default("ECONOMIC") // 'ECONOMIC' | 'STANDARD'
+  defaultLocation  String   @default("INDOOR") // 'INDOOR' | 'OUTDOOR'
+  defaultMount     String   @default("FLUSH") // 'FLUSH' | 'SURFACE'
+  rules            Json     // {singleBrand: true, antiPoleMistake: true, allowMixedBrand: false ...}
+  knowledgeVersion Json     // {rules:'v1.0', tables:'v1.0', updated:'YYYY-MM-DD'}
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// ============================================
+// 견적
+// ============================================
+model Estimate {
+  id           String    @id @default(cuid())
+  brand        String    // 'SANGDO' | 'LS' | 'MIXED'
+  form         String    // 'ECONOMIC' | 'STANDARD'
+  installation Json      // {location: 'INDOOR'|'OUTDOOR', mount: 'FLUSH'|'SURFACE'}
+  device       Json      // {type: 'MCCB' | 'ELCB'}
+  main         Json      // {model?, af?, poles}
+  branches     Json      // [{model?,af,poles,qty},...]
+  accessories  Json      // {enabled:boolean, items?:[]}
+  enclosure    Json?     // {W,H,D,form} - 계산 결과
+  evidenceId   String?   @unique
+  status       String    @default("draft") // draft|validated|completed|failed
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  evidence     Evidence?
+  abstains     Abstain[]
+}
+
+// ============================================
+// 증거 패키지
+// ============================================
+model Evidence {
+  id          String   @id @default(cuid())
+  estimateId  String   @unique
+  rulesDoc    String   // path/section (예: KIS_Enclosure_Rules.md#sections)
+  tables      Json     // [{source,rows[]},...]
+  brandPolicy String   // 'single-brand or explicit MIXED only'
+  snapshot    Json     // normalized input snapshot
+  version     Json     // {rules:'v1.0', tables:'v1.0'}
+  createdAt   DateTime @default(now())
+
+  estimate    Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// ABSTAIN 큐 (지식 부족 요청)
+// ============================================
+model Abstain {
+  id          String   @id @default(cuid())
+  estimateId  String?
+  requestPath String   // 'branches[0].model'
+  missingData String   // 정확히 무엇이 필요한지 설명
+  suggestion  String   // 대표님께 드리는 질문
+  status      String   @default("pending") // pending|resolved|ignored
+  resolution  Json?    // {providedData, updatedVersion}
+  createdAt   DateTime @default(now())
+  resolvedAt  DateTime?
+
+  estimate    Estimate? @relation(fields: [estimateId], references: [id], onDelete: SetNull)
+}
+
+// ============================================
+// 캘린더
+// ============================================
+model CalendarEvent {
+  id        String   @id @default(cuid())
+  type      String   // estimate|install|inbound|misc
+  title     String
+  start     DateTime
+  end       DateTime
+  location  String?
+  memo      String?
+  owner     String?
+  links     Json?    // {estimates:[], drawings:[], emails:[]}
+  conflicts Json?    // [{eventId, title}]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============================================
+// 이메일
+// ============================================
+model EmailGroup {
+  id      String        @id @default(cuid())
+  name    String        @unique
+  rules   Json          // [{type:'email', value:'@acme.com'|'user@x.com'}]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  threads EmailThread[]
+}
+
+model EmailThread {
+  id          String       @id @default(cuid())
+  to          String?
+  cc          String?
+  subject     String?
+  body        String?      @default("")
+  status      String       @default("DRAFT") // SENT|FAILED|DRAFT
+  attachments Json?        // [{name, size, type, link}]
+  groupId     String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  group       EmailGroup?  @relation(fields: [groupId], references: [id], onDelete: SetNull)
+}
+
+// ============================================
+// 도면
+// ============================================
+model Drawing {
+  id        String   @id @default(cuid())
+  name      String
+  rev       String
+  date      DateTime?
+  author    String?
+  tags      Json?    // ['electrical', 'panel', 'main']
+  memo      String?
+  history   Json?    // [{ts,action,note}]
+  links     Json?    // {estimates:[], events:[]}
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, rev]) // name+rev는 유니크
+}
+
+// ============================================
+// 감사 로그
+// ============================================
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String   // 'system' | 'owner' | user-id
+  action    String   // CREATE_ESTIMATE | VALIDATE | UPDATE_SETTINGS | ABSTAIN_QUESTION ...
+  payload   Json     // 전체 요청/응답 스냅샷
+  result    String?  // success|failed|abstain
+  createdAt DateTime @default(now())
+}
+
+// ============================================
+// 지식 테이블 (치수표)
+// ============================================
+model KnowledgeTable {
+  id        String   @id @default(cuid())
+  name      String   @unique // 'LS_Metasol_MCCB' | 'Sangdo_MCCB'
+  version   String
+  data      Json     // CSV 파싱 후 JSON 배열
+  checksum  String   // SHA256 hash
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
