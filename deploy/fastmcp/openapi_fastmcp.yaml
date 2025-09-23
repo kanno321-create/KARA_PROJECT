@@ -1,0 +1,175 @@
+openapi: 3.0.3
+info:
+  title: KIS FastMCP API
+  description: Single endpoint for KIS electrical panel processing pipeline
+  version: 1.0.0
+  contact:
+    name: KIS Engineering
+    email: support@kis.engineering
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /v1/run:
+    post:
+      summary: Execute KIS pipeline action
+      description: Process electrical panel data through specified engine action
+      operationId: runAction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunRequest'
+            examples:
+              enclosure_example:
+                $ref: '#/components/examples/EnclosureRequest'
+              placement_example:
+                $ref: '#/components/examples/PlacementRequest'
+              format_example:
+                $ref: '#/components/examples/FormatRequest'
+      responses:
+        '200':
+          description: Action completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal processing error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    RunRequest:
+      type: object
+      required:
+        - action
+        - input_data
+      properties:
+        action:
+          type: string
+          enum: [enclosure, place, format, cover, lint]
+          description: Pipeline action to execute
+        input_data:
+          type: object
+          description: Action-specific input data
+        options:
+          type: object
+          description: Optional processing parameters
+          properties:
+            timeout:
+              type: integer
+              minimum: 1
+              maximum: 300
+              default: 30
+            validate_only:
+              type: boolean
+              default: false
+
+    RunResponse:
+      type: object
+      required:
+        - success
+        - action
+        - execution_time_ms
+      properties:
+        success:
+          type: boolean
+        action:
+          type: string
+        execution_time_ms:
+          type: integer
+        result:
+          type: object
+          description: Action-specific result data
+        metrics:
+          type: object
+          properties:
+            phase_imbalance_pct:
+              type: number
+            quality_score:
+              type: integer
+            violations:
+              type: integer
+        evidence:
+          type: object
+          properties:
+            json_file:
+              type: string
+            svg_file:
+              type: string
+            evidence_file:
+              type: string
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+  examples:
+    EnclosureRequest:
+      summary: Enclosure solver request
+      value:
+        action: enclosure
+        input_data:
+          breakers:
+            - id: "L1_01"
+              phase: "L1"
+              rating: 20
+              type: "MCB"
+              width_units: 1
+          constraints:
+            max_phase_imbalance_pct: 4.0
+            thermal_derating: 0.8
+
+    PlacementRequest:
+      summary: Breaker placement request
+      value:
+        action: place
+        input_data:
+          breakers:
+            - id: "L1_01"
+              phase: "L1"
+              rating: 20
+              position: 1
+          panel_specs:
+            width_units: 24
+            height_units: 20
+        options:
+          timeout: 60
+
+    FormatRequest:
+      summary: Estimate formatting request
+      value:
+        action: format
+        input_data:
+          estimate:
+            project_name: "Test Project"
+            client: "Test Client"
+            subtotal: 100000.00
+            vat: 10000.00
+            total: 110000.00
+          items:
+            - description: "Main Panel"
+              quantity: 1
+              unit_price: 100000.00

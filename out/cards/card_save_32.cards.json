@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_032",
+    "category": "SAVE",
+    "item": "Item_32",
+    "specs": {
+      "model": "MODEL_ODZCB",
+      "quantity": 7,
+      "unitPrice": 4190353
+    },
+    "priority": 2,
+    "leadTime": 14,
+    "reliability": 0.85,
+    "created": "2025-09-19T11:57:44.137Z"
+  }
+]

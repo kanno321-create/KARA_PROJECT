@@ -1,0 +1,61 @@
+{
+  "brand": {
+    "font_size": 11.0,
+    "logo_ref": "assets/logo.svg",
+    "primary_color": "003366"
+  },
+  "breaker_score": 0.755,
+  "document": {
+    "client": "Client-13",
+    "date": "2025-09-19",
+    "project_id": "2025-0001-case-13",
+    "project_name": "Project-13",
+    "project_number": "KIS-2025-13"
+  },
+  "generated_at": "2025-09-19T12:35:47.010776Z",
+  "named_range_log": [
+    "named ranges injected (registry validated)"
+  ],
+  "named_ranges": [
+    {
+      "name": "ProjectName",
+      "value": "Project-13"
+    },
+    {
+      "name": "Client",
+      "value": "Client-13"
+    },
+    {
+      "name": "ProjectNumber",
+      "value": "KIS-2025-13"
+    },
+    {
+      "name": "Date",
+      "value": "2025-09-19"
+    },
+    {
+      "name": "Subtotal",
+      "value": 5651700.0
+    },
+    {
+      "name": "VAT",
+      "value": 565170.0
+    },
+    {
+      "name": "GrandTotal",
+      "value": 6216870.0
+    }
+  ],
+  "project_id": "2025-0001-case-13",
+  "requested_totals": {
+    "currency": "KRW",
+    "granularity": "summary"
+  },
+  "totals": {
+    "grand_total": 6216870.0,
+    "labor": 255000.0,
+    "materials": 5396700.0,
+    "subtotal": 5651700.0,
+    "vat": 565170.0
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "steps": {
+    "doc_lint_guard": {
+      "ms": 28,
+      "status": "OK"
+    }
+  },
+  "total_ms": 28,
+  "errors": [],
+  "timestamp": "2025-09-19T02:45:53.274785"
+}

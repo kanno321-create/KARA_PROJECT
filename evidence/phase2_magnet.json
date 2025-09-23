@@ -1,0 +1,10 @@
+﻿{
+    "artifact":  "phase2_magnet",
+    "summary":  "마그네트 선택 증거",
+    "details":  {
+                    "subtotal":  39600,
+                    "model_display":  "Magnet Hold 100",
+                    "sku":  "MAG-HLD-100"
+                },
+    "sha256_placeholder":  "0000000000000000000000000000000000000000000000000000000000000000"
+}

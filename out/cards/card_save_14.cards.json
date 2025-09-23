@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_014",
+    "category": "SAVE",
+    "item": "Item_14",
+    "specs": {
+      "model": "MODEL_WDP37",
+      "quantity": 19,
+      "unitPrice": 1738059
+    },
+    "priority": 2,
+    "leadTime": 14,
+    "reliability": 0.85,
+    "created": "2025-09-19T11:57:44.133Z"
+  }
+]

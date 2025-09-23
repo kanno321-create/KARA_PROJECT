@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "./",
+    "outDir": "./dist",
+    "module": "esnext",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "composite": true,
+    "isolatedModules": true,
+    "types": ["node"],
+    "strict": true,
+    "preserveSymlinks": true
+  },
+  "include": [
+    "src/**/*",
+    "index.d.ts",
+    "client.d.ts",
+    "schemaTypes.d.ts"
+  ],
+  "files": [
+    "index.d.ts",
+    "client.d.ts",
+    "schemaTypes.d.ts"
+  ]
+} 

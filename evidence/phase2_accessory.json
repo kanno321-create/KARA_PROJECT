@@ -1,0 +1,10 @@
+﻿{
+    "artifact":  "phase2_accessory",
+    "summary":  "부속자재 선택 증거",
+    "details":  {
+                    "subtotal":  40400,
+                    "model_display":  "Accessory Lug 50",
+                    "sku":  "ACC-LUG-50"
+                },
+    "sha256_placeholder":  "0000000000000000000000000000000000000000000000000000000000000000"
+}

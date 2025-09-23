@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_039",
+    "category": "INSTANT",
+    "item": "Item_39",
+    "specs": {
+      "model": "MODEL_ZBHKE",
+      "quantity": 5,
+      "unitPrice": 3118581
+    },
+    "priority": 3,
+    "leadTime": 3,
+    "reliability": 0.75,
+    "created": "2025-09-19T11:57:44.138Z"
+  }
+]

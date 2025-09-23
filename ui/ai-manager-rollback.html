@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIS CORE V2 - AI 매니저 & 견적 시스템</title>
+    <style>
+        /* ChatGPT와 같은 2열 레이아웃의 안정 공식 */
+        :root {
+            --titlebar-h: 0px;
+            --sidebar-w: 280px;
+            --gap: 12px;
+            --bg: #f9f9f9;
+            --bg-2: #f3f3f3;
+            --fg: #323130;
+            --muted: #605e5c;
+            --hover: #e1dfdd;
+            --border: #e5e5e5;
+            --primary: #0078d4;
+        }
+
+        /* 1) 최상위 높이 체인: 높이 전파가 안 되면 100vh가 깨집니다 */
+        html, body, #root {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        body {
+            margin: 0;
+            background: #ffffff;
+            color: #323130;
+            font-family: 'Segoe UI', system-ui, -apple-system, 'Roboto', 'Noto Sans KR', sans-serif;
+        }
+
+        /* 2) 루트 레이아웃: Grid로 2열 + 행 1개. 전체 높이를 정확히 점유 */
+        .app-layout {
+            height: 100vh;
+            width: 100vw;
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            grid-template-rows: 1fr;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .app-layout.sidebar-collapsed {
+            grid-template-columns: 60px 1fr;
+        }
+
+        /* 3) 사이드바: column 플렉스 + 위 스크롤 / 아래 고정 분리 */
+        .sidebar-container {
+            grid-column: 1;
+            grid-row: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            background: var(--bg);
+            color: var(--fg);
+            border-right: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        /* 사이드바 헤더 */
+        .sidebar-header {
+            flex: 0 0 auto;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 48px;
+        }
+
+        .sidebar-header-button {
+            background: none;
+            border: none;
+            color: var(--fg);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .sidebar-header-button:hover {
+            background: var(--hover);
+        }
+
+        .sidebar-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        /* 스크롤 되는 상단 영역 */
+        .sidebar-scroll {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 12px;
+        }
+
+        /* 네비 섹션 */
+        .sidebar-section + .sidebar-section {
+            margin-top: 16px;
+        }
+
+        .sidebar-heading {
+            margin: 0 0 8px 0;
+            padding: 0 4px;
+            font-size: 16px;
+            color: var(--muted);
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .nav-list {
+            display: grid;
+            gap: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 4px;
+            color: var(--fg);
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item i {
+            font-size: 22px;
+        }
+
+        .nav-item:hover {
+            background: var(--hover);
+        }
+
+        .nav-item.is-active {
+            background: var(--hover);
+            border-left: 3px solid var(--primary);
+            padding-left: 7px;
+        }
+
+        .chat-item {
+            padding: 14px 16px 14px 32px;
+            cursor: pointer;
+            font-size: 17px;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item:hover {
+            background: var(--hover);
+            color: var(--fg);
+        }
+
+        /* 하단 고정 계정 영역 */
+        .account-section {
+            flex: 0 0 auto;
+            padding: 12px;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+
+        .account-button {
+            width: 100%;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 18px;
+            transition: background-color 0.2s ease;
+            background: none;
+            border: none;
+            text-align: left;
+        }
+
+        .account-button:hover {
+            background: var(--hover);
+        }
+
+        .account-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .account-info {
+            flex: 1;
+        }
+
+        .account-name {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .account-email {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .account-chevron {
+            margin-left: auto;
+            font-size: 16px;
+            color: var(--muted);
+        }
+
+        /* 계정 메뉴 */
+        .account-menu {
+            position: absolute;
+            bottom: 100px;
+            left: 12px;
+            right: 12px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 8px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .account-menu.open {
+            display: block;
+        }
+
+        .account-menu-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 8px;
+        }
+
+        .account-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            color: var(--fg);
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .account-menu-item:hover {
+            background: var(--hover);
+        }
+
+        .account-menu-separator {
+            height: 1px;
+            background: var(--border);
+            margin: 8px 0;
+        }
+
+        /* 4) 메인 영역 */
+        .main-container {
+            grid-column: 2;
+            grid-row: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        /* 메인 콘텐츠 - 스크롤 영역 */
+        .main-content {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* View Content */
+        .view-content {
+            flex: 1;
+            overflow: hidden;
+            display: none;
+        }
+
+        .view-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 웰컴 화면 */
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .company-logo {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .welcome-text {
+            font-size: 24px;
+            color: var(--muted);
+            margin-bottom: 40px;
+        }
+
+        /* 메시지 영역 */
+        .messages-container {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            padding: 20px 40px;
+        }
+
+        .messages-inner {
+            max-width: 1000px;
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .message {
+            padding: 20px 26px;
+            margin-bottom: 16px;
+            word-wrap: break-word;
+            font-size: 19px;
+            line-height: 1.7;
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+        }
+
+        .message-user {
+            background-color: #f7f7f7;
+            border-radius: 18px;
+            color: #323130;
+            margin-left: auto;
+            margin-right: 0;
+            text-align: right;
+        }
+
+        .message-ai {
+            color: #323130;
+            margin-left: 0;
+            margin-right: auto;
+            text-align: left;
+        }
+
+        /* 입력 영역 */
+        .input-container {
+            flex: 0 0 auto;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .input-wrapper {
+            max-width: 1000px;
+            width: 80%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .input-box {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            padding: 16px 20px;
+            border-radius: 24px;
+            border: 1px solid #d1d1d1;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            min-height: 80px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            font-family: inherit;
+            resize: none;
+            background: transparent;
+            min-height: 44px;
+            max-height: 120px;
+            line-height: 1.5;
+        }
+
+        .send-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .send-button:hover {
+            background: #106ebe;
+        }
+
+        .send-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* 견적서 뷰 - iframe */
+        #estimates-view {
+            width: 100%;
+            height: 100%;
+        }
+
+        #estimates-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 기타 뷰들 */
+        .placeholder-view {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #9ca3af;
+            font-size: 16px;
+        }
+
+        /* 5) 반응형 */
+        @media (max-width: 960px) {
+            .app-layout {
+                grid-template-columns: 60px 1fr;
+            }
+
+            .sidebar-scroll,
+            .sidebar-section,
+            .nav-item {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+
+            .sidebar-heading,
+            .account-meta,
+            .account-actions {
+                display: none;
+            }
+        }
+
+        /* 사이드바 접힘 상태 */
+        .sidebar-collapsed .sidebar-heading,
+        .sidebar-collapsed .nav-item span,
+        .sidebar-collapsed .chat-item,
+        .sidebar-collapsed .account-meta {
+            display: none;
+        }
+
+        .sidebar-collapsed .sidebar-scroll {
+            padding: 8px;
+        }
+
+        .sidebar-collapsed .nav-item {
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .sidebar-collapsed .account-avatar {
+            width: 32px;
+            height: 32px;
+        }
+
+        .sidebar-collapsed .account-info,
+        .sidebar-collapsed .account-chevron {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout" id="appLayout">
+        <!-- 사이드바 -->
+        <aside class="sidebar-container">
+            <!-- 사이드바 헤더 -->
+            <div class="sidebar-header">
+                <button class="sidebar-header-button" onclick="toggleSidebar()">
+                    ☰
+                </button>
+                <span class="sidebar-title">KIS AI</span>
+            </div>
+
+            <!-- 스크롤 영역 -->
+            <div class="sidebar-scroll">
+                <!-- 채팅 섹션 -->
+                <div class="sidebar-section">
+                    <div class="sidebar-heading">채팅</div>
+                    <nav class="nav-list">
+                        <div class="nav-item" onclick="navigate('/chat/new')">
+                            <i>➕</i>
+                            <span>New chat</span>
+                        </div>
+                        <div class="chat-item">AI ERP 견적시스템 설계</div>
+                        <div class="chat-item">지원 항목 안내</div>
+                        <div class="chat-item">최초프로젝트 내용</div>
+                    </nav>
+                </div>
+
+                <!-- 업무 섹션 -->
+                <div class="sidebar-section">
+                    <div class="sidebar-heading">업무</div>
+                    <nav class="nav-list">
+                        <button class="nav-item is-active" onclick="showView('ai-manager')">
+                            <i>🤖</i>
+                            <span>AI 매니저</span>
+                        </button>
+                        <button class="nav-item" onclick="showView('estimates')">
+                            <i>📊</i>
+                            <span>견적서</span>
+                        </button>
+                        <button class="nav-item" onclick="showView('erp')">
+                            <i>💼</i>
+                            <span>ERP</span>
+                        </button>
+                        <button class="nav-item" onclick="showView('email')">
+                            <i>📧</i>
+                            <span>이메일</span>
+                        </button>
+                        <button class="nav-item" onclick="showView('calendar')">
+                            <i>📅</i>
+                            <span>캘린더</span>
+                        </button>
+                        <button class="nav-item" onclick="showView('drawings')">
+                            <i>📐</i>
+                            <span>도면</span>
+                        </button>
+                        <button class="nav-item" onclick="showView('mcp')">
+                            <i>🔌</i>
+                            <span>MCP/A2A</span>
+                        </button>
+                        <button class="nav-item" onclick="showView('audit')">
+                            <i>🛡️</i>
+                            <span>감사</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- 프로젝트 섹션 -->
+                <div class="sidebar-section">
+                    <div class="sidebar-heading">프로젝트</div>
+                    <nav class="nav-list">
+                        <div class="nav-item">
+                            <i>📁</i>
+                            <span>새 프로젝트</span>
+                        </div>
+                        <div class="nav-item">
+                            <i>📂</i>
+                            <span>천재적사고</span>
+                        </div>
+                        <div class="nav-item">
+                            <i>📂</i>
+                            <span>전국분전반자동화</span>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- 하단 고정 계정 영역 -->
+            <div class="account-section">
+                <button class="account-button" onclick="toggleAccountMenu()">
+                    <div class="account-avatar">이충</div>
+                    <div class="account-info">
+                        <div class="account-name">이충원</div>
+                        <div class="account-email">ceo@kis.com</div>
+                    </div>
+                    <div class="account-chevron">⌃</div>
+                </button>
+
+                <!-- 계정 메뉴 -->
+                <div class="account-menu" id="accountMenu">
+                    <div class="account-menu-header">
+                        <div class="account-avatar" style="margin-bottom: 8px;">이충</div>
+                        <div class="account-name">이충원</div>
+                        <div class="account-email">ceo@kis.com</div>
+                    </div>
+                    <a href="#" class="account-menu-item">
+                        <i>👥</i>
+                        <span>팀원 추가</span>
+                    </a>
+                    <a href="#" class="account-menu-item">
+                        <i>⚙️</i>
+                        <span>워크스페이스 설정</span>
+                    </a>
+                    <a href="#" class="account-menu-item">
+                        <i>💳</i>
+                        <span>개인 맞춤 설정</span>
+                    </a>
+                    <div class="account-menu-separator"></div>
+                    <a href="#" class="account-menu-item">
+                        <i>⚙️</i>
+                        <span>설정</span>
+                    </a>
+                    <a href="#" class="account-menu-item">
+                        <i>🚪</i>
+                        <span>로그아웃</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 메인 컨텐츠 -->
+        <div class="main-container">
+            <!-- AI 매니저 뷰 -->
+            <div id="ai-manager-view" class="view-content active">
+                <div class="main-content">
+                    <div class="welcome-screen">
+                        <div class="company-logo">㈜한국산업</div>
+                        <div class="welcome-text">AI 매니저에 오신 것을 환영합니다</div>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <div class="input-box">
+                            <textarea
+                                class="chat-input"
+                                placeholder="메시지를 입력하세요..."
+                                rows="1"
+                                onkeydown="handleChatKeydown(event)"
+                            ></textarea>
+                            <button class="send-button" onclick="sendMessage()">전송</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 견적서 뷰 -->
+            <div id="estimates-view" class="view-content">
+                <iframe id="estimates-iframe" src="./estimate-simple.html"></iframe>
+            </div>
+
+            <!-- 기타 뷰들 -->
+            <div id="erp-view" class="view-content">
+                <div class="placeholder-view">ERP 시스템 (준비중)</div>
+            </div>
+
+            <div id="email-view" class="view-content">
+                <div class="placeholder-view">이메일 시스템 (준비중)</div>
+            </div>
+
+            <div id="calendar-view" class="view-content">
+                <div class="placeholder-view">캘린더 시스템 (준비중)</div>
+            </div>
+
+            <div id="drawings-view" class="view-content">
+                <div class="placeholder-view">도면 관리 시스템 (준비중)</div>
+            </div>
+
+            <div id="mcp-view" class="view-content">
+                <div class="placeholder-view">MCP/A2A 시스템 (준비중)</div>
+            </div>
+
+            <div id="audit-view" class="view-content">
+                <div class="placeholder-view">감사 시스템 (준비중)</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isCollapsed = false;
+        let isAccountMenuOpen = false;
+
+        // 사이드바 토글
+        function toggleSidebar() {
+            isCollapsed = !isCollapsed;
+            const appLayout = document.getElementById('appLayout');
+            if (isCollapsed) {
+                appLayout.classList.add('sidebar-collapsed');
+            } else {
+                appLayout.classList.remove('sidebar-collapsed');
+            }
+        }
+
+        // 계정 메뉴 토글
+        function toggleAccountMenu() {
+            isAccountMenuOpen = !isAccountMenuOpen;
+            const accountMenu = document.getElementById('accountMenu');
+            if (isAccountMenuOpen) {
+                accountMenu.classList.add('open');
+            } else {
+                accountMenu.classList.remove('open');
+            }
+        }
+
+        // 뷰 전환
+        function showView(viewName) {
+            // 모든 뷰 숨기기
+            const views = document.querySelectorAll('.view-content');
+            views.forEach(view => {
+                view.classList.remove('active');
+            });
+
+            // 모든 네비게이션 아이템 비활성화
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('is-active');
+            });
+
+            // 선택된 뷰 표시
+            const targetView = document.getElementById(viewName + '-view');
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+
+            // 해당 네비게이션 아이템 활성화
+            const targetNav = document.querySelector(`[onclick="showView('${viewName}')"]`);
+            if (targetNav) {
+                targetNav.classList.add('is-active');
+            }
+        }
+
+        // 네비게이션
+        function navigate(url) {
+            console.log('Navigate to:', url);
+            // 여기에 실제 네비게이션 로직 추가
+        }
+
+        // 채팅 기능
+        function handleChatKeydown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.querySelector('.chat-input');
+            const message = input.value.trim();
+
+            if (message) {
+                console.log('Message sent:', message);
+                input.value = '';
+
+                // 웰컴 스크린 숨기기
+                const welcomeScreen = document.querySelector('.welcome-screen');
+                if (welcomeScreen) {
+                    welcomeScreen.style.display = 'none';
+                }
+            }
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('KIS CORE V2 AI Manager & Estimate System initialized');
+
+            // 기본적으로 AI 매니저 뷰 표시
+            showView('ai-manager');
+
+            // 계정 메뉴 외부 클릭 시 닫기
+            document.addEventListener('click', function(event) {
+                const accountButton = document.querySelector('.account-button');
+                const accountMenu = document.getElementById('accountMenu');
+
+                if (!accountButton.contains(event.target) && !accountMenu.contains(event.target)) {
+                    accountMenu.classList.remove('open');
+                    isAccountMenuOpen = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

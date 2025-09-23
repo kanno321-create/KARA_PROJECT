@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-etax-adapter",
+    "code":  "MCP-8",
+    "description":  "전자세금계산서",
+    "priority":  "P2",
+    "endpoints":  {
+                      "execute":  "/kis-etax-adapter/execute",
+                      "health":  "/kis-etax-adapter/health"
+                  },
+    "status":  "INSTALLED"
+}

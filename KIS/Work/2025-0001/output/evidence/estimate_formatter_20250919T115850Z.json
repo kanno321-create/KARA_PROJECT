@@ -1,0 +1,14 @@
+{
+  "breaker_score": 0.0,
+  "generated_at": "2025-09-19T11:58:50.992930Z",
+  "named_range_log": [
+    "named ranges injected (stub)"
+  ],
+  "project_id": "2025-0001-case-13",
+  "totals": {
+    "grand_total": 1375000.0,
+    "labor": 250000.0,
+    "materials": 1000000.0,
+    "tax": 125000.0
+  }
+}

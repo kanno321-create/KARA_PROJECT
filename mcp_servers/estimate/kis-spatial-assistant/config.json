@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-spatial-assistant",
+    "code":  "SP",
+    "description":  "2.5D 공간 분석",
+    "priority":  "P1",
+    "endpoints":  {
+                      "execute":  "/kis-spatial-assistant/execute",
+                      "health":  "/kis-spatial-assistant/health"
+                  },
+    "status":  "INSTALLED"
+}

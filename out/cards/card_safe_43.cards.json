@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_043",
+    "category": "SAFE",
+    "item": "Item_43",
+    "specs": {
+      "model": "MODEL_3E8HQ",
+      "quantity": 16,
+      "unitPrice": 5088593
+    },
+    "priority": 1,
+    "leadTime": 30,
+    "reliability": 0.95,
+    "created": "2025-09-19T11:57:44.139Z"
+  }
+]

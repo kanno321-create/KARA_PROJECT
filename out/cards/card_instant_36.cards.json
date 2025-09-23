@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_036",
+    "category": "INSTANT",
+    "item": "Item_36",
+    "specs": {
+      "model": "MODEL_LNCB0",
+      "quantity": 15,
+      "unitPrice": 3497861
+    },
+    "priority": 3,
+    "leadTime": 3,
+    "reliability": 0.75,
+    "created": "2025-09-19T11:57:44.138Z"
+  }
+]

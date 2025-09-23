@@ -1,0 +1,153 @@
+{
+  "ts": 1758217538,
+  "slots": [
+    {
+      "id": 1,
+      "breaker_id": "CB04",
+      "phase": "L1",
+      "position": {
+        "row": 0,
+        "col": 0
+      },
+      "heat_w": 14.183260651733004,
+      "current_a": 63
+    },
+    {
+      "id": 2,
+      "breaker_id": "CB08",
+      "phase": "L1",
+      "position": {
+        "row": 0,
+        "col": 1
+      },
+      "heat_w": 6.0414642042470135,
+      "current_a": 63
+    },
+    {
+      "id": 3,
+      "breaker_id": "CB02",
+      "phase": "L1",
+      "position": {
+        "row": 0,
+        "col": 2
+      },
+      "heat_w": 6.869961002743581,
+      "current_a": 25
+    },
+    {
+      "id": 4,
+      "breaker_id": "CB06",
+      "phase": "L1",
+      "position": {
+        "row": 0,
+        "col": 3
+      },
+      "heat_w": 12.436151122148743,
+      "current_a": 25
+    },
+    {
+      "id": 5,
+      "breaker_id": "CB10",
+      "phase": "L1",
+      "position": {
+        "row": 0,
+        "col": 4
+      },
+      "heat_w": 11.928198336930901,
+      "current_a": 20
+    },
+    {
+      "id": 6,
+      "breaker_id": "CB01",
+      "phase": "L1",
+      "position": {
+        "row": 0,
+        "col": 5
+      },
+      "heat_w": 15.258950268944208,
+      "current_a": 16
+    },
+    {
+      "id": 7,
+      "breaker_id": "CB05",
+      "phase": "L1",
+      "position": {
+        "row": 1,
+        "col": 0
+      },
+      "heat_w": 23.0321711038866,
+      "current_a": 16
+    },
+    {
+      "id": 8,
+      "breaker_id": "CB11",
+      "phase": "L1",
+      "position": {
+        "row": 1,
+        "col": 1
+      },
+      "heat_w": 23.195506107726956,
+      "current_a": 16
+    },
+    {
+      "id": 9,
+      "breaker_id": "CB12",
+      "phase": "L1",
+      "position": {
+        "row": 1,
+        "col": 2
+      },
+      "heat_w": 24.610625369729767,
+      "current_a": 16
+    },
+    {
+      "id": 10,
+      "breaker_id": "CB09",
+      "phase": "L1",
+      "position": {
+        "row": 1,
+        "col": 3
+      },
+      "heat_w": 8.659918399345381,
+      "current_a": 40
+    },
+    {
+      "id": 11,
+      "breaker_id": "CB03",
+      "phase": "L3",
+      "position": {
+        "row": 1,
+        "col": 4
+      },
+      "heat_w": 17.15041024726697,
+      "current_a": 16
+    },
+    {
+      "id": 12,
+      "breaker_id": "CB07",
+      "phase": "L3",
+      "position": {
+        "row": 1,
+        "col": 5
+      },
+      "heat_w": 20.199739229136604,
+      "current_a": 16
+    }
+  ],
+  "phase_distribution": {
+    "L1": 10,
+    "L2": 0,
+    "L3": 2
+  },
+  "phase_loads_a": {
+    "L1": 136.16666666666669,
+    "L2": 96.16666666666666,
+    "L3": 99.66666666666666
+  },
+  "phase_imbalance_pct": 3.9,
+  "clearances_violation": 0,
+  "thermal_violation": 0,
+  "total_heat_w": 183.5663560438397,
+  "optimization_method": "heuristic_balance",
+  "iterations": 10
+}

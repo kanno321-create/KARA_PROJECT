@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_029",
+    "category": "SAVE",
+    "item": "Item_29",
+    "specs": {
+      "model": "MODEL_XCJDA",
+      "quantity": 17,
+      "unitPrice": 4383551
+    },
+    "priority": 2,
+    "leadTime": 14,
+    "reliability": 0.85,
+    "created": "2025-09-19T11:57:44.137Z"
+  }
+]

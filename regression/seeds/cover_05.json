@@ -1,0 +1,58 @@
+﻿{
+    "seed_id":  "cover-05",
+    "category":  "cover",
+    "request":  {
+                    "request_id":  "63e89487-edb5-464a-8c0a-7568e896d776",
+                    "project_label":  "Cover Scenario E",
+                    "submitted_by":  "automation.tester@kis.local",
+                    "knowledge_snapshot_id":  "4f4022d7-457f-4274-9496-67b321a3f058",
+                    "distribution_panels":  [
+                                                {
+                                                    "panel_id":  "COVER-E5",
+                                                    "source_tab_index":  1,
+                                                    "subtotal":  152600,
+                                                    "line_items":  [
+                                                                       {
+                                                                           "category":  "magnet",
+                                                                           "sku":  "COV-ROOF-05",
+                                                                           "quantity":  1,
+                                                                           "unit_price":  61040,
+                                                                           "line_total":  61040
+                                                                       },
+                                                                       {
+                                                                           "category":  "breaker",
+                                                                           "sku":  "ACC-BOLT-45",
+                                                                           "quantity":  2,
+                                                                           "unit_price":  30520,
+                                                                           "line_total":  61040
+                                                                       }
+                                                                   ],
+                                                    "evidence_ref":  {
+                                                                         "bundle_id":  "seed__",
+                                                                         "json_path":  "evidence/seed__.json",
+                                                                         "visual_path":  "evidence/seed__.svg",
+                                                                         "log_path":  "evidence/logs/seed__.json",
+                                                                         "sha256":  "0000000000000000000000000000000000000000000000000000000000000000"
+                                                                     }
+                                                }
+                                            ],
+                    "pricing_overrides":  [
+
+                                          ],
+                    "validation_flags":  {
+                                             "run_fix4":  true,
+                                             "run_regression_sample":  true
+                                         }
+                },
+    "expected_gate_scores":  {
+                                 "gate1":  "PASS",
+                                 "gate2":  "PASS",
+                                 "gate3":  "PASS",
+                                 "gate4":  "PASS"
+                             },
+    "expected_metrics":  {
+                             "p95_ms":  1800,
+                             "error_ratio":  0
+                         },
+    "_note":  "Final cover baseline"
+}

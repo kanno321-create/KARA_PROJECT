@@ -1,0 +1,12 @@
+﻿{
+    "artifact":  "phase3_preview",
+    "summary":  "치환 토큰 미리보기",
+    "details":  {
+                    "form":  "FORM_STD",
+                    "cover":  "COVER_STD",
+                    "replacements":  {
+                                         "project":  "Factory MCC Retrofit"
+                                     }
+                },
+    "sha256_placeholder":  "0000000000000000000000000000000000000000000000000000000000000000"
+}

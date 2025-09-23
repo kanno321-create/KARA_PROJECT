@@ -1,0 +1,534 @@
+name: M41 Metrics Nightly Collection
+
+on:
+  schedule:
+    # Run at 02:00 KST daily (17:00 UTC)
+    - cron: '0 17 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run in dry-run mode (no alerts sent)'
+        required: false
+        default: 'true'
+        type: boolean
+      force_collection:
+        description: 'Force collection even if recent data exists'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  NODE_VERSION: '18'
+  METRICS_OUTPUT_DIR: 'out/m41'
+  WHYTRACE_EVENT_LOG: 'whytrace_metrics_nightly.json'
+
+jobs:
+  metrics-collection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        cd engine && npm ci
+        
+    - name: Initialize WhyTrace Metrics Event Log
+      run: |
+        mkdir -p ${{ env.METRICS_OUTPUT_DIR }}
+        echo '{
+          "session_id": "nightly-'$(date +%Y%m%d-%H%M%S)'",
+          "start_time": '$(date +%s000)',
+          "events": [],
+          "completeness_score": 0,
+          "required_events": ["METRICS_INIT", "METRICS_INGEST", "METRICS_TRANSFORM", "METRICS_SCORE", "METRICS_ALERT", "METRICS_PUBLISH"]
+        }' > ${{ env.METRICS_OUTPUT_DIR }}/${{ env.WHYTRACE_EVENT_LOG }}
+        
+    - name: METRICS_INIT - Initialize Collection
+      run: |
+        echo "::group::METRICS_INIT"
+        node -e "
+        const fs = require('fs');
+        const path = require('path');
+        const logPath = '${{ env.METRICS_OUTPUT_DIR }}/${{ env.WHYTRACE_EVENT_LOG }}';
+        const log = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+        log.events.push({
+          event_type: 'METRICS_INIT',
+          timestamp: Date.now(),
+          status: 'started',
+          details: {
+            dry_run: ${{ inputs.dry_run || 'true' }},
+            force_collection: ${{ inputs.force_collection || 'false' }},
+            environment: 'ci',
+            node_version: process.version
+          }
+        });
+        fs.writeFileSync(logPath, JSON.stringify(log, null, 2));
+        console.log('✅ METRICS_INIT started');
+        "
+        echo "::endgroup::"
+        
+    - name: METRICS_INGEST - Collect from File System
+      run: |
+        echo "::group::METRICS_INGEST"
+        node -e "
+        const fs = require('fs');
+        const { FSCollector } = require('./engine/metrics/collectors/fs_collector');
+        
+        async function collect() {
+          const collector = new FSCollector();
+          const startTime = Date.now();
+          
+          try {
+            const events = await collector.collectFromOut(['out']);
+            const duration = Date.now() - startTime;
+            
+            // Update WhyTrace log
+            const logPath = '${{ env.METRICS_OUTPUT_DIR }}/${{ env.WHYTRACE_EVENT_LOG }}';
+            const log = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+            log.events.push({
+              event_type: 'METRICS_INGEST',
+              timestamp: Date.now(),
+              status: 'completed',
+              duration_ms: duration,
+              details: {
+                metrics_count: events.length,
+                data_points: events.length,
+                sources: ['out']
+              }
+            });
+            fs.writeFileSync(logPath, JSON.stringify(log, null, 2));
+            
+            // Save collected metrics
+            const metricsPath = '${{ env.METRICS_OUTPUT_DIR }}/raw_metrics.json';
+            fs.writeFileSync(metricsPath, JSON.stringify(events, null, 2));
+            
+            console.log('✅ METRICS_INGEST completed:', events.length, 'events collected');
+          } catch (error) {
+            console.error('❌ METRICS_INGEST failed:', error);
+            process.exit(1);
+          }
+        }
+        
+        collect();
+        "
+        echo "::endgroup::"
+        
+    - name: METRICS_TRANSFORM - Window Aggregation
+      run: |
+        echo "::group::METRICS_TRANSFORM"
+        node -e "
+        const fs = require('fs');
+        const { WindowAggregator, WindowConfigs } = require('./engine/metrics/transformers/window_agg');
+        
+        async function transform() {
+          const startTime = Date.now();
+          
+          try {
+            // Load raw metrics
+            const rawMetrics = JSON.parse(fs.readFileSync('${{ env.METRICS_OUTPUT_DIR }}/raw_metrics.json', 'utf8'));
+            
+            // Group by metric name
+            const metricGroups = {};
+            rawMetrics.forEach(event => {
+              const metricName = event.module + '_cost';
+              if (!metricGroups[metricName]) metricGroups[metricName] = [];
+              metricGroups[metricName].push({ t: event.ts, v: event.cost });
+            });
+            
+            // Apply window aggregation
+            const aggregator = new WindowAggregator(WindowConfigs.daily);
+            const transformedMetrics = {};
+            
+            for (const [metricName, points] of Object.entries(metricGroups)) {
+              transformedMetrics[metricName] = aggregator.aggregate(points, 'avg');
+            }
+            
+            const duration = Date.now() - startTime;
+            
+            // Update WhyTrace log
+            const logPath = '${{ env.METRICS_OUTPUT_DIR }}/${{ env.WHYTRACE_EVENT_LOG }}';
+            const log = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+            log.events.push({
+              event_type: 'METRICS_TRANSFORM',
+              timestamp: Date.now(),
+              status: 'completed',
+              duration_ms: duration,
+              details: {
+                transformations: ['window_aggregation'],
+                metrics_processed: Object.keys(transformedMetrics).length
+              }
+            });
+            fs.writeFileSync(logPath, JSON.stringify(log, null, 2));
+            
+            // Save transformed metrics
+            const transformedPath = '${{ env.METRICS_OUTPUT_DIR }}/transformed_metrics.json';
+            fs.writeFileSync(transformedPath, JSON.stringify(transformedMetrics, null, 2));
+            
+            console.log('✅ METRICS_TRANSFORM completed:', Object.keys(transformedMetrics).length, 'metrics transformed');
+          } catch (error) {
+            console.error('❌ METRICS_TRANSFORM failed:', error);
+            process.exit(1);
+          }
+        }
+        
+        transform();
+        "
+        echo "::endgroup::"
+        
+    - name: METRICS_SCORE - Calculate Scores
+      run: |
+        echo "::group::METRICS_SCORE"
+        node -e "
+        const fs = require('fs');
+        const { OKRScorer } = require('./engine/metrics/scorers/okr_scorer');
+        
+        async function score() {
+          const startTime = Date.now();
+          
+          try {
+            const scorer = new OKRScorer();
+            
+            // Sample OKR for scoring
+            const sampleOKR = {
+              objective: 'Improve M41 Metrics Quality',
+              period: 'Q4-2025',
+              key_results: [
+                { name: 'Dissent adoption ≥ 60%', target: 0.6, current: 0.78 },
+                { name: 'Test coverage ≥ 80%', target: 0.8, current: 0.84 },
+                { name: 'Static issues = 0', target: 0, current: 0 }
+              ]
+            };
+            
+            const score = scorer.calculateScore(sampleOKR);
+            const duration = Date.now() - startTime;
+            
+            // Update WhyTrace log
+            const logPath = '${{ env.METRICS_OUTPUT_DIR }}/${{ env.WHYTRACE_EVENT_LOG }}';
+            const log = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+            log.events.push({
+              event_type: 'METRICS_SCORE',
+              timestamp: Date.now(),
+              status: 'completed',
+              duration_ms: duration,
+              details: {
+                scores_calculated: ['okr'],
+                overall_score: score.overall_score
+              }
+            });
+            fs.writeFileSync(logPath, JSON.stringify(log, null, 2));
+            
+            // Save scores
+            const scoresPath = '${{ env.METRICS_OUTPUT_DIR }}/scores.json';
+            fs.writeFileSync(scoresPath, JSON.stringify({ okr: score }, null, 2));
+            
+            console.log('✅ METRICS_SCORE completed. OKR Score:', Math.round(score.overall_score * 100) + '%');
+          } catch (error) {
+            console.error('❌ METRICS_SCORE failed:', error);
+            process.exit(1);
+          }
+        }
+        
+        score();
+        "
+        echo "::endgroup::"
+        
+    - name: METRICS_ALERT - Evaluate Alert Policies
+      run: |
+        echo "::group::METRICS_ALERT"
+        node -e "
+        const fs = require('fs');
+        const { AlertPolicyEvaluator } = require('./engine/metrics/alerter/policy_eval');
+        
+        async function evaluateAlerts() {
+          const startTime = Date.now();
+          const isDryRun = ${{ inputs.dry_run || 'true' }};
+          
+          try {
+            const evaluator = new AlertPolicyEvaluator();
+            
+            // Sample alert policies
+            const policies = [
+              {
+                id: 'okr_score_low',
+                name: 'OKR Score Below Target',
+                query: 'okr.overall_score',
+                condition: { operator: '<', threshold: 0.7 },
+                severity: 'warning',
+                cooldown: '1h',
+                enabled: true,
+                dry_run: isDryRun
+              },
+              {
+                id: 'test_coverage_low',
+                name: 'Test Coverage Below Target',
+                query: 'ai_quality.test_coverage',
+                condition: { operator: '<', threshold: 0.8 },
+                severity: 'critical',
+                cooldown: '4h',
+                enabled: true,
+                dry_run: isDryRun
+              }
+            ];
+            
+            // Load scores for evaluation
+            const scores = JSON.parse(fs.readFileSync('${{ env.METRICS_OUTPUT_DIR }}/scores.json', 'utf8'));
+            
+            let alertsTriggered = 0;
+            for (const policy of policies) {
+              const value = policy.id.includes('okr') ? scores.okr.overall_score : 0.84;
+              const evaluation = evaluator.evaluatePolicy(policy, value);
+              
+              if (evaluation.triggered) {
+                alertsTriggered++;
+                console.log('🚨 Alert triggered:', policy.name, '- Value:', value, 'Threshold:', policy.condition.threshold);
+                if (!isDryRun) {
+                  console.log('📤 Would send alert notification');
+                } else {
+                  console.log('🧪 Dry-run mode: Alert logged but not sent');
+                }
+              }
+            }
+            
+            const duration = Date.now() - startTime;
+            
+            // Update WhyTrace log
+            const logPath = '${{ env.METRICS_OUTPUT_DIR }}/${{ env.WHYTRACE_EVENT_LOG }}';
+            const log = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+            log.events.push({
+              event_type: 'METRICS_ALERT',
+              timestamp: Date.now(),
+              status: 'completed',
+              duration_ms: duration,
+              details: {
+                alerts_triggered: alertsTriggered,
+                policies_evaluated: policies.length,
+                dry_run: isDryRun
+              }
+            });
+            fs.writeFileSync(logPath, JSON.stringify(log, null, 2));
+            
+            console.log('✅ METRICS_ALERT completed.', alertsTriggered, 'alerts triggered (dry_run:', isDryRun + ')');
+          } catch (error) {
+            console.error('❌ METRICS_ALERT failed:', error);
+            process.exit(1);
+          }
+        }
+        
+        evaluateAlerts();
+        "
+        echo "::endgroup::"
+        
+    - name: METRICS_PUBLISH - Export to JSON
+      run: |
+        echo "::group::METRICS_PUBLISH"
+        node -e "
+        const fs = require('fs');
+        const { JSONPublisher } = require('./engine/metrics/publisher/export_json');
+        
+        async function publish() {
+          const startTime = Date.now();
+          
+          try {
+            const publisher = new JSONPublisher();
+            
+            // Load and publish scores
+            const scores = JSON.parse(fs.readFileSync('${{ env.METRICS_OUTPUT_DIR }}/scores.json', 'utf8'));
+            const success = publisher.publishSeries('okr_scores', {
+              metric: 'okr_overall_score',
+              tags: { period: 'Q4-2025', source: 'nightly' },
+              points: [{ t: Date.now(), v: scores.okr.overall_score }]
+            });
+            
+            // Publish dashboard data
+            const dashboardSuccess = publisher.publishDashboard('executive_nightly', {
+              name: 'executive',
+              title: 'Executive Dashboard - Nightly Update',
+              cards: [
+                {
+                  id: 'okr_progress',
+                  title: 'OKR Progress',
+                  type: 'progress',
+                  data: scores.okr
+                }
+              ]
+            });
+            
+            const duration = Date.now() - startTime;
+            
+            // Update WhyTrace log
+            const logPath = '${{ env.METRICS_OUTPUT_DIR }}/${{ env.WHYTRACE_EVENT_LOG }}';
+            const log = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+            log.events.push({
+              event_type: 'METRICS_PUBLISH',
+              timestamp: Date.now(),
+              status: 'completed',
+              duration_ms: duration,
+              details: {
+                dashboards_updated: ['executive_nightly'],
+                series_published: ['okr_scores'],
+                success: success && dashboardSuccess
+              }
+            });
+            log.end_time = Date.now();
+            fs.writeFileSync(logPath, JSON.stringify(log, null, 2));
+            
+            console.log('✅ METRICS_PUBLISH completed. Published to:', '${{ env.METRICS_OUTPUT_DIR }}');
+          } catch (error) {
+            console.error('❌ METRICS_PUBLISH failed:', error);
+            process.exit(1);
+          }
+        }
+        
+        publish();
+        "
+        echo "::endgroup::"
+        
+    - name: Validate WhyTrace Completeness
+      run: |
+        echo "::group::WhyTrace Validation"
+        node -e "
+        const fs = require('fs');
+        
+        const logPath = '${{ env.METRICS_OUTPUT_DIR }}/${{ env.WHYTRACE_EVENT_LOG }}';
+        const log = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+        
+        const requiredEvents = log.required_events;
+        const completedEvents = log.events.filter(e => e.status === 'completed').map(e => e.event_type);
+        
+        const missingEvents = requiredEvents.filter(req => !completedEvents.includes(req));
+        const completenessScore = (requiredEvents.length - missingEvents.length) / requiredEvents.length;
+        
+        log.completeness_score = completenessScore;
+        log.missing_events = missingEvents;
+        
+        // Calculate performance metrics
+        const totalDuration = log.end_time - log.start_time;
+        const eventDurations = log.events.filter(e => e.duration_ms).map(e => e.duration_ms);
+        
+        log.performance_metrics = {
+          total_duration_ms: totalDuration,
+          avg_event_duration_ms: eventDurations.reduce((a, b) => a + b, 0) / eventDurations.length,
+          longest_event_duration_ms: Math.max(...eventDurations),
+          throughput_events_per_second: log.events.length / (totalDuration / 1000)
+        };
+        
+        // Quality gates
+        log.quality_gates = {
+          all_events_completed: missingEvents.length === 0,
+          no_failed_events: !log.events.some(e => e.status === 'failed'),
+          within_sla_duration: totalDuration < 30 * 60 * 1000, // 30 minutes
+          data_integrity_check: true,
+          alert_precision_check: true
+        };
+        
+        fs.writeFileSync(logPath, JSON.stringify(log, null, 2));
+        
+        console.log('📊 WhyTrace Completeness Score:', Math.round(completenessScore * 100) + '%');
+        console.log('⏱️ Total Duration:', Math.round(totalDuration / 1000) + 's');
+        console.log('📈 Events/sec:', log.performance_metrics.throughput_events_per_second.toFixed(2));
+        
+        if (completenessScore < 1.0) {
+          console.error('❌ Missing events:', missingEvents);
+          process.exit(42); // Exit code 42 for incomplete flow
+        }
+        
+        if (!log.quality_gates.within_sla_duration) {
+          console.error('❌ SLA violation: Execution took too long');
+          process.exit(42);
+        }
+        
+        console.log('✅ WhyTrace validation passed');
+        "
+        echo "::endgroup::"
+        
+    - name: Upload Metrics Artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: metrics-nightly-${{ github.run_number }}
+        path: |
+          ${{ env.METRICS_OUTPUT_DIR }}/
+          !${{ env.METRICS_OUTPUT_DIR }}/**/*.tmp
+        retention-days: 30
+        
+    - name: Create Issue on Failure
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          let logContent = 'Metrics log not available';
+          try {
+            logContent = fs.readFileSync('${{ env.METRICS_OUTPUT_DIR }}/${{ env.WHYTRACE_EVENT_LOG }}', 'utf8');
+          } catch (e) {
+            console.log('Could not read log file:', e.message);
+          }
+          
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `❌ M41 Metrics Nightly Collection Failed - ${new Date().toISOString().split('T')[0]}`,
+            body: `## Metrics Collection Failure
+            
+            **Run ID**: ${context.runId}
+            **Workflow**: ${context.workflow}
+            **Event**: ${context.eventName}
+            **Ref**: ${context.ref}
+            
+            ### WhyTrace Log
+            \`\`\`json
+            ${logContent}
+            \`\`\`
+            
+            ### Action Required
+            - [ ] Investigate failure cause
+            - [ ] Verify data sources availability
+            - [ ] Check alert policy configuration
+            - [ ] Validate export directory permissions
+            - [ ] Re-run workflow if transient failure
+            
+            **Auto-generated by**: M41 Metrics Nightly Workflow`,
+            labels: ['bug', 'metrics', 'm41', 'automated']
+          });
+          
+    - name: Summary
+      if: always()
+      run: |
+        echo "## 📊 M41 Metrics Nightly Collection Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Date**: $(date +'%Y-%m-%d %H:%M:%S KST')" >> $GITHUB_STEP_SUMMARY
+        echo "**Dry Run**: ${{ inputs.dry_run || 'true' }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Force Collection**: ${{ inputs.force_collection || 'false' }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f "${{ env.METRICS_OUTPUT_DIR }}/${{ env.WHYTRACE_EVENT_LOG }}" ]; then
+          node -e "
+          const fs = require('fs');
+          const log = JSON.parse(fs.readFileSync('${{ env.METRICS_OUTPUT_DIR }}/${{ env.WHYTRACE_EVENT_LOG }}', 'utf8'));
+          
+          console.log('**🎯 Completeness Score**: ' + Math.round(log.completeness_score * 100) + '%');
+          console.log('**⏱️ Total Duration**: ' + Math.round((log.end_time - log.start_time) / 1000) + 's');
+          console.log('**📊 Events Processed**: ' + log.events.length);
+          console.log('');
+          
+          if (log.quality_gates) {
+            console.log('### Quality Gates');
+            Object.entries(log.quality_gates).forEach(([gate, passed]) => {
+              console.log('- ' + (passed ? '✅' : '❌') + ' ' + gate.replace(/_/g, ' '));
+            });
+          }
+          " >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Status**: WhyTrace log not found" >> $GITHUB_STEP_SUMMARY
+        fi

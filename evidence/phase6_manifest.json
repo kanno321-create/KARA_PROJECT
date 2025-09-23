@@ -1,0 +1,9 @@
+﻿{
+    "artifact":  "phase6_manifest",
+    "summary":  "증거 해시 매니페스트",
+    "details":  {
+                    "missing":  0,
+                    "files":  0
+                },
+    "sha256_placeholder":  "0000000000000000000000000000000000000000000000000000000000000000"
+}

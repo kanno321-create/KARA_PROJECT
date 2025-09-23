@@ -1,0 +1,58 @@
+﻿{
+    "seed_id":  "batch-04",
+    "category":  "batch",
+    "request":  {
+                    "request_id":  "75cc8557-da6a-478e-b217-9650d44d0b9a",
+                    "project_label":  "Batch Build Delta",
+                    "submitted_by":  "automation.tester@kis.local",
+                    "knowledge_snapshot_id":  "6affab99-b400-4f2e-84e6-02d05cf59c73",
+                    "distribution_panels":  [
+                                                {
+                                                    "panel_id":  "BATCH-D4",
+                                                    "source_tab_index":  1,
+                                                    "subtotal":  128400,
+                                                    "line_items":  [
+                                                                       {
+                                                                           "category":  "magnet",
+                                                                           "sku":  "MAG-HLD-090",
+                                                                           "quantity":  1,
+                                                                           "unit_price":  51360,
+                                                                           "line_total":  51360
+                                                                       },
+                                                                       {
+                                                                           "category":  "accessory",
+                                                                           "sku":  "ACC-LUG-45",
+                                                                           "quantity":  2,
+                                                                           "unit_price":  25680,
+                                                                           "line_total":  51360
+                                                                       }
+                                                                   ],
+                                                    "evidence_ref":  {
+                                                                         "bundle_id":  "seed__",
+                                                                         "json_path":  "evidence/seed__.json",
+                                                                         "visual_path":  "evidence/seed__.svg",
+                                                                         "log_path":  "evidence/logs/seed__.json",
+                                                                         "sha256":  "0000000000000000000000000000000000000000000000000000000000000000"
+                                                                     }
+                                                }
+                                            ],
+                    "pricing_overrides":  [
+
+                                          ],
+                    "validation_flags":  {
+                                             "run_fix4":  true,
+                                             "run_regression_sample":  true
+                                         }
+                },
+    "expected_gate_scores":  {
+                                 "gate1":  "PASS",
+                                 "gate2":  "PASS",
+                                 "gate3":  "PASS",
+                                 "gate4":  "PASS"
+                             },
+    "expected_metrics":  {
+                             "p95_ms":  1800,
+                             "error_ratio":  0
+                         },
+    "_note":  "Accessories and magnets mix"
+}

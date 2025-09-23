@@ -1,0 +1,165 @@
+name: SpecKit Quality Gate
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'spec/**'
+      - 'out/speckit/**'
+      - '.github/workflows/speckit_gate.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'spec/**'
+      - 'out/speckit/**'
+      - '.github/workflows/speckit_gate.yml'
+
+jobs:
+  speckit-gate:
+    runs-on: ubuntu-latest
+    name: SpecKit Quality Gate
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: SpecKit Lint Validation
+      run: |
+        echo "🔍 Validating specification format and structure..."
+        # Validate YAML structure
+        for file in spec/_index.yaml spec/trace_links.yaml; do
+          if [ -f "$file" ]; then
+            echo "Validating $file..."
+            npx yaml-validator "$file" || exit 1
+          fi
+        done
+
+        # Validate specification headers
+        echo "Checking specification headers..."
+        for spec in spec/**/*.spec.md; do
+          if [ -f "$spec" ]; then
+            if ! grep -q "^# " "$spec"; then
+              echo "❌ Missing header in $spec"
+              exit 1
+            fi
+          fi
+        done
+        echo "✅ SpecKit lint validation passed"
+
+    - name: Coverage Threshold Validation
+      run: |
+        echo "📊 Validating coverage thresholds..."
+
+        # Read current coverage from coverage.json
+        if [ -f "out/speckit/coverage.json" ]; then
+          TOTAL_COVERAGE=$(jq -r '.coverage_summary.total_score' out/speckit/coverage.json)
+          API_COVERAGE=$(jq -r '.axes.api.percentage' out/speckit/coverage.json)
+          UI_COVERAGE=$(jq -r '.axes.ui.percentage' out/speckit/coverage.json)
+          FUNCTIONAL_COVERAGE=$(jq -r '.axes.functional.percentage' out/speckit/coverage.json)
+          DATA_COVERAGE=$(jq -r '.axes.data.percentage' out/speckit/coverage.json)
+          POLICY_COVERAGE=$(jq -r '.axes.policy.percentage' out/speckit/coverage.json)
+
+          echo "Current coverage: Total=$TOTAL_COVERAGE%, API=$API_COVERAGE%, UI=$UI_COVERAGE%, Functional=$FUNCTIONAL_COVERAGE%, Data=$DATA_COVERAGE%, Policy=$POLICY_COVERAGE%"
+
+          # BOOST-99 Hard Thresholds (BLOCK on failure)
+          if [ "$TOTAL_COVERAGE" -lt 99 ]; then
+            echo "❌ FAIL: Total coverage $TOTAL_COVERAGE% < 99% threshold"
+            exit 1
+          fi
+
+          if [ "$API_COVERAGE" -lt 99 ]; then
+            echo "❌ FAIL: API coverage $API_COVERAGE% < 99% threshold"
+            exit 1
+          fi
+
+          if [ "$UI_COVERAGE" -lt 96 ]; then
+            echo "❌ FAIL: UI coverage $UI_COVERAGE% < 96% threshold"
+            exit 1
+          fi
+
+          if [ "$FUNCTIONAL_COVERAGE" -lt 98 ]; then
+            echo "❌ FAIL: Functional coverage $FUNCTIONAL_COVERAGE% < 98% threshold"
+            exit 1
+          fi
+
+          if [ "$DATA_COVERAGE" -lt 98 ]; then
+            echo "⚠️ WARN: Data coverage $DATA_COVERAGE% < 98% target (acceptable for now)"
+          fi
+
+          if [ "$POLICY_COVERAGE" -lt 100 ]; then
+            echo "❌ FAIL: Policy coverage $POLICY_COVERAGE% < 100% (mandatory)"
+            exit 1
+          fi
+
+          echo "✅ All coverage thresholds met"
+        else
+          echo "❌ FAIL: Missing coverage.json"
+          exit 1
+        fi
+
+    - name: Traceability Link Validation
+      run: |
+        echo "🔗 Validating traceability links..."
+
+        # Check for broken links in trace_links.yaml
+        if [ -f "spec/trace_links.yaml" ]; then
+          BROKEN_LINKS=$(yq eval '.links[] | select(.verified == false) | length' spec/trace_links.yaml)
+          if [ "$BROKEN_LINKS" -gt 0 ]; then
+            echo "❌ FAIL: Found $BROKEN_LINKS broken traceability links"
+            exit 1
+          fi
+
+          TOTAL_LINKS=$(yq eval '.links | length' spec/trace_links.yaml)
+          echo "✅ All $TOTAL_LINKS traceability links verified"
+        else
+          echo "❌ FAIL: Missing trace_links.yaml"
+          exit 1
+        fi
+
+    - name: Code Change Detection (Docs-only Policy)
+      run: |
+        echo "🛡️ Validating docs-only policy compliance..."
+
+        # Check if this is a docs-only change
+        CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD || echo "")
+        NON_DOCS_CHANGES=""
+
+        for file in $CHANGED_FILES; do
+          case $file in
+            spec/* | out/speckit/* | .github/workflows/speckit_gate.yml | ops/speckit/* | releases/speckit/* | *.md)
+              # These are allowed docs-only changes
+              ;;
+            *)
+              NON_DOCS_CHANGES="$NON_DOCS_CHANGES $file"
+              ;;
+          esac
+        done
+
+        if [ -n "$NON_DOCS_CHANGES" ]; then
+          echo "❌ FAIL: Non-docs changes detected (violates docs-only policy):"
+          echo "$NON_DOCS_CHANGES"
+          exit 1
+        fi
+
+        echo "✅ Docs-only policy compliance verified"
+
+    - name: Quality Gate Summary
+      run: |
+        echo "🎯 SpecKit Quality Gate Summary"
+        echo "================================"
+        echo "✅ Specification lint: PASS"
+        echo "✅ Coverage thresholds: PASS"
+        echo "✅ Traceability links: PASS"
+        echo "✅ Docs-only policy: PASS"
+        echo ""
+        echo "🏆 SpecKit Quality Gate: PASSED"
+        echo "Ready for production deployment"

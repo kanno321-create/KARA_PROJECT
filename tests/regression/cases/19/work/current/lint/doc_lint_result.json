@@ -1,0 +1,49 @@
+{
+  "ts": 1758217552,
+  "errors": 0,
+  "warnings": 0,
+  "error_details": [],
+  "warning_details": [],
+  "documents": {
+    "enclosure": "OK",
+    "placement": "OK",
+    "critic": "OK",
+    "format": "OK",
+    "cover": "OK",
+    "spatial": "OK"
+  },
+  "evidence_files": 11,
+  "field_completeness": {
+    "project_name": true,
+    "client": true,
+    "totals": true,
+    "signature": true,
+    "date": true,
+    "project_number": true
+  },
+  "overflow_risks": [],
+  "font_substitutions": [
+    {
+      "doc": "cover",
+      "original_font": "Calibri",
+      "substituted_font": "Arial",
+      "reason": "Font not embedded"
+    },
+    {
+      "doc": "format",
+      "original_font": "Calibri",
+      "substituted_font": "Arial",
+      "reason": "Font not embedded"
+    }
+  ],
+  "pass": true,
+  "validation_pass": true,
+  "status": "PASS",
+  "quality_score": 100,
+  "validation_summary": {
+    "documents_checked": 6,
+    "documents_valid": 6,
+    "required_fields_complete": 6,
+    "required_fields_total": 6
+  }
+}

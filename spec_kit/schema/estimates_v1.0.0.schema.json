@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kis-core.com/schemas/estimates/v1.0.0",
+  "title": "KIS Core Estimates Schema v1.0.0",
+  "description": "Estimate data structure validation schema (semver compatible)",
+  "version": "1.0.0",
+  "snapshot_date": "2024-09-22T15:06:00Z",
+  "verification_date": "2024-09-22T15:18:00Z",
+  "compatibility": {
+    "breaking_changes": "none",
+    "deprecated_fields": [],
+    "new_fields": [],
+    "semver_status": "stable",
+    "integrity_verified": true
+  },
+  "type": "object",
+  "properties": {
+    "estimate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^EST-[0-9]{8}-[A-Z0-9]{6}$",
+          "description": "Unique estimate identifier"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+$"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "created": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updated": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "createdBy": {
+              "type": "string"
+            },
+            "project": {
+              "type": "string"
+            },
+            "customer": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "code": {
+                  "type": "string",
+                  "pattern": "^[A-Z0-9]{3,10}$"
+                }
+              },
+              "required": ["name", "code"]
+            }
+          },
+          "required": ["created", "createdBy", "project", "customer"]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["material", "labor", "equipment", "service", "overhead"]
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "unit": {
+                "type": "string",
+                "enum": ["ea", "m", "m2", "m3", "kg", "hr", "day", "set", "lot"]
+              },
+              "quantity": {
+                "type": "number",
+                "minimum": 0
+              },
+              "unitPrice": {
+                "type": "number",
+                "minimum": 0
+              },
+              "totalPrice": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": ["id", "type", "description", "unit", "quantity", "unitPrice", "totalPrice"]
+          },
+          "minItems": 1
+        },
+        "summary": {
+          "type": "object",
+          "properties": {
+            "subtotal": {
+              "type": "number",
+              "minimum": 0
+            },
+            "total": {
+              "type": "number",
+              "minimum": 0
+            },
+            "currency": {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$",
+              "default": "KRW"
+            }
+          },
+          "required": ["subtotal", "total", "currency"]
+        }
+      },
+      "required": ["id", "version", "metadata", "items", "summary"]
+    }
+  },
+  "required": ["estimate"],
+  "changeLog": [
+    {
+      "version": "1.0.0",
+      "date": "2024-09-22",
+      "changes": [
+        "Initial stable release",
+        "Core estimate structure defined",
+        "Korean business requirements implemented"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "steps": [
+    {
+      "step": "ensure_dirs",
+      "ok": true,
+      "ts": "2025-09-19T11:57:43.973Z",
+      "attempt": 1
+    },
+    {
+      "step": "fill_missing",
+      "ok": true,
+      "ts": "2025-09-19T11:57:43.974Z",
+      "attempt": 1
+    },
+    {
+      "step": "v0_smoke50",
+      "ok": true,
+      "ts": "2025-09-19T11:57:44.082Z",
+      "attempt": 1
+    },
+    {
+      "step": "v1_regen_cards",
+      "ok": true,
+      "ts": "2025-09-19T11:57:44.150Z",
+      "attempt": 1
+    },
+    {
+      "step": "merge_cards",
+      "ok": true,
+      "ts": "2025-09-19T11:57:44.223Z",
+      "attempt": 1
+    },
+    {
+      "step": "preview_and_perf",
+      "ok": true,
+      "ts": "2025-09-19T11:57:44.282Z",
+      "attempt": 1
+    },
+    {
+      "step": "gates_quickcheck",
+      "ok": true,
+      "ts": "2025-09-19T11:57:44.341Z",
+      "attempt": 1
+    },
+    {
+      "step": "regression_200",
+      "ok": true,
+      "ts": "2025-09-19T11:57:44.403Z",
+      "attempt": 1
+    },
+    {
+      "step": "erp_handoff",
+      "ok": true,
+      "ts": "2025-09-19T11:57:44.469Z",
+      "attempt": 1
+    },
+    {
+      "step": "update_pins",
+      "ok": true,
+      "ts": "2025-09-19T11:57:44.540Z",
+      "attempt": 1
+    },
+    {
+      "step": "manifest_write",
+      "ok": true,
+      "ts": "2025-09-19T11:57:44.542Z",
+      "attempt": 1
+    },
+    {
+      "step": "bundle_evidence",
+      "ok": true,
+      "ts": "2025-09-19T11:57:45.080Z",
+      "attempt": 1
+    },
+    {
+      "step": "rag_indexer",
+      "ok": true,
+      "ts": "2025-09-19T11:57:45.139Z",
+      "attempt": 1
+    }
+  ]
+}

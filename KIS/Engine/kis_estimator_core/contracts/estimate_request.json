@@ -1,0 +1,68 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KIS Estimate Request",
+  "type": "object",
+  "required": ["project_id", "site", "loads", "requested_totals", "enclosure", "ip_min"],
+  "properties": {
+    "project_id": {"type": "string"},
+    "case_id": {"type": "string"},
+    "site": {
+      "type": "object",
+      "required": ["country", "voltage_class"],
+      "properties": {
+        "country": {"type": "string"},
+        "voltage_class": {"type": "string"},
+        "ambient_c": {"type": "number"}
+      }
+    },
+    "loads": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "kva", "width_unit", "heat_w"],
+        "properties": {
+          "id": {"type": "string"},
+          "kva": {"type": "number"},
+          "phase": {"type": "string"},
+          "width_unit": {"type": "number"},
+          "heat_w": {"type": "number"}
+        }
+      }
+    },
+    "enclosure": {
+      "type": "object",
+      "required": ["required_w", "required_h", "required_d"],
+      "properties": {
+        "required_w": {"type": "number"},
+        "required_h": {"type": "number"},
+        "required_d": {"type": "number"}
+      }
+    },
+    "ip_min": {"type": "string"},
+    "requested_totals": {
+      "type": "object",
+      "properties": {
+        "currency": {"type": "string"},
+        "granularity": {"type": "string"}
+      }
+    },
+    "document": {
+      "type": "object",
+      "properties": {
+        "project_name": {"type": "string"},
+        "client": {"type": "string"},
+        "project_number": {"type": "string"},
+        "date": {"type": "string", "format": "date"}
+      }
+    },
+    "brand": {
+      "type": "object",
+      "properties": {
+        "primary_color": {"type": "string"},
+        "logo_ref": {"type": "string"},
+        "font_size": {"type": "number"}
+      }
+    }
+  }
+}

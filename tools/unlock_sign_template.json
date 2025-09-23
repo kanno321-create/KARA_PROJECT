@@ -1,0 +1,21 @@
+{
+  "name": "[CEO NAME]",
+  "date": "[YYYY-MM-DD]",
+  "release_tag": "v2.0.0",
+  "template_hash": "[SHA256 first 8 chars of templates]",
+  "policy_hash": "[SHA256 first 8 chars of policy]",
+  "evidence_summary": {
+    "regression_rate": 0.0,
+    "fit_score": 0.0,
+    "phase_imbalance": 0.0,
+    "clearances": 0,
+    "thermal": 0,
+    "lint_errors": 0
+  },
+  "approvals": {
+    "ceo": "[NAME]",
+    "cto": "[NAME]",
+    "qa_lead": "[NAME]"
+  },
+  "notes": "Production unlock approval for KIS v2.0"
+}

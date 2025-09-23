@@ -1,0 +1,389 @@
+name: KIS M31 Layout v3.1 CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop, 'feat/m31-*', 'feature/*' ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '18.x'
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  # Gate 1: Lint
+  lint:
+    name: 🔍 Lint Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci
+        
+      - name: 🔍 Run ESLint
+        run: npm run lint
+        
+      - name: 🔍 Run Prettier check
+        run: npm run format:check
+        
+      - name: 🔍 TypeScript type checking
+        run: npm run type-check
+
+  # Gate 2: Build
+  build:
+    name: 🏗️ Build System
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 15
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci
+        
+      - name: 🏗️ Build packages
+        run: npm run build
+        
+      - name: 📦 Cache build artifacts
+        uses: actions/cache@v3
+        with:
+          path: |
+            dist/
+            apps/web/dist/
+            apps/web/.next/
+          key: build-${{ github.sha }}
+          retention-days: 1
+
+  # Gate 3: Unit Tests
+  unit-tests:
+    name: ⚡ Unit Tests
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 20
+    
+    strategy:
+      matrix:
+        test-suite:
+          - enclosure
+          - accessories
+          - api
+          - components
+          - m31_step4_materials
+          - busbar_formula
+          - whytrace_busbar
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci
+        
+      - name: 📦 Restore build cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            dist/
+            apps/web/dist/
+            apps/web/.next/
+          key: build-${{ github.sha }}
+          
+      - name: ⚡ Run unit tests - ${{ matrix.test-suite }}
+        run: npm test -- --testPathPattern=${{ matrix.test-suite }} --coverage --verbose
+        env:
+          NODE_ENV: test
+          
+      - name: 📊 Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unit-${{ matrix.test-suite }}
+          name: unit-${{ matrix.test-suite }}
+
+  # Gate 4: Layout Simulation Tests
+  layout-sim:
+    name: 📐 Layout Simulation Validation
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    timeout-minutes: 30
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          
+      - name: 📥 Install Node dependencies
+        run: npm ci
+        
+      - name: 📥 Install Python dependencies
+        run: |
+          pip install numpy scipy matplotlib pandas
+          pip install -r scripts/requirements.txt
+          
+      - name: 📦 Restore build cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            dist/
+            apps/web/dist/
+            apps/web/.next/
+          key: build-${{ github.sha }}
+          
+      - name: 🔧 Validate Python script
+        run: python scripts/virtual_layout.py --version
+        
+      - name: 📐 Run layout simulation tests
+        run: npm test -- --testPathPattern=layout --verbose --timeout=60000
+        env:
+          NODE_ENV: test
+          LAYOUT_SIM_ENABLED: true
+          PYTHON_PATH: python
+          
+      - name: 📐 Run simulation performance benchmarks
+        run: npm run test:layout-perf
+        env:
+          BENCHMARK_ITERATIONS: 5
+          MAX_SIMULATION_TIME: 30000
+
+  # Gate 5: Regression Tests (±2% cost deviation)
+  regression:
+    name: 🔄 Regression Testing (±2% cost)
+    runs-on: ubuntu-latest
+    needs: layout-sim
+    timeout-minutes: 45
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          
+      - name: 📥 Install dependencies
+        run: |
+          npm ci
+          pip install numpy scipy matplotlib pandas
+          pip install -r scripts/requirements.txt
+          
+      - name: 📦 Restore build cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            dist/
+            apps/web/dist/
+            apps/web/.next/
+          key: build-${{ github.sha }}
+          
+      - name: 🔄 Run regression test suite
+        run: npm test -- --testPathPattern=regression --verbose --timeout=120000
+        env:
+          NODE_ENV: test
+          REGRESSION_MODE: strict
+          COST_DEVIATION_THRESHOLD: 2.0
+          LAYOUT_SIM_ENABLED: true
+          
+      - name: 📊 Generate regression report
+        run: |
+          mkdir -p reports/regression
+          npm run test:regression:report
+          
+      - name: 📤 Upload regression artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: regression-reports-${{ github.sha }}
+          path: reports/regression/
+          retention-days: 30
+
+  # Gate 6: WhyTrace Completeness (==1.0)
+  whytrace-validation:
+    name: 📋 WhyTrace Completeness Validation
+    runs-on: ubuntu-latest
+    needs: regression
+    timeout-minutes: 25
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          
+      - name: 📥 Install dependencies
+        run: |
+          npm ci
+          pip install numpy scipy matplotlib pandas
+          pip install -r scripts/requirements.txt
+          
+      - name: 📦 Restore build cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            dist/
+            apps/web/dist/
+            apps/web/.next/
+          key: build-${{ github.sha }}
+          
+      - name: 📋 Run WhyTrace completeness tests
+        run: npm test -- --testPathPattern=whytrace --verbose
+        env:
+          NODE_ENV: test
+          WHYTRACE_COMPLETENESS_THRESHOLD: 1.0
+          WHYTRACE_VALIDATION_STRICT: true
+          
+      - name: 📋 Validate WhyTrace structure
+        run: npm run test:whytrace:validate
+        
+      - name: 📊 Generate WhyTrace analysis report
+        run: |
+          mkdir -p reports/whytrace
+          npm run test:whytrace:report
+          
+      - name: 📤 Upload WhyTrace artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: whytrace-reports-${{ github.sha }}
+          path: reports/whytrace/
+          retention-days: 30
+
+  # Final Integration Test
+  integration:
+    name: 🔗 Full System Integration
+    runs-on: ubuntu-latest
+    needs: whytrace-validation
+    timeout-minutes: 35
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          
+      - name: 📥 Install dependencies
+        run: |
+          npm ci
+          pip install numpy scipy matplotlib pandas
+          pip install -r scripts/requirements.txt
+          
+      - name: 📦 Restore build cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            dist/
+            apps/web/dist/
+            apps/web/.next/
+          key: build-${{ github.sha }}
+          
+      - name: 🔗 Run full integration test suite
+        run: npm test -- --testPathPattern=integration --verbose --timeout=180000
+        env:
+          NODE_ENV: test
+          INTEGRATION_MODE: full
+          LAYOUT_SIM_ENABLED: true
+          API_TIMEOUT: 30000
+          
+      - name: 📊 Generate final integration report
+        run: |
+          mkdir -p reports/integration
+          npm run test:integration:report
+          
+      - name: ✅ Validation summary
+        run: |
+          echo "🎉 All CI gates passed successfully!"
+          echo "✅ Lint: Code quality validated"
+          echo "✅ Build: System built successfully"  
+          echo "✅ Unit Tests: All test suites passed"
+          echo "✅ Layout Sim: 3D simulation validated"
+          echo "✅ Regression: Cost deviation within ±2%"
+          echo "✅ WhyTrace: Completeness == 1.0 achieved"
+          echo "✅ Integration: Full system operational"
+          
+      - name: 📤 Upload final artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: integration-reports-${{ github.sha }}
+          path: reports/
+          retention-days: 30
+
+  # Deployment readiness check
+  deployment-ready:
+    name: 🚀 Deployment Readiness
+    runs-on: ubuntu-latest
+    needs: integration
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: 🚀 Mark as deployment ready
+        run: |
+          echo "🚀 KIS M31 Layout v3.1 Step 4 is ready for deployment!"
+          echo "📊 All quality gates passed with strict validation"
+          echo "📋 WhyTrace completeness: 1.0 (includes materials events)"
+          echo "🔄 Regression stability: ±2% cost deviation"
+          echo "📐 Layout simulation: Validated and operational"
+          echo "🔧 Materials pipeline: Fasteners, companions, costing integrated"
+          echo "📈 KPIs dashboard: Layout performance monitoring enabled"

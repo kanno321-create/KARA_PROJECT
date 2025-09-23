@@ -1,0 +1,58 @@
+﻿{
+    "seed_id":  "form-05",
+    "category":  "form",
+    "request":  {
+                    "request_id":  "c23f664e-3bfb-412e-be4f-87697944c217",
+                    "project_label":  "Form Migration Central",
+                    "submitted_by":  "automation.tester@kis.local",
+                    "knowledge_snapshot_id":  "a82165e9-321c-4ff6-87b6-26af92a1422f",
+                    "distribution_panels":  [
+                                                {
+                                                    "panel_id":  "FORM-C5",
+                                                    "source_tab_index":  1,
+                                                    "subtotal":  101230,
+                                                    "line_items":  [
+                                                                       {
+                                                                           "category":  "breaker",
+                                                                           "sku":  "FRM-COV-CLN",
+                                                                           "quantity":  1,
+                                                                           "unit_price":  40492,
+                                                                           "line_total":  40492
+                                                                       },
+                                                                       {
+                                                                           "category":  "breaker",
+                                                                           "sku":  "BRK-095A-3P",
+                                                                           "quantity":  2,
+                                                                           "unit_price":  20246,
+                                                                           "line_total":  40492
+                                                                       }
+                                                                   ],
+                                                    "evidence_ref":  {
+                                                                         "bundle_id":  "seed__",
+                                                                         "json_path":  "evidence/seed__.json",
+                                                                         "visual_path":  "evidence/seed__.svg",
+                                                                         "log_path":  "evidence/logs/seed__.json",
+                                                                         "sha256":  "0000000000000000000000000000000000000000000000000000000000000000"
+                                                                     }
+                                                }
+                                            ],
+                    "pricing_overrides":  [
+
+                                          ],
+                    "validation_flags":  {
+                                             "run_fix4":  true,
+                                             "run_regression_sample":  true
+                                         }
+                },
+    "expected_gate_scores":  {
+                                 "gate1":  "PASS",
+                                 "gate2":  "PASS",
+                                 "gate3":  "PASS",
+                                 "gate4":  "PASS"
+                             },
+    "expected_metrics":  {
+                             "p95_ms":  1800,
+                             "error_ratio":  0
+                         },
+    "_note":  "Preview substitution cross-check"
+}

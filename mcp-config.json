@@ -1,0 +1,121 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\Users\\PC\\Desktop\\KIS_CORE_V2"
+      ],
+      "env": {}
+    },
+    "git": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "@modelcontextprotocol/server-git",
+        "--repository",
+        "C:\\Users\\PC\\Desktop\\KIS_CORE_V2"
+      ],
+      "env": {}
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {}
+    },
+    "sequentialthinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequentialthinking"
+      ],
+      "env": {}
+    },
+    "cad-mcp": {
+      "command": "python",
+      "args": [
+        "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\cad-mcp\\src\\server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\cad-mcp\\src"
+      }
+    },
+    "autocad-mcp": {
+      "command": "python", 
+      "args": [
+        "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\autocad-mcp\\server_lisp_fast.py"
+      ],
+      "env": {
+        "PYTHONPATH": "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\autocad-mcp"
+      }
+    },
+    "freecad-mcp": {
+      "command": "python",
+      "args": [
+        "-m",
+        "freecad_mcp.server"
+      ],
+      "env": {
+        "PYTHONPATH": "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\freecad-mcp\\src"
+      }
+    },
+    "textin-ocr": {
+      "command": "python",
+      "args": [
+        "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\textin-mcp\\server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\textin-mcp"
+      }
+    },
+    "ocr-general": {
+      "command": "python",
+      "args": [
+        "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\ocr-mcp\\server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\ocr-mcp"
+      }
+    },
+    "pdf-reader": {
+      "command": "python",
+      "args": [
+        "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\pdf-reader-mcp\\main.py"
+      ],
+      "env": {
+        "PYTHONPATH": "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\pdf-reader-mcp"
+      }
+    },
+    "e2b-sandbox": {
+      "command": "python",
+      "args": [
+        "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\e2b-mcp\\src\\e2b_mcp\\server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\e2b-mcp\\src"
+      }
+    },
+    "exa-search": {
+      "command": "python",
+      "args": [
+        "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\exa-mcp\\src\\exa_mcp\\server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\exa-mcp\\src"
+      }
+    },
+    "browserbase": {
+      "command": "python",
+      "args": [
+        "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\browserbase-mcp\\src\\mcp_server_browserbase\\server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\mcp-servers\\browserbase-mcp\\src"
+      }
+    }
+  }
+}

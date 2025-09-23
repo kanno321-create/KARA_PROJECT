@@ -1,0 +1,161 @@
+# Release Notes v{{version}}
+## {{release_title}}
+
+**Release Date**: {{release_date}}
+**Release Type**: {{release_type}} (Major | Minor | Patch | Hotfix)
+**Build Number**: {{build_number}}
+**Deployment Target**: {{deployment_environment}}
+
+---
+
+## 🎯 **Executive Summary**
+{{executive_summary}}
+
+**Key Metrics**:
+- 견적 정확도: {{estimate_accuracy}}% (목표: ≥95%)
+- 처리시간 단축: {{processing_improvement}}% (목표: 80%)
+- 시스템 가용성: {{system_uptime}}% (목표: ≥99.5%)
+
+---
+
+## ✨ **What's New**
+
+### 🚀 **Major Features**
+{{#each major_features}}
+- **{{title}}**: {{description}}
+  - Impact: {{impact}}
+  - Benefit: {{benefit}}
+{{/each}}
+
+### 🔧 **Improvements**
+{{#each improvements}}
+- **{{component}}**: {{description}} ({{performance_gain}})
+{{/each}}
+
+### 🐛 **Bug Fixes**
+{{#each bug_fixes}}
+- **{{severity}}**: {{description}} (Fixed in {{commit_id}})
+{{/each}}
+
+---
+
+## 🏗️ **Technical Changes**
+
+### API Changes
+{{#each api_changes}}
+- **{{endpoint}}**: {{change_type}} - {{description}}
+  {{#if breaking_change}}⚠️ **Breaking Change**: {{breaking_change_details}}{{/if}}
+{{/each}}
+
+### Database Schema
+{{#each schema_changes}}
+- **{{table}}**: {{change_description}}
+{{/each}}
+
+### Dependencies
+{{#each dependency_updates}}
+- **{{package}}**: {{old_version}} → {{new_version}} ({{reason}})
+{{/each}}
+
+---
+
+## 🛡️ **Security & Compliance**
+
+### Security Updates
+{{#each security_updates}}
+- **{{severity}}**: {{description}} (CVE: {{cve_id}})
+{{/each}}
+
+### Compliance
+- **WCAG AA**: {{wcag_compliance_status}}
+- **데이터 보호**: {{data_protection_status}}
+- **보안 스캔**: {{security_scan_results}}
+
+---
+
+## 📊 **Quality Gates Results**
+
+| Gate | Target | Result | Status |
+|------|--------|--------|--------|
+| FIX-4 | 4/4 | {{fix4_result}} | {{fix4_status}} |
+| Polisher | ≥95% | {{polisher_result}}% | {{polisher_status}} |
+| WCAG AA | 100% | {{wcag_result}}% | {{wcag_status}} |
+| Performance | ≤2100ms | {{performance_result}}ms | {{performance_status}} |
+| Coverage | ≥80% | {{coverage_result}}% | {{coverage_status}} |
+
+---
+
+## 🚀 **Deployment Information**
+
+### Pre-Deployment Checklist
+- [ ] Database migration scripts validated
+- [ ] Configuration updates applied
+- [ ] Feature flags configured
+- [ ] Monitoring alerts updated
+- [ ] Rollback plan confirmed
+
+### Deployment Steps
+1. {{deployment_step_1}}
+2. {{deployment_step_2}}
+3. {{deployment_step_3}}
+4. {{deployment_step_4}}
+5. {{deployment_step_5}}
+
+### Rollback Plan
+**Trigger Conditions**: {{rollback_triggers}}
+**Rollback Time**: {{rollback_time_estimate}}
+**Rollback Command**: `{{rollback_command}}`
+
+---
+
+## 📈 **Performance Impact**
+
+### Before vs After
+| Metric | Before | After | Change |
+|--------|--------|-------|--------|
+| 견적 생성 시간 | {{before_estimate_time}} | {{after_estimate_time}} | {{estimate_time_change}} |
+| 메모리 사용량 | {{before_memory}} | {{after_memory}} | {{memory_change}} |
+| API 응답시간 | {{before_api_time}} | {{after_api_time}} | {{api_time_change}} |
+
+### Load Testing Results
+- **동시 사용자**: {{concurrent_users}}
+- **처리량**: {{throughput}} req/sec
+- **오류율**: {{error_rate}}%
+
+---
+
+## 🔮 **Known Issues & Limitations**
+
+{{#each known_issues}}
+### {{severity}} - {{title}}
+**Description**: {{description}}
+**Workaround**: {{workaround}}
+**Fix ETA**: {{fix_eta}}
+**Tracking**: {{issue_id}}
+{{/each}}
+
+---
+
+## 📞 **Support & Contact**
+
+**개발팀**: {{dev_team_contact}}
+**QA팀**: {{qa_team_contact}}
+**운영팀**: {{ops_team_contact}}
+
+**Hotline**: {{emergency_contact}}
+**Documentation**: {{documentation_url}}
+**Issue Tracker**: {{issue_tracker_url}}
+
+---
+
+## 📝 **Changelog**
+
+{{#each changelog_entries}}
+- {{date}}: {{change_description}} ({{author}})
+{{/each}}
+
+---
+
+**Approved by**: {{approver_name}} | {{approval_date}}
+**QC Verified**: {{qc_verifier}} | {{qc_date}}
+**Release Manager**: {{release_manager}} | {{release_signature}}

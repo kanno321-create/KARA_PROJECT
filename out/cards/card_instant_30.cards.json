@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_030",
+    "category": "INSTANT",
+    "item": "Item_30",
+    "specs": {
+      "model": "MODEL_SBNW8",
+      "quantity": 8,
+      "unitPrice": 3372436
+    },
+    "priority": 3,
+    "leadTime": 3,
+    "reliability": 0.75,
+    "created": "2025-09-19T11:57:44.137Z"
+  }
+]

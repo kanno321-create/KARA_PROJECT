@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIS CORE V2 - AI 매니저 & 견적 시스템</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+            background-color: #f5f5f5;
+            color: #323130;
+            font-size: 14px;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Main Grid Layout */
+        .app-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100vh;
+        }
+
+        /* 좌측 사이드바 */
+        .sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+            background: white;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0066cc;
+            margin-bottom: 8px;
+        }
+
+        .user-info {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 0;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            padding: 12px 20px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .nav-item.active {
+            background: #3b82f6;
+            color: white;
+            font-weight: 500;
+        }
+
+        .nav-item-icon {
+            margin-right: 12px;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* 메인 컨텐츠 영역 */
+        .main-content {
+            background: white;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* View Content */
+        .view-content {
+            flex: 1;
+            overflow: hidden;
+            display: none;
+        }
+
+        .view-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* AI Manager View */
+        #ai-manager-view {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            height: 100%;
+        }
+
+        .chat-main {
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .chat-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .welcome-logo {
+            font-size: 48px;
+            font-weight: 700;
+            color: #0066cc;
+            margin-bottom: 16px;
+        }
+
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 32px;
+        }
+
+        .chat-input-area {
+            padding: 24px;
+            border-top: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        .chat-input-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            max-width: 100%;
+        }
+
+        .chat-input {
+            flex: 1;
+            min-height: 44px;
+            max-height: 120px;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+            background: white;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .send-button {
+            padding: 12px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .send-button:hover {
+            background: #2563eb;
+        }
+
+        .send-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .chat-sidebar {
+            background: #f8f9fa;
+            border-left: 1px solid #e5e7eb;
+            padding: 24px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        /* Estimates View - 기존 견적 시스템 */
+        #estimates-view {
+            background: #f5f5f5;
+        }
+
+        .estimates-container {
+            display: flex;
+            height: 100%;
+            background: white;
+        }
+
+        .estimates-sidebar {
+            width: 250px;
+            background: #f9f9f9;
+            border-right: 1px solid #e1dfdd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .estimates-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 탭 영역 */
+        .tab-container {
+            background: white;
+            border-bottom: 1px solid #e1dfdd;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .tab {
+            padding: 10px 16px;
+            border: 1px solid #d1d1d1;
+            border-bottom: none;
+            background: #f9f9f9;
+            cursor: pointer;
+            margin-right: 2px;
+            display: flex;
+            align-items: center;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .tab.active {
+            background: white;
+            border-color: #0078d4;
+            color: #0078d4;
+        }
+
+        .tab-close {
+            margin-left: 8px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .tab-close:hover {
+            color: #666;
+        }
+
+        .new-tab {
+            padding: 8px 12px;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        /* 컨텐츠 영역 */
+        .content-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            width: 500px;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #e1dfdd;
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+            position: relative;
+        }
+
+        /* 섹션 스타일 */
+        .section {
+            margin-bottom: 20px;
+            border: 1px solid #e1dfdd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .section-header {
+            background: #f9f9f9;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e1dfdd;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-content {
+            padding: 16px;
+        }
+
+        /* 폼 요소들 */
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            margin-bottom: 4px;
+            font-weight: 500;
+            color: #323130;
+            font-size: 12px;
+        }
+
+        .form-input {
+            padding: 8px 12px;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0078d4;
+            box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+        }
+
+        /* 그리드 레이아웃 */
+        .grid-2x2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* 토글 버튼 */
+        .header-toggle-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-toggle {
+            display: flex;
+            background: #e1dfdd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .header-toggle-option {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .header-toggle-option.active {
+            background: #0078d4;
+            color: white;
+        }
+
+        /* 드롭존 */
+        .drop-zone {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        /* AI 채팅 버튼 */
+        .ai-chat-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s;
+            z-index: 1000;
+        }
+
+        .ai-chat-button:hover {
+            background: #106ebe;
+            transform: scale(1.1);
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .app-grid {
+                grid-template-columns: 60px 1fr;
+            }
+
+            .sidebar .nav-item-text {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-grid">
+        <!-- 좌측 사이드바 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">㈜한국산업</div>
+                <div class="user-info">이충원 ceo@kis.com</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">WORK</div>
+                    <button class="nav-item active" onclick="showView('ai-manager')">
+                        <span class="nav-item-icon">🤖</span>
+                        <span class="nav-item-text">AI 매니저</span>
+                    </button>
+                    <button class="nav-item" onclick="showView('estimates')">
+                        <span class="nav-item-icon">📊</span>
+                        <span class="nav-item-text">견적서</span>
+                    </button>
+                    <button class="nav-item" onclick="showView('erp')">
+                        <span class="nav-item-icon">💼</span>
+                        <span class="nav-item-text">ERP</span>
+                    </button>
+                    <button class="nav-item" onclick="showView('email')">
+                        <span class="nav-item-icon">📧</span>
+                        <span class="nav-item-text">이메일</span>
+                    </button>
+                    <button class="nav-item" onclick="showView('calendar')">
+                        <span class="nav-item-icon">📅</span>
+                        <span class="nav-item-text">캘린더</span>
+                    </button>
+                    <button class="nav-item" onclick="showView('drawings')">
+                        <span class="nav-item-icon">📐</span>
+                        <span class="nav-item-text">도면</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+
+        <!-- 메인 컨텐츠 영역 -->
+        <div class="main-content">
+            <!-- AI 매니저 뷰 -->
+            <div id="ai-manager-view" class="view-content active">
+                <div class="chat-main">
+                    <div class="chat-header">
+                        <h1>AI 매니저</h1>
+                    </div>
+
+                    <div class="chat-messages">
+                        <div class="welcome-screen">
+                            <div class="welcome-logo">㈜한국산업</div>
+                            <div class="welcome-title">AI 매니저에 오신 것을 환영합니다</div>
+                            <div class="welcome-subtitle">무엇을 도와드릴까요?</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <div class="chat-input-container">
+                            <textarea
+                                class="chat-input"
+                                placeholder="메시지를 입력하세요..."
+                                rows="1"
+                                onkeydown="handleChatKeydown(event)"
+                            ></textarea>
+                            <button class="send-button" onclick="sendMessage()">전송</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-sidebar">
+                    <div class="sidebar-section">
+                        <h3>최근 대화</h3>
+                        <div style="color: #9ca3af; font-size: 12px;">대화 기록이 없습니다</div>
+                    </div>
+
+                    <div class="sidebar-section">
+                        <h3>도구</h3>
+                        <div style="color: #9ca3af; font-size: 12px;">견적서 생성, 데이터 분석 등</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 견적서 뷰 -->
+            <div id="estimates-view" class="view-content">
+                <div class="estimates-container">
+                    <!-- 견적 시스템 사이드바 -->
+                    <div class="estimates-sidebar">
+                        <div class="section-header">견적 메뉴</div>
+                        <div class="section-content">
+                            <div class="nav-item active">새 견적서</div>
+                            <div class="nav-item">견적서 목록</div>
+                            <div class="nav-item">템플릿 관리</div>
+                        </div>
+                    </div>
+
+                    <!-- 견적 메인 영역 -->
+                    <div class="estimates-main">
+                        <!-- 탭 영역 -->
+                        <div class="tab-container">
+                            <div class="tab active">
+                                분전반 견적 1
+                                <span class="tab-close">×</span>
+                            </div>
+                            <button class="new-tab" onclick="addNewTab()">+ 새 탭</button>
+                        </div>
+
+                        <!-- 컨텐츠 영역 -->
+                        <div class="content-container">
+                            <!-- 좌측 입력 패널 -->
+                            <div class="left-panel">
+                                <!-- 고객 정보 -->
+                                <div class="section">
+                                    <div class="section-header">고객 정보</div>
+                                    <div class="section-content">
+                                        <div class="grid-2x2">
+                                            <div class="form-row">
+                                                <label class="form-label">업체명</label>
+                                                <input type="text" class="form-input" placeholder="업체명을 입력하세요">
+                                            </div>
+                                            <div class="form-row">
+                                                <label class="form-label">연락처</label>
+                                                <input type="text" class="form-input" placeholder="연락처를 입력하세요">
+                                            </div>
+                                            <div class="form-row">
+                                                <label class="form-label">이메일</label>
+                                                <input type="email" class="form-input" placeholder="이메일을 입력하세요">
+                                            </div>
+                                            <div class="form-row">
+                                                <label class="form-label">주소</label>
+                                                <input type="text" class="form-input" placeholder="주소를 입력하세요">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 외함 정보 -->
+                                <div class="section">
+                                    <div class="section-header">
+                                        외함
+                                        <div class="header-toggle-container">
+                                            <div class="header-toggle">
+                                                <button class="header-toggle-option active" onclick="toggleEnclosureType(this)">옥내</button>
+                                                <button class="header-toggle-option" onclick="toggleEnclosureType(this)">옥외</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="section-content">
+                                        <div class="grid-2x2">
+                                            <div class="form-row">
+                                                <label class="form-label">높이(H)</label>
+                                                <input type="number" class="form-input" placeholder="높이">
+                                            </div>
+                                            <div class="form-row">
+                                                <label class="form-label">폭(W)</label>
+                                                <input type="number" class="form-input" placeholder="폭">
+                                            </div>
+                                            <div class="form-row">
+                                                <label class="form-label">깊이(D)</label>
+                                                <input type="number" class="form-input" placeholder="깊이">
+                                            </div>
+                                            <div class="form-row">
+                                                <label class="form-label">도어</label>
+                                                <select class="form-input">
+                                                    <option>단문</option>
+                                                    <option>양문</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 우측 결과 패널 -->
+                            <div class="right-panel">
+                                <div class="section">
+                                    <div class="section-header">견적서 미리보기</div>
+                                    <div class="section-content">
+                                        <div style="text-align: center; color: #9ca3af; padding: 40px;">
+                                            견적 정보를 입력하면 미리보기가 표시됩니다
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 기타 뷰들 (placeholder) -->
+            <div id="erp-view" class="view-content">
+                <div style="padding: 40px; text-align: center; color: #9ca3af;">
+                    ERP 시스템 (준비중)
+                </div>
+            </div>
+
+            <div id="email-view" class="view-content">
+                <div style="padding: 40px; text-align: center; color: #9ca3af;">
+                    이메일 시스템 (준비중)
+                </div>
+            </div>
+
+            <div id="calendar-view" class="view-content">
+                <div style="padding: 40px; text-align: center; color: #9ca3af;">
+                    캘린더 시스템 (준비중)
+                </div>
+            </div>
+
+            <div id="drawings-view" class="view-content">
+                <div style="padding: 40px; text-align: center; color: #9ca3af;">
+                    도면 관리 시스템 (준비중)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 채팅 플로팅 버튼 (견적 뷰에서만 표시) -->
+    <button class="ai-chat-button" id="aiChatFloating" onclick="openAIChatWindow()" style="display: none;">
+        🤖
+    </button>
+
+    <script>
+        // 뷰 전환 함수
+        function showView(viewName) {
+            // 모든 뷰 숨기기
+            const views = document.querySelectorAll('.view-content');
+            views.forEach(view => {
+                view.classList.remove('active');
+            });
+
+            // 모든 네비게이션 아이템 비활성화
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // 선택된 뷰 표시
+            const targetView = document.getElementById(viewName + '-view');
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+
+            // 해당 네비게이션 아이템 활성화
+            const targetNav = document.querySelector(`[onclick="showView('${viewName}')"]`);
+            if (targetNav) {
+                targetNav.classList.add('active');
+            }
+
+            // AI 채팅 플로팅 버튼 표시/숨김
+            const floatingButton = document.getElementById('aiChatFloating');
+            if (viewName === 'estimates') {
+                floatingButton.style.display = 'block';
+            } else {
+                floatingButton.style.display = 'none';
+            }
+        }
+
+        // AI 채팅 관련 함수들
+        function handleChatKeydown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.querySelector('.chat-input');
+            const message = input.value.trim();
+
+            if (message) {
+                // 메시지 처리 로직 (나중에 구현)
+                console.log('Message sent:', message);
+                input.value = '';
+
+                // 웰컴 스크린 숨기기
+                const welcomeScreen = document.querySelector('.welcome-screen');
+                if (welcomeScreen) {
+                    welcomeScreen.style.display = 'none';
+                }
+            }
+        }
+
+        // 견적 관련 함수들
+        function addNewTab() {
+            console.log('새 탭 추가');
+        }
+
+        function toggleEnclosureType(button) {
+            // 모든 토글 버튼 비활성화
+            const toggleButtons = button.parentElement.querySelectorAll('.header-toggle-option');
+            toggleButtons.forEach(btn => btn.classList.remove('active'));
+
+            // 클릭된 버튼 활성화
+            button.classList.add('active');
+        }
+
+        // AI 채팅 창 열기
+        async function openAIChatWindow() {
+            try {
+                if (window.electronAPI) {
+                    const result = await window.electronAPI.openAIChat({
+                        alwaysOnTop: true,
+                        skipTaskbar: false
+                    });
+
+                    if (result.success) {
+                        console.log('AI 채팅창이 열렸습니다:', result.windowId);
+                    } else {
+                        console.error('AI 채팅창 열기 실패:', result.error);
+                    }
+                }
+            } catch (error) {
+                console.error('AI 채팅창 열기 중 오류:', error);
+            }
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('KIS CORE V2 AI Manager & Estimate System initialized');
+
+            // 기본적으로 AI 매니저 뷰 표시
+            showView('ai-manager');
+        });
+    </script>
+</body>
+</html>

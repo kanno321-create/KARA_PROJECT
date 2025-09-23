@@ -1,0 +1,71 @@
+{
+  "timestamp": "2025-09-19T01:04:55",
+  "project": "KIS_CORE_V2",
+  "audit_type": "comprehensive_local_folder",
+  "results": {
+    "engine_analysis": {
+      "total_files": 8,
+      "syntax_errors": 0,
+      "cli_compliant": 7,
+      "evidence_compliant": 5,
+      "svg_generation_missing": ["breaker_placer.py", "enclosure_solver.py"]
+    },
+    "template_system": {
+      "named_ranges_defined": 13,
+      "cover_defined_names": 4,
+      "estimate_defined_names": 9,
+      "coverage_percentage": 100,
+      "sample_cells_accessible": 8,
+      "sample_cells_total": 10,
+      "empty_cells": ["B7", "B8"]
+    },
+    "work_evidence": {
+      "json_files": 14,
+      "svg_files": 7,
+      "evidence_json_files": 7,
+      "missing_pairs": 0,
+      "pattern_compliance": true
+    },
+    "cache_detection": {
+      "pycache_dirs": 1,
+      "pyc_pyo_files": 8,
+      "cleanup_required": true
+    },
+    "forbidden_patterns": {
+      "network_code": 0,
+      "deployment_code": 0,
+      "api_endpoints": 0,
+      "typos_detected": 0
+    },
+    "regression_tests": {
+      "test_files_found": false,
+      "schema_validation": "N/A"
+    }
+  },
+  "compliance_metrics": {
+    "cli_compliance": 100,
+    "evidence_pattern": 71.4,
+    "template_coverage": 100,
+    "foundation_only": true,
+    "overall_score": 85.7
+  },
+  "warnings": [
+    "SVG generation missing in breaker_placer.py",
+    "SVG generation missing in enclosure_solver.py",
+    "Cache files detected (1 __pycache__, 8 .pyc/.pyo)",
+    "Empty cells in Estimate.xlsx (B7, B8)",
+    "Missing engines: busbar_calc.py, layout_planner.py"
+  ],
+  "deliverables": [
+    ".meta/integrity_snapshot_20250919_010455.md",
+    ".meta/code_contract_report_20250919_010455.md",
+    ".meta/template_lint_20250919_010455.md",
+    ".meta/audit_summary_20250919_010455.json"
+  ],
+  "next_actions": [
+    "Add SVG generation to breaker_placer.py and enclosure_solver.py",
+    "Clean cache files (rm -rf __pycache__ *.pyc *.pyo)",
+    "Populate Enclosure.Model (B7) and Enclosure.Size (B8) in Estimate.xlsx",
+    "Consider adding busbar_calc.py and layout_planner.py engines"
+  ]
+}

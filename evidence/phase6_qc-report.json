@@ -1,0 +1,10 @@
+﻿{
+    "artifact":  "phase6_qc-report",
+    "summary":  "최종 12줄 QC 리포트 데이터",
+    "details":  {
+                    "fix4":  "4/4",
+                    "health":  "ok",
+                    "mode":  "mock"
+                },
+    "sha256_placeholder":  "0000000000000000000000000000000000000000000000000000000000000000"
+}

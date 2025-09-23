@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "timestamp": "2024-09-22 14:30:00",
+    "environment": "production",
+    "version": "v3.0.0",
+    "build": "BUILD-20240922-1430"
+  },
+  "summary": {
+    "overall_status": "FAIL",
+    "gates_passed": 4,
+    "total_gates": 5
+  },
+  "results": {
+    "Fix4": {
+      "pass": false,
+      "score": 3,
+      "details": {
+        "critical": 0,
+        "major": 1,
+        "minor": 2,
+        "info": 12
+      },
+      "blocker": "Yes"
+    },
+    "Polisher": {
+      "pass": true,
+      "score": 96.3,
+      "status": "PASS",
+      "threshold": 95.0
+    },
+    "WCAG": {
+      "pass": false,
+      "compliance_rate": 98.3,
+      "violations": 2,
+      "status": "FAIL"
+    },
+    "Performance": {
+      "pass": true,
+      "p95_response_time": 1850,
+      "memory_usage": 1456,
+      "status": "PASS"
+    },
+    "Tests": {
+      "pass": false,
+      "tests_passed": 163,
+      "total_tests": 165,
+      "coverage_percentage": 94.5,
+      "status": "FAIL"
+    }
+  },
+  "recommendations": [
+    "Address static analysis issues, particularly complexity violations",
+    "Fix accessibility violations for WCAG AA compliance",
+    "Fix 2 failing integration tests"
+  ],
+  "next_actions": [
+    "Fix integration test failures",
+    "Address WCAG violations",
+    "Review code complexity in calculation module",
+    "Rerun QC after fixes"
+  ]
+}

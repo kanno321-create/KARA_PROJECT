@@ -1,0 +1,31 @@
+{
+  "servers": {
+    "file_io": {
+      "path": "mcp_file_io",
+      "args": ["--local-only"],
+      "enabled": true
+    },
+    "checksum": {
+      "path": "mcp_checksum",
+      "args": ["--sha256"],
+      "enabled": true
+    },
+    "gates_quickcheck": {
+      "path": "mcp_gates",
+      "args": ["--quick"],
+      "enabled": true
+    },
+    "rag_indexer_local": {
+      "path": "mcp_rag",
+      "args": ["--offline", "--local-index"],
+      "enabled": true
+    },
+    "pins_writer": {
+      "path": "mcp_pins",
+      "args": ["--dashboard"],
+      "enabled": true
+    }
+  },
+  "foundation_only": true,
+  "network_enabled": false
+}

@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-enclosure-solver",
+    "code":  "C2",
+    "description":  "외함 규격 계산",
+    "priority":  "P0",
+    "endpoints":  {
+                      "execute":  "/kis-enclosure-solver/execute",
+                      "health":  "/kis-enclosure-solver/health"
+                  },
+    "status":  "INSTALLED"
+}

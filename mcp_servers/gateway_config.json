@@ -1,0 +1,41 @@
+﻿{
+    "servers":  {
+                    "cad":  2,
+                    "common":  4,
+                    "estimate":  7,
+                    "total":  17,
+                    "erp":  4
+                },
+    "version":  "2.0.0",
+    "routes":  {
+                   "/v1/email":  [
+                                     "kis-email-template"
+                                 ],
+                   "/v1/qa":  [
+                                  "kis-qa-lab"
+                              ],
+                   "/v1/health":  [
+                                      "kis-ops-telemetry"
+                                  ],
+                   "/v1/cad":  [
+                                   "kis-cad-intel",
+                                   "ezdxf-renderer",
+                                   "svg-generator"
+                               ],
+                   "/v1/estimate":  [
+                                        "kis-doc-ingest",
+                                        "kis-estimator-core",
+                                        "kis-policy-guard"
+                                    ],
+                   "/v1/placement":  [
+                                         "kis-breaker-placer",
+                                         "kis-enclosure-solver",
+                                         "kis-spatial-assistant"
+                                     ],
+                   "/v1/erp":  [
+                                   "kis-ledger-bridge",
+                                   "kis-etax-adapter",
+                                   "kis-forecast"
+                               ]
+               }
+}

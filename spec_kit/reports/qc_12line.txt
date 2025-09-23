@@ -1,0 +1,12 @@
+﻿mode=foundation; health=true; ts=20250922_205609
+structure=spec_kit(100%); directories=30+
+mcp_inventory=17 servers; priority=P0(9),P1(3),P2(4),P3(1)
+ui_config=8tabs; theme=chatgpt; layout=35/65
+gates=5/5 initialized; status=pending
+estimate_ai=ready; erp_ai=ready; cad=ready
+handoff_integration=v2.2C connected
+evidence=manifest+inventory+config+gates
+regression=0/20; smoke=ready; unit=ready
+work_sessions=initialized; temp=cleared
+author=KARA-PRIME; compliance=SPEC_KIT_v3.0.0
+next=mcp_installation_and_ai_integration

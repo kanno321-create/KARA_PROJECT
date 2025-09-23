@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-ledger-bridge",
+    "code":  "MCP-7",
+    "description":  "회계 자동화",
+    "priority":  "P3",
+    "endpoints":  {
+                      "execute":  "/kis-ledger-bridge/execute",
+                      "health":  "/kis-ledger-bridge/health"
+                  },
+    "status":  "INSTALLED"
+}

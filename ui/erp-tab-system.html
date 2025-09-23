@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIS ERP 통합 관리 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        /* Header Section */
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header .logo {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 45px 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .search-button:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            background: #f8fafc;
+            padding: 0 30px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .tab-button {
+            padding: 18px 30px;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-button:hover {
+            color: #2563eb;
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .tab-button.active {
+            color: #2563eb;
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #2563eb;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab-icon {
+            font-size: 18px;
+        }
+
+        .badge {
+            background: #ef4444;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 5px;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Quick Access Panel */
+        .quick-access {
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .quick-access-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .quick-access-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quick-access-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .quick-item {
+            background: white;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .quick-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            background: #2563eb;
+            color: white;
+        }
+
+        /* Category Cards */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            border: 2px solid #e5e7eb;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            border-color: #2563eb;
+        }
+
+        .category-header {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .category-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-icon {
+            width: 35px;
+            height: 35px;
+            background: #2563eb;
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .category-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #64748b;
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .category-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .category-body {
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .category-body.collapsed {
+            display: none;
+        }
+
+        .function-list {
+            list-style: none;
+        }
+
+        .function-item {
+            padding: 12px 15px;
+            margin: 5px 0;
+            background: #f8fafc;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #334155;
+        }
+
+        .function-item:hover {
+            background: #e0f2fe;
+            color: #0c4a6e;
+            transform: translateX(5px);
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.15);
+        }
+
+        .function-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .function-icon {
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        .function-arrow {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* Guide Tab Styles */
+        .guide-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .guide-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .guide-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .guide-item {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #16a34a;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .guide-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(22, 163, 74, 0.2);
+        }
+
+        .guide-item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #14532d;
+            margin-bottom: 8px;
+        }
+
+        .guide-item-description {
+            font-size: 14px;
+            color: #15803d;
+            line-height: 1.5;
+        }
+
+        /* Utility Classes */
+        .text-muted {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 20px 0;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .search-container {
+                width: 100%;
+            }
+
+            .tab-navigation {
+                overflow-x: auto;
+                padding: 0 15px;
+            }
+
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-access-items {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background: #1e293b;
+            color: white;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Loading State */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <div class="logo">📊</div>
+                KIS ERP 통합 관리 시스템
+            </h1>
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="기능 검색... (예: 견적서, 재고, 거래처)">
+                <button class="search-button" onclick="performSearch()">🔍</button>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active" onclick="switchTab('erp-functions', this)">
+                <span class="tab-icon">💼</span>
+                ERP 기능
+                <span class="badge">65</span>
+            </button>
+            <button class="tab-button" onclick="switchTab('guide', this)">
+                <span class="tab-icon">📚</span>
+                사용 가이드
+                <span class="badge">8</span>
+            </button>
+            <button class="tab-button" onclick="switchTab('quick-access', this)">
+                <span class="tab-icon">⚡</span>
+                빠른 실행
+            </button>
+            <button class="tab-button" onclick="switchTab('favorites', this)">
+                <span class="tab-icon">⭐</span>
+                즐겨찾기
+            </button>
+        </div>
+
+        <!-- Tab Contents -->
+        <!-- ERP Functions Tab -->
+        <div class="tab-content active" id="erp-functions">
+            <!-- Quick Access Panel -->
+            <div class="quick-access">
+                <div class="quick-access-header">
+                    <div class="quick-access-title">
+                        <span>⚡</span> 자주 사용하는 기능
+                    </div>
+                    <button style="background: none; border: none; cursor: pointer; color: #92400e;">
+                        편집 ✏️
+                    </button>
+                </div>
+                <div class="quick-access-items">
+                    <div class="quick-item">매출전표 작성</div>
+                    <div class="quick-item">매입전표 작성</div>
+                    <div class="quick-item">거래처 등록</div>
+                    <div class="quick-item">상품 등록</div>
+                    <div class="quick-item">재고 조회</div>
+                    <div class="quick-item">매출명세서</div>
+                    <div class="quick-item">미수금 조회</div>
+                    <div class="quick-item">일계표</div>
+                </div>
+            </div>
+
+            <!-- Categories Grid -->
+            <div class="categories-grid">
+                <!-- 기초자료 등록 -->
+                <div class="category-card">
+                    <div class="category-header" onclick="toggleCategory(this)">
+                        <div class="category-title">
+                            <div class="category-icon">📋</div>
+                            기초자료 등록
+                        </div>
+                        <button class="category-toggle">▼</button>
+                    </div>
+                    <div class="category-body">
+                        <ul class="function-list">
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">🏢</span>
+                                    자사정보등록
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">👥</span>
+                                    부서별사원등록
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📦</span>
+                                    상품등록
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">🤝</span>
+                                    거래처등록
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💳</span>
+                                    신용카드등록 및 카드매입솔 작성
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💰</span>
+                                    입출금항목등록
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">🏦</span>
+                                    자사은행계좌등록
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 기초이월 -->
+                <div class="category-card">
+                    <div class="category-header" onclick="toggleCategory(this)">
+                        <div class="category-title">
+                            <div class="category-icon">🔄</div>
+                            기초이월
+                        </div>
+                        <button class="category-toggle">▼</button>
+                    </div>
+                    <div class="category-body">
+                        <ul class="function-list">
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📊</span>
+                                    상품재고이월
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💸</span>
+                                    미수미지급금이월
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">🏦</span>
+                                    은행잔고이월
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📄</span>
+                                    어음이월
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📈</span>
+                                    채권채무이월
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💵</span>
+                                    현금잔고이월
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 전표작성 -->
+                <div class="category-card">
+                    <div class="category-header" onclick="toggleCategory(this)">
+                        <div class="category-title">
+                            <div class="category-icon">📝</div>
+                            전표작성
+                        </div>
+                        <button class="category-toggle">▼</button>
+                    </div>
+                    <div class="category-body">
+                        <ul class="function-list">
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📤</span>
+                                    매입/매출/수금/지급/입출금/초립전표
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💳</span>
+                                    입출금(경비)등록 및 관련 항목
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💱</span>
+                                    거래처별 상품단가지정
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📊</span>
+                                    단가관리 및 최종단가
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 보고서 조회 -->
+                <div class="category-card">
+                    <div class="category-header" onclick="toggleCategory(this)">
+                        <div class="category-title">
+                            <div class="category-icon">📊</div>
+                            보고서 조회
+                        </div>
+                        <button class="category-toggle">▼</button>
+                    </div>
+                    <div class="category-body">
+                        <ul class="function-list">
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📋</span>
+                                    매출명세서 조회
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📈</span>
+                                    거래처별/상품별 매출현황 조회
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📅</span>
+                                    일/월/일계표 상세 조회
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📊</span>
+                                    기간별 통계분석
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💹</span>
+                                    종합손익현황
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📈</span>
+                                    원별현황차트
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💰</span>
+                                    거래처별마진표
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💱</span>
+                                    상품별/업체별 단가표
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">🔍</span>
+                                    보고서 상세 조회 툴보기 기능
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 전자전송 -->
+                <div class="category-card">
+                    <div class="category-header" onclick="toggleCategory(this)">
+                        <div class="category-title">
+                            <div class="category-icon">📡</div>
+                            전자전송
+                        </div>
+                        <button class="category-toggle">▼</button>
+                    </div>
+                    <div class="category-body">
+                        <ul class="function-list">
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📧</span>
+                                    이메일전송(거래명세서, 견적서, 발주서)
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📄</span>
+                                    전자세금계산서
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💬</span>
+                                    문자발송
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📠</span>
+                                    팩스전송
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 보고서 출력/저장 -->
+                <div class="category-card">
+                    <div class="category-header" onclick="toggleCategory(this)">
+                        <div class="category-title">
+                            <div class="category-icon">🖨️</div>
+                            보고서 출력/저장
+                        </div>
+                        <button class="category-toggle">▼</button>
+                    </div>
+                    <div class="category-body">
+                        <ul class="function-list">
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">🖨️</span>
+                                    거래명세서/보고서 프린트하기
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💾</span>
+                                    엑셀,IMG,PDF파일 저장
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 재고 -->
+                <div class="category-card">
+                    <div class="category-header" onclick="toggleCategory(this)">
+                        <div class="category-title">
+                            <div class="category-icon">📦</div>
+                            재고
+                        </div>
+                        <button class="category-toggle">▼</button>
+                    </div>
+                    <div class="category-body">
+                        <ul class="function-list">
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">🔧</span>
+                                    재고조정
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💰</span>
+                                    원가재계산
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 환경설정 -->
+                <div class="category-card">
+                    <div class="category-header" onclick="toggleCategory(this)">
+                        <div class="category-title">
+                            <div class="category-icon">⚙️</div>
+                            환경설정
+                        </div>
+                        <button class="category-toggle">▼</button>
+                    </div>
+                    <div class="category-body">
+                        <ul class="function-list">
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">🔧</span>
+                                    기본설정
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📝</span>
+                                    양식자 설정
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💬</span>
+                                    문자자동전송
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📊</span>
+                                    바코드 설정
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">🖨️</span>
+                                    프린트 설정
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">⚙️</span>
+                                    기타
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💰</span>
+                                    급여 설정
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 기타 -->
+                <div class="category-card">
+                    <div class="category-header" onclick="toggleCategory(this)">
+                        <div class="category-title">
+                            <div class="category-icon">🔧</div>
+                            기타
+                        </div>
+                        <button class="category-toggle">▼</button>
+                    </div>
+                    <div class="category-body">
+                        <ul class="function-list">
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">🔒</span>
+                                    사업장 마감
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📋</span>
+                                    명세서 위치 초기화
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">💾</span>
+                                    Data의 저장경로 변경
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">📅</span>
+                                    일정관리 기능
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">🔍</span>
+                                    판리한 검색 기능
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                            <li class="function-item">
+                                <span class="function-label">
+                                    <span class="function-icon">⌨️</span>
+                                    프로그램 단축키
+                                </span>
+                                <span class="function-arrow">→</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guide Tab -->
+        <div class="tab-content" id="guide">
+            <div class="guide-section">
+                <div class="guide-title">
+                    <span>📚</span> ERP 시스템 사용 가이드
+                </div>
+                <div class="guide-list">
+                    <div class="guide-item">
+                        <div class="guide-item-title">📝 전표를 수정/삭제하는 방법</div>
+                        <div class="guide-item-description">
+                            작성된 전표를 수정하거나 삭제하는 방법을 안내합니다. 전표 조회 화면에서 해당 전표를 선택한 후 수정 버튼을 클릭하여 내용을 변경하거나, 삭제 버튼을 클릭하여 제거할 수 있습니다.
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-item-title">↩️ 반품 처리하는 방법</div>
+                        <div class="guide-item-description">
+                            판매한 상품의 반품 처리 절차를 설명합니다. 반품 전표를 작성하고, 재고를 조정하며, 관련 회계 처리를 완료하는 전체 프로세스를 안내합니다.
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-item-title">🔄 전표 항목 초기화 방법</div>
+                        <div class="guide-item-description">
+                            전표 작성 화면의 입력 항목을 초기 상태로 되돌리는 방법입니다. 잘못 입력한 데이터를 한 번에 초기화하여 처음부터 다시 작성할 수 있습니다.
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-item-title">💰 미수금 및 미지급금 조회 방법</div>
+                        <div class="guide-item-description">
+                            거래처별 미수금과 미지급금 현황을 조회하는 방법을 안내합니다. 기간별, 거래처별로 상세한 미수/미지급 내역을 확인하고 관리할 수 있습니다.
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-item-title">📄 명세서 위치 초기화 방법</div>
+                        <div class="guide-item-description">
+                            명세서 출력 시 인쇄 위치가 틀어진 경우, 위치를 초기화하여 올바른 위치에 출력되도록 설정하는 방법을 설명합니다.
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-item-title">🏢 세사업장 구성(초기)방법</div>
+                        <div class="guide-item-description">
+                            여러 사업장을 운영하는 경우, 각 사업장별로 독립적인 관리 체계를 구성하는 초기 설정 방법을 안내합니다.
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-item-title">💾 자료의 백업과 복원방법</div>
+                        <div class="guide-item-description">
+                            중요한 데이터를 안전하게 백업하고, 필요시 복원하는 방법을 상세히 설명합니다. 정기적인 백업으로 데이터 손실을 예방할 수 있습니다.
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-item-title">💻 피시 변경(데이터 이전) 방법</div>
+                        <div class="guide-item-description">
+                            컴퓨터를 교체하거나 새로운 PC로 이전할 때, 기존 데이터를 안전하게 이전하는 방법을 단계별로 안내합니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Access Tab -->
+        <div class="tab-content" id="quick-access">
+            <div style="padding: 40px; text-align: center;">
+                <h2 style="color: #1e293b; margin-bottom: 20px;">⚡ 빠른 실행</h2>
+                <p style="color: #64748b; margin-bottom: 30px;">자주 사용하는 기능을 빠르게 실행할 수 있습니다.</p>
+                <div class="quick-access-items" style="max-width: 800px; margin: 0 auto;">
+                    <div class="quick-item">매출전표 작성</div>
+                    <div class="quick-item">매입전표 작성</div>
+                    <div class="quick-item">수금전표</div>
+                    <div class="quick-item">지급전표</div>
+                    <div class="quick-item">재고조회</div>
+                    <div class="quick-item">거래처 관리</div>
+                    <div class="quick-item">상품 관리</div>
+                    <div class="quick-item">일계표</div>
+                    <div class="quick-item">월계표</div>
+                    <div class="quick-item">손익계산서</div>
+                    <div class="quick-item">미수금 현황</div>
+                    <div class="quick-item">미지급금 현황</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Favorites Tab -->
+        <div class="tab-content" id="favorites">
+            <div style="padding: 40px; text-align: center;">
+                <h2 style="color: #1e293b; margin-bottom: 20px;">⭐ 즐겨찾기</h2>
+                <p style="color: #64748b;">자주 사용하는 기능을 즐겨찾기에 추가하여 빠르게 접근하세요.</p>
+                <p style="color: #94a3b8; margin-top: 20px;">각 기능의 별 아이콘을 클릭하여 즐겨찾기에 추가할 수 있습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function switchTab(tabId, buttonElement) {
+            // Remove active class from all tabs and buttons
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Add active class to selected tab and button
+            document.getElementById(tabId).classList.add('active');
+            buttonElement.classList.add('active');
+        }
+
+        // Category toggle functionality
+        function toggleCategory(headerElement) {
+            const categoryCard = headerElement.parentElement;
+            const categoryBody = categoryCard.querySelector('.category-body');
+            const toggleButton = headerElement.querySelector('.category-toggle');
+
+            categoryBody.classList.toggle('collapsed');
+            toggleButton.classList.toggle('collapsed');
+        }
+
+        // Search functionality
+        function performSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = searchInput.value.toLowerCase();
+
+            if (!searchTerm) {
+                alert('검색어를 입력해주세요.');
+                return;
+            }
+
+            // Search through all function items
+            const functionItems = document.querySelectorAll('.function-item');
+            let foundCount = 0;
+
+            functionItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.background = '#fef3c7';
+                    foundCount++;
+                    // Expand parent category if collapsed
+                    const categoryBody = item.closest('.category-body');
+                    if (categoryBody && categoryBody.classList.contains('collapsed')) {
+                        categoryBody.classList.remove('collapsed');
+                        const toggle = categoryBody.previousElementSibling.querySelector('.category-toggle');
+                        if (toggle) toggle.classList.remove('collapsed');
+                    }
+                } else {
+                    item.style.background = '';
+                }
+            });
+
+            // Search in guide items
+            const guideItems = document.querySelectorAll('.guide-item');
+            guideItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.background = '#fef3c7';
+                    foundCount++;
+                } else {
+                    item.style.background = '';
+                }
+            });
+
+            if (foundCount > 0) {
+                console.log(`${foundCount}개의 항목을 찾았습니다.`);
+            } else {
+                alert('검색 결과가 없습니다.');
+            }
+        }
+
+        // Enter key for search
+        document.getElementById('searchInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Clear search on input clear
+        document.getElementById('searchInput').addEventListener('input', function(event) {
+            if (this.value === '') {
+                // Clear all highlights
+                document.querySelectorAll('.function-item').forEach(item => {
+                    item.style.background = '';
+                });
+                document.querySelectorAll('.guide-item').forEach(item => {
+                    item.style.background = '';
+                });
+            }
+        });
+
+        // Add click handlers to function items
+        document.querySelectorAll('.function-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const functionName = this.querySelector('.function-label').textContent.trim();
+                console.log('Selected function:', functionName);
+                // Here you would typically trigger the actual function
+                alert(`"${functionName}" 기능을 실행합니다.`);
+            });
+        });
+
+        // Add click handlers to quick access items
+        document.querySelectorAll('.quick-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const functionName = this.textContent.trim();
+                console.log('Quick access:', functionName);
+                alert(`"${functionName}" 기능을 빠르게 실행합니다.`);
+            });
+        });
+
+        // Add click handlers to guide items
+        document.querySelectorAll('.guide-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const guideTitle = this.querySelector('.guide-item-title').textContent.trim();
+                console.log('Opening guide:', guideTitle);
+                // Here you would typically open the detailed guide
+                alert(`"${guideTitle}" 가이드를 엽니다.`);
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            // Ctrl+K for search focus
+            if (event.ctrlKey && event.key === 'k') {
+                event.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+
+            // Alt+1,2,3,4 for tab switching
+            if (event.altKey) {
+                switch(event.key) {
+                    case '1':
+                        switchTab('erp-functions', document.querySelectorAll('.tab-button')[0]);
+                        break;
+                    case '2':
+                        switchTab('guide', document.querySelectorAll('.tab-button')[1]);
+                        break;
+                    case '3':
+                        switchTab('quick-access', document.querySelectorAll('.tab-button')[2]);
+                        break;
+                    case '4':
+                        switchTab('favorites', document.querySelectorAll('.tab-button')[3]);
+                        break;
+                }
+            }
+        });
+
+        // Initialize - expand first three categories by default
+        document.addEventListener('DOMContentLoaded', function() {
+            const categories = document.querySelectorAll('.category-card');
+            categories.forEach((category, index) => {
+                if (index >= 3) {
+                    const body = category.querySelector('.category-body');
+                    const toggle = category.querySelector('.category-toggle');
+                    if (body) body.classList.add('collapsed');
+                    if (toggle) toggle.classList.add('collapsed');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

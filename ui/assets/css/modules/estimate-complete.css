@@ -1,0 +1,715 @@
+/* Estimate Complete Module - Exact Replica from estimate-simple.html */
+
+/* Content Container */
+.content-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    background-color: #f5f5f5;
+}
+
+/* Left Panel */
+.left-panel {
+    width: 42%;
+    padding: 20px;
+    overflow-y: auto;
+    background: white;
+    border-right: 1px solid #e1dfdd;
+}
+
+/* Right Panel */
+.right-panel {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: white;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sections */
+.section {
+    background: white;
+    border: 1px solid #e1dfdd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.section-header {
+    background: #f9f9f9;
+    padding: 12px 15px;
+    border-bottom: 1px solid #e1dfdd;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-content {
+    padding: 15px;
+}
+
+/* Header Toggle */
+.header-toggle-container {
+    display: flex;
+    align-items: center;
+}
+
+.header-toggle {
+    display: flex;
+    background: white;
+    border-radius: 3px;
+    border: 1px solid #d1d1d1;
+}
+
+.header-toggle-option {
+    padding: 4px 10px;
+    background: white;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.header-toggle-option:first-child {
+    border-radius: 3px 0 0 3px;
+}
+
+.header-toggle-option:last-child {
+    border-radius: 0 3px 3px 0;
+}
+
+.header-toggle-option.active {
+    background: #0078d4;
+    color: white;
+}
+
+/* Breaker Settings Button */
+.breaker-settings-btn {
+    padding: 4px 10px;
+    background: white;
+    border: 1px solid #d1d1d1;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.breaker-settings-btn:hover {
+    background: #f3f2f1;
+}
+
+/* Form Grids */
+.grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.grid-1x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.grid-1x4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.grid-1x5 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+/* Form Elements */
+.form-row {
+    margin-bottom: 10px;
+}
+
+.form-row-horizontal {
+    display: flex;
+    align-items: flex-end;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #323130;
+}
+
+.form-input {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid #d1d1d1;
+    border-radius: 2px;
+    font-size: 14px;
+}
+
+.form-select {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid #d1d1d1;
+    border-radius: 2px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+}
+
+/* Main Breaker Layout */
+.main-breaker-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Oval Toggle */
+.oval-toggle-container {
+    display: flex;
+    gap: 8px;
+}
+
+.oval-toggle-container.vertical {
+    flex-direction: row;
+}
+
+.oval-toggle {
+    padding: 6px 16px;
+    border: 1px solid #d1d1d1;
+    border-radius: 20px;
+    background: white;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    min-width: 60px;
+    text-align: center;
+}
+
+.oval-toggle.active {
+    background: #0078d4;
+    color: white;
+    border-color: #0078d4;
+}
+
+.oval-toggle:hover:not(.active) {
+    background: #f3f2f1;
+}
+
+/* Main Select */
+.main-select {
+    width: 100%;
+    max-width: 200px;
+}
+
+/* Branch Input Row */
+.branch-input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.branch-select {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #d1d1d1;
+    border-radius: 2px;
+    font-size: 12px;
+}
+
+.branch-uniform {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #d1d1d1;
+    border-radius: 2px;
+    font-size: 12px;
+}
+
+/* Accessories Input Row */
+.accessories-input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.accessories-select {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #d1d1d1;
+    border-radius: 2px;
+    font-size: 12px;
+}
+
+.accessories-uniform {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #d1d1d1;
+    border-radius: 2px;
+    font-size: 12px;
+}
+
+/* Branch List */
+.branch-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #e1dfdd;
+    border-radius: 4px;
+    background: white;
+    margin-top: 10px;
+}
+
+.branch-list-empty {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    font-size: 13px;
+}
+
+.branch-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f3f2f1;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.branch-item:last-child {
+    border-bottom: none;
+}
+
+.branch-item:hover {
+    background: #f9f9f9;
+}
+
+/* Accessories List */
+.accessories-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #e1dfdd;
+    border-radius: 4px;
+    background: white;
+}
+
+.accessories-list-empty {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+}
+
+.accessories-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f3f2f1;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.accessories-item:last-child {
+    border-bottom: none;
+}
+
+.accessories-item:hover {
+    background: #f9f9f9;
+}
+
+/* Buttons */
+.btn {
+    padding: 8px 16px;
+    border: 1px solid #d1d1d1;
+    border-radius: 2px;
+    background: white;
+    color: #323130;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: #0078d4;
+    color: white;
+    border-color: #0078d4;
+}
+
+.btn-primary:hover {
+    background: #106ebe;
+}
+
+.btn:hover {
+    background: #f3f2f1;
+}
+
+.btn-small {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+/* Estimate Section */
+.estimate-section {
+    display: none;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estimate Header */
+.estimate-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.estimate-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #323130;
+}
+
+.estimate-total {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0078d4;
+}
+
+/* Estimate Table */
+.estimate-table {
+    border: 1px solid #e1dfdd;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.estimate-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.estimate-table th,
+.estimate-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e1dfdd;
+}
+
+.estimate-table th {
+    background: #f9f9f9;
+    font-weight: 600;
+    font-size: 14px;
+    color: #323130;
+}
+
+.estimate-table td {
+    font-size: 14px;
+    color: #323130;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Bottom Buttons */
+.bottom-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Generate Estimate Section */
+.generate-estimate-section {
+    margin-top: auto;
+    padding-top: 20px;
+}
+
+.generate-estimate-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* AI Chat Button */
+.ai-chat-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+    z-index: 1000;
+}
+
+.ai-chat-button:hover {
+    background: #106ebe;
+    transform: scale(1.05);
+}
+
+/* AI Chat Popup */
+.ai-chat-popup {
+    position: fixed;
+    top: 100px;
+    right: 50px;
+    width: 400px;
+    height: 500px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    display: none;
+    flex-direction: column;
+    z-index: 999999;
+    resize: both;
+    overflow: hidden;
+    min-width: 300px;
+    min-height: 400px;
+}
+
+.ai-chat-header {
+    background: #0078d4;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+}
+
+.ai-chat-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.ai-chat-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-chat-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: #f9f9f9;
+}
+
+.ai-chat-file-area {
+    border: 2px dashed #d1d1d1;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+}
+
+.ai-chat-file-area:hover {
+    border-color: #0078d4;
+    background: #f9f9f9;
+}
+
+.ai-chat-file-area.dragover {
+    border-color: #0078d4;
+    background: #e6f2ff;
+}
+
+.ai-file-input {
+    display: none;
+}
+
+.ai-file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ai-file-item {
+    background: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.ai-file-remove {
+    color: #d13438;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.analyze-btn {
+    width: 100%;
+    padding: 8px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.analyze-btn:hover {
+    background: #218838;
+}
+
+.ai-message {
+    background: #f3f2f1;
+    padding: 12px 16px;
+    border-radius: 8px;
+    max-width: 80%;
+}
+
+.user-message {
+    background: #0078d4;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    max-width: 80%;
+    align-self: flex-end;
+}
+
+.ai-chat-input-container {
+    padding: 15px 20px;
+    border-top: 1px solid #e1dfdd;
+    display: flex;
+    gap: 10px;
+    background: white;
+    position: relative;
+    z-index: 1;
+}
+
+.ai-chat-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #d1d1d1;
+    border-radius: 4px;
+    resize: none;
+    max-height: 100px;
+}
+
+.ai-send-button {
+    padding: 8px 16px;
+    background: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Breaker Settings Popup */
+.breaker-settings-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 380px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    display: none;
+    z-index: 1002;
+    overflow: hidden;
+}
+
+.popup-header {
+    background: #f9f9f9;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e1dfdd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.popup-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.popup-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+}
+
+.popup-content {
+    padding: 25px 20px;
+    height: calc(100% - 120px);
+    overflow-y: auto;
+}
+
+.popup-content .form-row {
+    margin-bottom: 20px;
+}
+
+.popup-content .form-select {
+    width: 100%;
+    min-width: auto;
+    position: static !important;
+    box-shadow: none !important;
+}
+
+.popup-content .form-select:focus {
+    min-width: auto !important;
+    position: static !important;
+    box-shadow: none !important;
+}
+
+.popup-buttons {
+    padding: 15px 20px;
+    border-top: 1px solid #e1dfdd;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1001;
+}

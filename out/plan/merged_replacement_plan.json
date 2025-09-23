@@ -1,0 +1,638 @@
+{
+  "timestamp": "2025-09-19T11:57:44.198Z",
+  "items": [
+    {
+      "id": "CARD_012",
+      "category": "INSTANT",
+      "item": "Item_12",
+      "specs": {
+        "model": "MODEL_SBLDD",
+        "quantity": 5,
+        "unitPrice": 4954099
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.132Z"
+    },
+    {
+      "id": "CARD_015",
+      "category": "INSTANT",
+      "item": "Item_15",
+      "specs": {
+        "model": "MODEL_7L5UG",
+        "quantity": 10,
+        "unitPrice": 2007261
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.133Z"
+    },
+    {
+      "id": "CARD_018",
+      "category": "INSTANT",
+      "item": "Item_18",
+      "specs": {
+        "model": "MODEL_BVYRT",
+        "quantity": 18,
+        "unitPrice": 1562416
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.134Z"
+    },
+    {
+      "id": "CARD_021",
+      "category": "INSTANT",
+      "item": "Item_21",
+      "specs": {
+        "model": "MODEL_P453Y",
+        "quantity": 19,
+        "unitPrice": 3232877
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.135Z"
+    },
+    {
+      "id": "CARD_024",
+      "category": "INSTANT",
+      "item": "Item_24",
+      "specs": {
+        "model": "MODEL_MNCH7",
+        "quantity": 4,
+        "unitPrice": 2196507
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.136Z"
+    },
+    {
+      "id": "CARD_027",
+      "category": "INSTANT",
+      "item": "Item_27",
+      "specs": {
+        "model": "MODEL_TUBPJ",
+        "quantity": 19,
+        "unitPrice": 1505409
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.136Z"
+    },
+    {
+      "id": "CARD_003",
+      "category": "INSTANT",
+      "item": "Item_3",
+      "specs": {
+        "model": "MODEL_22WCG",
+        "quantity": 14,
+        "unitPrice": 2732398
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.130Z"
+    },
+    {
+      "id": "CARD_030",
+      "category": "INSTANT",
+      "item": "Item_30",
+      "specs": {
+        "model": "MODEL_SBNW8",
+        "quantity": 8,
+        "unitPrice": 3372436
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.137Z"
+    },
+    {
+      "id": "CARD_033",
+      "category": "INSTANT",
+      "item": "Item_33",
+      "specs": {
+        "model": "MODEL_VLZOU",
+        "quantity": 1,
+        "unitPrice": 1050429
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.137Z"
+    },
+    {
+      "id": "CARD_036",
+      "category": "INSTANT",
+      "item": "Item_36",
+      "specs": {
+        "model": "MODEL_LNCB0",
+        "quantity": 15,
+        "unitPrice": 3497861
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.138Z"
+    },
+    {
+      "id": "CARD_039",
+      "category": "INSTANT",
+      "item": "Item_39",
+      "specs": {
+        "model": "MODEL_ZBHKE",
+        "quantity": 5,
+        "unitPrice": 3118581
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.138Z"
+    },
+    {
+      "id": "CARD_042",
+      "category": "INSTANT",
+      "item": "Item_42",
+      "specs": {
+        "model": "MODEL_CHTD9",
+        "quantity": 10,
+        "unitPrice": 1739896
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.139Z"
+    },
+    {
+      "id": "CARD_045",
+      "category": "INSTANT",
+      "item": "Item_45",
+      "specs": {
+        "model": "MODEL_0FO9X",
+        "quantity": 19,
+        "unitPrice": 5222701
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.140Z"
+    },
+    {
+      "id": "CARD_006",
+      "category": "INSTANT",
+      "item": "Item_6",
+      "specs": {
+        "model": "MODEL_ZSQB9",
+        "quantity": 11,
+        "unitPrice": 5303009
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.131Z"
+    },
+    {
+      "id": "CARD_009",
+      "category": "INSTANT",
+      "item": "Item_9",
+      "specs": {
+        "model": "MODEL_IIL06",
+        "quantity": 16,
+        "unitPrice": 3845911
+      },
+      "priority": 3,
+      "leadTime": 3,
+      "reliability": 0.75,
+      "created": "2025-09-19T11:57:44.132Z"
+    },
+    {
+      "id": "CARD_001",
+      "category": "SAFE",
+      "item": "Item_1",
+      "specs": {
+        "model": "MODEL_AJNVH",
+        "quantity": 17,
+        "unitPrice": 4919272
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.128Z"
+    },
+    {
+      "id": "CARD_010",
+      "category": "SAFE",
+      "item": "Item_10",
+      "specs": {
+        "model": "MODEL_3VDW1",
+        "quantity": 20,
+        "unitPrice": 3951732
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.132Z"
+    },
+    {
+      "id": "CARD_013",
+      "category": "SAFE",
+      "item": "Item_13",
+      "specs": {
+        "model": "MODEL_1Y81T",
+        "quantity": 15,
+        "unitPrice": 1717015
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.133Z"
+    },
+    {
+      "id": "CARD_016",
+      "category": "SAFE",
+      "item": "Item_16",
+      "specs": {
+        "model": "MODEL_7TJ1Q",
+        "quantity": 4,
+        "unitPrice": 3679809
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.134Z"
+    },
+    {
+      "id": "CARD_019",
+      "category": "SAFE",
+      "item": "Item_19",
+      "specs": {
+        "model": "MODEL_9EKOM",
+        "quantity": 12,
+        "unitPrice": 3117926
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.135Z"
+    },
+    {
+      "id": "CARD_022",
+      "category": "SAFE",
+      "item": "Item_22",
+      "specs": {
+        "model": "MODEL_SDKM7",
+        "quantity": 11,
+        "unitPrice": 2249067
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.135Z"
+    },
+    {
+      "id": "CARD_025",
+      "category": "SAFE",
+      "item": "Item_25",
+      "specs": {
+        "model": "MODEL_DO9C5",
+        "quantity": 10,
+        "unitPrice": 1880337
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.136Z"
+    },
+    {
+      "id": "CARD_028",
+      "category": "SAFE",
+      "item": "Item_28",
+      "specs": {
+        "model": "MODEL_8P3WV",
+        "quantity": 16,
+        "unitPrice": 786982
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.136Z"
+    },
+    {
+      "id": "CARD_031",
+      "category": "SAFE",
+      "item": "Item_31",
+      "specs": {
+        "model": "MODEL_HPB1P",
+        "quantity": 14,
+        "unitPrice": 4863034
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.137Z"
+    },
+    {
+      "id": "CARD_034",
+      "category": "SAFE",
+      "item": "Item_34",
+      "specs": {
+        "model": "MODEL_DQYCD",
+        "quantity": 13,
+        "unitPrice": 1495700
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.137Z"
+    },
+    {
+      "id": "CARD_037",
+      "category": "SAFE",
+      "item": "Item_37",
+      "specs": {
+        "model": "MODEL_U1SEV",
+        "quantity": 14,
+        "unitPrice": 3275395
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.138Z"
+    },
+    {
+      "id": "CARD_004",
+      "category": "SAFE",
+      "item": "Item_4",
+      "specs": {
+        "model": "MODEL_PELTZ",
+        "quantity": 15,
+        "unitPrice": 1488129
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.130Z"
+    },
+    {
+      "id": "CARD_040",
+      "category": "SAFE",
+      "item": "Item_40",
+      "specs": {
+        "model": "MODEL_ML42D",
+        "quantity": 3,
+        "unitPrice": 2678342
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.139Z"
+    },
+    {
+      "id": "CARD_043",
+      "category": "SAFE",
+      "item": "Item_43",
+      "specs": {
+        "model": "MODEL_3E8HQ",
+        "quantity": 16,
+        "unitPrice": 5088593
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.139Z"
+    },
+    {
+      "id": "CARD_007",
+      "category": "SAFE",
+      "item": "Item_7",
+      "specs": {
+        "model": "MODEL_D56QP",
+        "quantity": 18,
+        "unitPrice": 1545662
+      },
+      "priority": 1,
+      "leadTime": 30,
+      "reliability": 0.95,
+      "created": "2025-09-19T11:57:44.131Z"
+    },
+    {
+      "id": "CARD_011",
+      "category": "SAVE",
+      "item": "Item_11",
+      "specs": {
+        "model": "MODEL_12NQ6",
+        "quantity": 14,
+        "unitPrice": 3603624
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.132Z"
+    },
+    {
+      "id": "CARD_014",
+      "category": "SAVE",
+      "item": "Item_14",
+      "specs": {
+        "model": "MODEL_WDP37",
+        "quantity": 19,
+        "unitPrice": 1738059
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.133Z"
+    },
+    {
+      "id": "CARD_017",
+      "category": "SAVE",
+      "item": "Item_17",
+      "specs": {
+        "model": "MODEL_H979E",
+        "quantity": 16,
+        "unitPrice": 3862697
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.134Z"
+    },
+    {
+      "id": "CARD_002",
+      "category": "SAVE",
+      "item": "Item_2",
+      "specs": {
+        "model": "MODEL_O6JXM",
+        "quantity": 20,
+        "unitPrice": 529210
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.129Z"
+    },
+    {
+      "id": "CARD_020",
+      "category": "SAVE",
+      "item": "Item_20",
+      "specs": {
+        "model": "MODEL_JRUOU",
+        "quantity": 18,
+        "unitPrice": 3747615
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.135Z"
+    },
+    {
+      "id": "CARD_023",
+      "category": "SAVE",
+      "item": "Item_23",
+      "specs": {
+        "model": "MODEL_F8SFI",
+        "quantity": 4,
+        "unitPrice": 2523016
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.135Z"
+    },
+    {
+      "id": "CARD_026",
+      "category": "SAVE",
+      "item": "Item_26",
+      "specs": {
+        "model": "MODEL_CGQOF",
+        "quantity": 3,
+        "unitPrice": 871195
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.136Z"
+    },
+    {
+      "id": "CARD_029",
+      "category": "SAVE",
+      "item": "Item_29",
+      "specs": {
+        "model": "MODEL_XCJDA",
+        "quantity": 17,
+        "unitPrice": 4383551
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.137Z"
+    },
+    {
+      "id": "CARD_032",
+      "category": "SAVE",
+      "item": "Item_32",
+      "specs": {
+        "model": "MODEL_ODZCB",
+        "quantity": 7,
+        "unitPrice": 4190353
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.137Z"
+    },
+    {
+      "id": "CARD_035",
+      "category": "SAVE",
+      "item": "Item_35",
+      "specs": {
+        "model": "MODEL_N1YGM",
+        "quantity": 13,
+        "unitPrice": 1368045
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.137Z"
+    },
+    {
+      "id": "CARD_038",
+      "category": "SAVE",
+      "item": "Item_38",
+      "specs": {
+        "model": "MODEL_HZ6EG",
+        "quantity": 4,
+        "unitPrice": 5353719
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.138Z"
+    },
+    {
+      "id": "CARD_041",
+      "category": "SAVE",
+      "item": "Item_41",
+      "specs": {
+        "model": "MODEL_3MWEM",
+        "quantity": 5,
+        "unitPrice": 4736756
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.139Z"
+    },
+    {
+      "id": "CARD_044",
+      "category": "SAVE",
+      "item": "Item_44",
+      "specs": {
+        "model": "MODEL_SKDBT",
+        "quantity": 5,
+        "unitPrice": 892298
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.140Z"
+    },
+    {
+      "id": "CARD_005",
+      "category": "SAVE",
+      "item": "Item_5",
+      "specs": {
+        "model": "MODEL_384N2",
+        "quantity": 20,
+        "unitPrice": 2479175
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.130Z"
+    },
+    {
+      "id": "CARD_008",
+      "category": "SAVE",
+      "item": "Item_8",
+      "specs": {
+        "model": "MODEL_KIG8G",
+        "quantity": 9,
+        "unitPrice": 4339052
+      },
+      "priority": 2,
+      "leadTime": 14,
+      "reliability": 0.85,
+      "created": "2025-09-19T11:57:44.131Z"
+    }
+  ],
+  "conflicts": 0,
+  "total": 1608143910,
+  "currency": "KRW"
+}

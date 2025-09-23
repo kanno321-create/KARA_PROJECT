@@ -1,0 +1,58 @@
+﻿{
+    "seed_id":  "enclosure-03",
+    "category":  "enclosure",
+    "request":  {
+                    "request_id":  "b44ffe0e-d973-4573-823c-e172b7370aef",
+                    "project_label":  "Data Center Pod",
+                    "submitted_by":  "automation.tester@kis.local",
+                    "knowledge_snapshot_id":  "043583d3-4127-4d7e-8448-3379a4fb9a38",
+                    "distribution_panels":  [
+                                                {
+                                                    "panel_id":  "ENC-LV-C",
+                                                    "source_tab_index":  1,
+                                                    "subtotal":  412800,
+                                                    "line_items":  [
+                                                                       {
+                                                                           "category":  "enclosure",
+                                                                           "sku":  "ENC-LV-800A",
+                                                                           "quantity":  1,
+                                                                           "unit_price":  165120,
+                                                                           "line_total":  165120
+                                                                       },
+                                                                       {
+                                                                           "category":  "breaker",
+                                                                           "sku":  "BRK-250A-4P",
+                                                                           "quantity":  2,
+                                                                           "unit_price":  82560,
+                                                                           "line_total":  165120
+                                                                       }
+                                                                   ],
+                                                    "evidence_ref":  {
+                                                                         "bundle_id":  "seed__",
+                                                                         "json_path":  "evidence/seed__.json",
+                                                                         "visual_path":  "evidence/seed__.svg",
+                                                                         "log_path":  "evidence/logs/seed__.json",
+                                                                         "sha256":  "0000000000000000000000000000000000000000000000000000000000000000"
+                                                                     }
+                                                }
+                                            ],
+                    "pricing_overrides":  [
+
+                                          ],
+                    "validation_flags":  {
+                                             "run_fix4":  true,
+                                             "run_regression_sample":  true
+                                         }
+                },
+    "expected_gate_scores":  {
+                                 "gate1":  "PASS",
+                                 "gate2":  "PASS",
+                                 "gate3":  "PASS",
+                                 "gate4":  "PASS"
+                             },
+    "expected_metrics":  {
+                             "p95_ms":  1800,
+                             "error_ratio":  0
+                         },
+    "_note":  "Ensure SKU auto display with enclosure reroute"
+}

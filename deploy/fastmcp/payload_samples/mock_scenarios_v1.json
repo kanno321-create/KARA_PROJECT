@@ -1,0 +1,137 @@
+{
+  "generated_at": "2025-01-23T12:00:00Z",
+  "scenarios": [
+    {
+      "name": "정상-200",
+      "request": {
+        "brand": "LS",
+        "form": "ECONOMIC",
+        "installation": {"location": "INDOOR", "mount": "FLUSH"},
+        "device": {"type": "MCCB"},
+        "main": {"af": 100, "poles": "3P"},
+        "branches": [
+          {"model": "SBS-203", "af": 225, "poles": "3P", "qty": 4},
+          {"af": 100, "poles": "3P", "qty": 8}
+        ],
+        "accessories": {"enabled": false, "items": []}
+      },
+      "response": {
+        "status": 200,
+        "enclosure": {"W": 900, "H": 1800, "D": 400, "form": "ECONOMIC"},
+        "inputs_snapshot": "ECHO_REQUEST",
+        "evidence": {
+          "rules_doc": "KIS_Enclosure_Rules.md#input-gates-and-brand-policy",
+          "tables": [
+            {"source": "LS Metasol MCCB size table", "rows": [{"af": 100, "poles": "3P", "W": 90, "H": 155, "D": 60}]}
+          ],
+          "brand_policy": "single-brand: LS"
+        }
+      }
+    },
+    {
+      "name": "빈결과-200-empty",
+      "request": {
+        "brand": "SANGDO",
+        "form": "ECONOMIC",
+        "installation": {"location": "INDOOR", "mount": "FLUSH"},
+        "device": {"type": "MCCB"},
+        "main": {"model": "SBS-603", "af": 600, "poles": "3P"},
+        "branches": [],
+        "accessories": {"enabled": false, "items": []}
+      },
+      "response": {
+        "status": 200,
+        "enclosure": null,
+        "inputs_snapshot": "ECHO_REQUEST",
+        "evidence": {"reason": "NO_BRANCHES", "rules_doc": "KIS_Enclosure_Rules.md#input-gates"}
+      }
+    },
+    {
+      "name": "지연-200-latency",
+      "request": {
+        "brand": "SANGDO",
+        "form": "ECONOMIC",
+        "installation": {"location": "INDOOR", "mount": "FLUSH"},
+        "device": {"type": "MCCB"},
+        "main": {"model": "SBS-603", "af": 600, "poles": "3P"},
+        "branches": [
+          {"model": "SBS-203", "af": 225, "poles": "3P", "qty": 4},
+          {"af": 100, "poles": "3P", "qty": 8}
+        ],
+        "accessories": {"enabled": false, "items": []},
+        "meta": {"simulate_delay_ms": 1500}
+      },
+      "response": {
+        "status": 200,
+        "enclosure": {"W": 900, "H": 1800, "D": 400, "form": "ECONOMIC"},
+        "inputs_snapshot": "ECHO_REQUEST",
+        "evidence": {"rules_doc": "KIS_Enclosure_Rules.md", "tables": [], "brand_policy": "single-brand: SANGDO"},
+        "meta": {"latency_ms": 1500}
+      }
+    },
+    {
+      "name": "중복-409",
+      "request": {
+        "brand": "SANGDO",
+        "form": "ECONOMIC",
+        "installation": {"location": "INDOOR", "mount": "FLUSH"},
+        "device": {"type": "MCCB"},
+        "main": {"model": "SBS-603", "af": 600, "poles": "3P"},
+        "branches": [
+          {"model": "SBS-203", "af": 225, "poles": "3P", "qty": 4},
+          {"af": 100, "poles": "3P", "qty": 8}
+        ],
+        "accessories": {"enabled": false, "items": []},
+        "meta": {"dedup_key": "dedup:ab12cd34"}
+      },
+      "response": {
+        "status": 409,
+        "error": {
+          "code": "DUPLICATE_REQUEST",
+          "message": "Equivalent request already exists.",
+          "path": "meta.dedup_key",
+          "hint": "GET /v1/estimate/{id}/evidence"
+        },
+        "inputs_snapshot": "ECHO_REQUEST"
+      }
+    },
+    {
+      "name": "유효성-422-poles",
+      "request": {
+        "brand": "SANGDO",
+        "form": "ECONOMIC",
+        "installation": {"location": "INDOOR", "mount": "FLUSH"},
+        "device": {"type": "MCCB"},
+        "main": {"model": "SBS-603", "af": 600, "poles": "3P"},
+        "branches": [{"af": 100, "poles": "5P", "qty": 1}],
+        "accessories": {"enabled": false, "items": []}
+      },
+      "response": {
+        "status": 422,
+        "error": {"code": "POLES_MISMATCH", "message": "Unsupported poles value.", "path": "branches[0].poles", "hint": "2P|3P|4P"},
+        "question": "분기 회로의 극수는 2P, 3P, 4P 중 하나여야 합니다. 어떤 값을 쓰실까요?"
+      }
+    },
+    {
+      "name": "내부오류-500",
+      "request": {
+        "brand": "SANGDO",
+        "form": "ECONOMIC",
+        "installation": {"location": "INDOOR", "mount": "FLUSH"},
+        "device": {"type": "MCCB"},
+        "main": {"model": "SBS-603", "af": 600, "poles": "3P"},
+        "branches": [
+          {"model": "SBS-203", "af": 225, "poles": "3P", "qty": 4},
+          {"af": 100, "poles": "3P", "qty": 8}
+        ],
+        "accessories": {"enabled": false, "items": []},
+        "meta": {"simulate_error": "engine.breaker_placer"}
+      },
+      "response": {
+        "status": 500,
+        "error": {"code": "INTERNAL_ERROR", "message": "Unhandled exception in breaker_placer.", "path": "engine.breaker_placer", "hint": "retry or contact admin"},
+        "evidence": {"trace_id": "TRACE-EXAMPLE"}
+      }
+    }
+  ]
+}

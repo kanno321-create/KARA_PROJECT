@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "ezdxf-renderer",
+    "code":  "CAD-1",
+    "description":  "DXF 파일 생성/편집",
+    "priority":  "P0",
+    "endpoints":  {
+                      "execute":  "/ezdxf-renderer/execute",
+                      "health":  "/ezdxf-renderer/health"
+                  },
+    "status":  "INSTALLED"
+}

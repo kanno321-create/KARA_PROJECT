@@ -1,0 +1,17 @@
+{
+  "id": "smoke_39",
+  "items": [
+    {
+      "id": "smoke_39",
+      "category": "NET",
+      "quantity": 9,
+      "unitPrice": 495865,
+      "margin": 0.15,
+      "vat": 0.1
+    }
+  ],
+  "subtotal": 4462785,
+  "margin": 669417.75,
+  "vat": 513220.275,
+  "total": 5645423.025
+}

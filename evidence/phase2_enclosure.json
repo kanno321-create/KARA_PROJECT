@@ -1,0 +1,10 @@
+﻿{
+    "artifact":  "phase2_enclosure",
+    "summary":  "외함 선택 증거",
+    "details":  {
+                    "subtotal":  85000,
+                    "model_display":  "Enclosure XL 400A",
+                    "sku":  "ENC-XL-400A"
+                },
+    "sha256_placeholder":  "0000000000000000000000000000000000000000000000000000000000000000"
+}

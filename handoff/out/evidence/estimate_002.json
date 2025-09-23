@@ -1,0 +1,26 @@
+{
+  "estimate_id": "EST-2025-000002",
+  "customer_name": "***REDACTED***",
+  "customer_email": "***REDACTED***",
+  "delivery_address": "***REDACTED***",
+  "line_items": [
+    {
+      "item_code": "SVC-101",
+      "service": "Installation",
+      "hours": 8,
+      "rate": "***REDACTED***",
+      "subtotal": "***REDACTED***"
+    }
+  ],
+  "total_amount": 8500,
+  "tax_amount": 850,
+  "grand_total": 9350,
+  "cost_breakdown": "***REDACTED***",
+  "margin_analysis": "***REDACTED***",
+  "timestamp": "2025-09-20T11:00:00Z",
+  "compliance": {
+    "masking_applied": true,
+    "pii_protected": true,
+    "cost_hidden": true
+  }
+}

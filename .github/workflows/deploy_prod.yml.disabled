@@ -1,0 +1,269 @@
+name: M2.9 Production Canary Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_percent:
+        description: "Starting canary percent"
+        default: "1"
+        required: true
+        type: choice
+        options: ["1", "5", "10"]
+      promote_steps:
+        description: "Promotion ladder (comma-separated)"
+        default: "1,10,50,100"
+        required: true
+      pause_minutes:
+        description: "Minutes between stages"
+        default: "5"
+        required: false
+      dry_run:
+        description: "Dry run mode (safe testing)"
+        default: false
+        required: false
+        type: boolean
+      force_rollback_at:
+        description: "Force rollback at stage (for testing)"
+        default: ""
+        required: false
+
+env:
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  BASE_URL_PROD: ${{ secrets.BASE_URL_PROD || 'http://127.0.0.1:8080' }}
+  BASE_URL_STAGING: ${{ secrets.BASE_URL_STAGING || 'http://127.0.0.1:8080' }}
+  DEPLOY_CMD_PROD: ${{ secrets.DEPLOY_CMD_PROD || 'echo "DEPLOY DRY-RUN"' }}
+  ROLLBACK_CMD_PROD: ${{ secrets.ROLLBACK_CMD_PROD || 'echo "ROLLBACK DRY-RUN"' }}
+  DRY_RUN: ${{ inputs.dry_run }}
+
+jobs:
+  canary-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
+      - name: Verify M2.9/M2.10 System
+        run: |
+          echo "🔍 M2.9/M2.10 System Verification"
+          ls -la scripts/
+          ls -la config/ops.json
+          ls -la ops/ || mkdir -p ops
+          
+          # M2.10 SLO Profile verification
+          if [ -f M29_SLO_PROFILE.json ]; then
+            echo "✅ M2.10 SLO Profile found"
+            node ops/tools/verify_slo_profile.js --profile M29_SLO_PROFILE.json
+          else
+            echo "⚠️ M2.10 SLO Profile not found, using legacy config"
+          fi
+          
+          echo "✅ M2.9/M2.10 operational system verified"
+          
+      - name: Check M2.10 Error Budget Guard
+        id: budget_check
+        uses: ./.github/workflows/slo_budget_guard.yml
+        with:
+          check_type: 'pre-deploy'
+          deployment_stage: '${{ inputs.start_percent }}'
+          
+      - name: Initialize Deployment
+        id: init
+        run: |
+          echo "🚀 M2.9/M2.10 Production Canary Deploy Initiated"
+          echo "Steps: ${{ inputs.promote_steps }}"
+          echo "Pause: ${{ inputs.pause_minutes }} minutes"
+          echo "Dry Run: ${{ inputs.dry_run }}"
+          echo "Force Rollback: ${{ inputs.force_rollback_at }}"
+          
+          # M2.10 Error Budget Check
+          if [ "${{ needs.budget_check.outputs.deploy_allowed }}" != "true" ] && [ "${{ inputs.dry_run }}" != "true" ]; then
+            echo "🔒 DEPLOYMENT BLOCKED: Error budget exhausted"
+            echo "   Error Budget: ${{ needs.budget_check.outputs.error_budget_remaining }}%"
+            echo "   Reason: Deploy blocked by M2.10 Error Budget Guard"
+            
+            # Notify about blocked deployment
+            if [ -n "$SLACK_WEBHOOK_URL" ]; then
+              node scripts/notify_slack.js "🔒 M2.10 Deploy BLOCKED - Error Budget: ${{ needs.budget_check.outputs.error_budget_remaining }}% | Use emergency override if critical"
+            fi
+            
+            exit 1
+          fi
+          
+          # Parse promotion steps
+          IFS=',' read -ra STEPS <<< "${{ inputs.promote_steps }}"
+          echo "parsed_steps=${STEPS[*]}" >> $GITHUB_OUTPUT
+          echo "step_count=${#STEPS[@]}" >> $GITHUB_OUTPUT
+          
+          # Slack notification
+          if [ -n "$SLACK_WEBHOOK_URL" ]; then
+            BUDGET_STATUS=""
+            if [ "${{ inputs.dry_run }}" != "true" ]; then
+              BUDGET_STATUS=" | Budget: ${{ needs.budget_check.outputs.error_budget_remaining }}%"
+            fi
+            node scripts/notify_slack.js "🚀 M2.9/M2.10 Production Canary Deploy Started - Steps: ${{ inputs.promote_steps }} | Dry-Run: ${{ inputs.dry_run }}$BUDGET_STATUS"
+          fi
+          
+      - name: Execute Canary Deployment
+        id: canary
+        run: |
+          set +e  # Continue on error to handle exit codes
+          
+          echo "🎯 Starting Canary Controller"
+          
+          # Set environment variables for canary controller
+          export CANARY_STEPS="${{ inputs.promote_steps }}"
+          export PAUSE_MINUTES="${{ inputs.pause_minutes }}"
+          export FORCE_ROLLBACK_AT="${{ inputs.force_rollback_at }}"
+          
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "🧪 DRY-RUN MODE: Using local endpoints"
+            export BASE_URL_PROD="http://127.0.0.1:8080"
+            export DEPLOY_CMD_PROD="echo 'DRY-RUN: Deploy to' \$1 '%'"
+            export ROLLBACK_CMD_PROD="echo 'DRY-RUN: Rollback executed'"
+          fi
+          
+          # Execute canary deployment
+          node scripts/canary_controller.js --production
+          EXIT_CODE=$?
+          
+          echo "canary_exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          
+          # Interpret exit codes
+          case $EXIT_CODE in
+            0)
+              echo "✅ Canary deployment completed successfully"
+              echo "deployment_status=SUCCESS" >> $GITHUB_OUTPUT
+              echo "final_message=✅ SUCCESS - Canary deployment 1%→10%→50%→100% completed" >> $GITHUB_OUTPUT
+              ;;
+            42)
+              echo "🚨 SLO breach detected - automatic rollback triggered"
+              echo "deployment_status=ROLLBACK" >> $GITHUB_OUTPUT
+              echo "final_message=🚨 ROLLBACK - SLO breach detected, automatic rollback completed" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "❌ Deployment failed with exit code $EXIT_CODE"
+              echo "deployment_status=FAILED" >> $GITHUB_OUTPUT
+              echo "final_message=❌ FAILED - Deployment failed (exit code: $EXIT_CODE)" >> $GITHUB_OUTPUT
+              ;;
+          esac
+          
+          exit 0  # Always succeed job for proper reporting
+          
+      - name: Post-Deploy Error Budget Check
+        if: steps.canary.outputs.deployment_status == 'SUCCESS'
+        uses: ./.github/workflows/slo_budget_guard.yml
+        with:
+          check_type: 'post-deploy'
+          deployment_stage: '100'
+          
+      - name: Update SLO History
+        if: always()
+        run: |
+          echo "📚 Updating M2.10 SLO History"
+          
+          # Generate final synthetic check
+          if [ -f scripts/syntheticCheck.js ]; then
+            node scripts/syntheticCheck.js --base "$BASE_URL_PROD" || true
+          fi
+          
+          # Generate final SLO report
+          if [ -f scripts/slo_eval.js ]; then
+            node scripts/slo_eval.js || true
+          fi
+          
+          # Update SLO history with deployment results
+          if [ -f ops/tools/update_slo_history.js ] && [ -f ops/slo_report.json ]; then
+            node ops/tools/update_slo_history.js --report ops/slo_report.json --history ops/slo_history.json
+          fi
+          
+      - name: Collect Deployment Artifacts
+        if: always()
+        run: |
+          echo "📊 Collecting deployment artifacts"
+          
+          # Ensure ops directory exists with results
+          mkdir -p ops
+          
+          # Show final status
+          echo "📋 Final Deployment Status:"
+          echo "Exit Code: ${{ steps.canary.outputs.canary_exit_code }}"
+          echo "Status: ${{ steps.canary.outputs.deployment_status }}"
+          
+          if [ -f ops/synthetic_latest.json ]; then
+            echo "📈 Latest Synthetic Results:"
+            cat ops/synthetic_latest.json
+          fi
+          
+          if [ -f ops/slo_report.json ]; then
+            echo "📊 Latest SLO Report:"
+            cat ops/slo_report.json
+          fi
+          
+          if [ -f ops/freeze_status.json ]; then
+            echo "💰 M2.10 Error Budget Status:"
+            cat ops/freeze_status.json | jq '.error_budget_remaining, .freeze_required, .reason'
+          fi
+          
+      - name: Upload Deployment Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m29-deployment-results-${{ github.run_number }}
+          path: |
+            ops/
+            config/ops.json
+            scripts/
+            M29_SLO_PROFILE.json
+            .github/workflows/deploy_prod.yml
+            .github/workflows/slo_collector.yml
+            .github/workflows/slo_budget_guard.yml
+            
+      - name: Final Status Notification
+        if: always()
+        run: |
+          FINAL_MESSAGE="${{ steps.canary.outputs.final_message }}"
+          EXIT_CODE="${{ steps.canary.outputs.canary_exit_code }}"
+          
+          if [ -z "$FINAL_MESSAGE" ]; then
+            FINAL_MESSAGE="⚠️ UNKNOWN - Deployment status unclear (exit: $EXIT_CODE)"
+          fi
+          
+          echo "🏁 Final Status: $FINAL_MESSAGE"
+          
+          # Send Slack notification with M2.10 budget info
+          if [ -n "$SLACK_WEBHOOK_URL" ]; then
+            BUDGET_INFO=""
+            if [ -f ops/freeze_status.json ]; then
+              ERROR_BUDGET=$(cat ops/freeze_status.json | jq -r '.error_budget_remaining // "N/A"')
+              BUDGET_INFO=" | Budget: ${ERROR_BUDGET}%"
+            fi
+            node scripts/notify_slack.js "M2.9/M2.10 Production Deploy Complete: $FINAL_MESSAGE$BUDGET_INFO"
+          fi
+          
+          # Set job status based on deployment result
+          case "${{ steps.canary.outputs.deployment_status }}" in
+            "SUCCESS")
+              echo "✅ Job completed successfully"
+              ;;
+            "ROLLBACK")
+              echo "🚨 Job completed with rollback (expected behavior)"
+              ;;
+            "FAILED")
+              echo "❌ Job failed due to deployment error"
+              exit 1
+              ;;
+            *)
+              echo "⚠️ Job completed with unknown status"
+              ;;
+          esac

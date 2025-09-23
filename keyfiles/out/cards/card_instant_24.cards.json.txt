@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_024",
+    "category": "INSTANT",
+    "item": "Item_24",
+    "specs": {
+      "model": "MODEL_MNCH7",
+      "quantity": 4,
+      "unitPrice": 2196507
+    },
+    "priority": 3,
+    "leadTime": 3,
+    "reliability": 0.75,
+    "created": "2025-09-19T11:57:44.136Z"
+  }
+]

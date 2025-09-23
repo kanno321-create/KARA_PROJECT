@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIS ERP - Fluent Hybrid Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Fluent Design System Colors */
+            --surface: #ffffff;
+            --surface-secondary: #f3f3f3;
+            --surface-tertiary: #fafafa;
+            --surface-quaternary: #f7f7f7;
+
+            --text-primary: #242424;
+            --text-secondary: #616161;
+            --text-tertiary: #999999;
+            --text-disabled: #c8c8c8;
+
+            --accent-primary: #0078d4;
+            --accent-light: #106ebe;
+            --accent-lighter: #deecf9;
+            --accent-dark: #005a9e;
+
+            --border-default: #e1e1e1;
+            --border-subtle: #f3f3f3;
+            --border-strong: #d2d2d2;
+
+            --shadow-sm: 0 1.6px 3.6px 0 rgba(0,0,0,0.132), 0 0.3px 0.9px 0 rgba(0,0,0,0.108);
+            --shadow-md: 0 3.2px 7.2px 0 rgba(0,0,0,0.132), 0 0.6px 1.8px 0 rgba(0,0,0,0.108);
+            --shadow-lg: 0 6.4px 14.4px 0 rgba(0,0,0,0.132), 0 1.2px 3.6px 0 rgba(0,0,0,0.108);
+
+            --radius-sm: 4px;
+            --radius-md: 6px;
+            --radius-lg: 8px;
+        }
+
+        body {
+            font-family: 'Segoe UI Variable', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans KR', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--surface-tertiary);
+            display: flex;
+            color: var(--text-primary);
+        }
+
+        /* Fluent Sidebar */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background: var(--surface);
+            border-right: 1px solid var(--border-default);
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Brand Area */
+        .brand-area {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            background: var(--surface);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-light));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        /* New Chat Button - Fluent Style */
+        .new-chat-btn {
+            margin: 12px;
+            padding: 10px 16px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.1s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .new-chat-btn:hover {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .new-chat-btn:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Navigation - Fluent Style */
+        .nav-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .nav-section {
+            margin-bottom: 20px;
+        }
+
+        .nav-section-title {
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            padding: 10px 12px;
+            margin: 2px 0;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: all 0.1s ease;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: var(--surface-secondary);
+        }
+
+        .nav-item.active {
+            background: var(--accent-lighter);
+            color: var(--accent-dark);
+            font-weight: 500;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 16px;
+            background: var(--accent-primary);
+            border-radius: 2px;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* User Profile - Fluent Style */
+        .user-profile {
+            padding: 12px;
+            border-top: 1px solid var(--border-default);
+            background: var(--surface);
+        }
+
+        .profile-card {
+            padding: 10px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .profile-card:hover {
+            background: var(--surface-secondary);
+        }
+
+        .profile-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .profile-details {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .profile-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content Area */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface-tertiary);
+        }
+
+        /* Content Layout */
+        .content-layout {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Chat Panel - Fluent Style */
+        .chat-panel {
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border-right: 1px solid var(--border-default);
+        }
+
+        .chat-header {
+            padding: 16px 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border-default);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .model-chip {
+            padding: 4px 8px;
+            background: var(--surface-secondary);
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Messages Area - Fluent Style */
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--surface-tertiary);
+        }
+
+        .message-group {
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .msg-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .msg-avatar.ai {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-light));
+            color: white;
+        }
+
+        .msg-avatar.user {
+            background: var(--surface-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-default);
+        }
+
+        .msg-content {
+            flex: 1;
+        }
+
+        .msg-author {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .msg-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--surface);
+            padding: 12px 16px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Input Area - Fluent Style */
+        .input-area {
+            padding: 16px;
+            background: var(--surface);
+            border-top: 1px solid var(--border-default);
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .quick-chip {
+            padding: 6px 12px;
+            background: var(--surface-secondary);
+            border: 1px solid var(--border-default);
+            border-radius: 16px;
+            font-size: 12px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .quick-chip:hover {
+            background: var(--accent-lighter);
+            border-color: var(--accent-primary);
+            color: var(--accent-dark);
+        }
+
+        .input-box {
+            position: relative;
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .text-input {
+            flex: 1;
+            min-height: 44px;
+            max-height: 120px;
+            padding: 10px 16px;
+            background: var(--surface-tertiary);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            resize: none;
+            outline: none;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-primary);
+            transition: all 0.1s ease;
+        }
+
+        .text-input:focus {
+            background: var(--surface);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px var(--accent-lighter);
+        }
+
+        .text-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .send-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.1s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .send-button:hover {
+            background: var(--accent-light);
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        .send-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Result Panel - Fluent Style */
+        .result-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+        }
+
+        .result-header {
+            padding: 16px 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border-default);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .result-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-button {
+            padding: 8px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.1s ease;
+        }
+
+        .action-button:hover {
+            background: var(--surface-secondary);
+            border-color: var(--accent-primary);
+        }
+
+        .action-button.primary {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .action-button.primary:hover {
+            background: var(--accent-light);
+        }
+
+        /* Result Content - Fluent Style */
+        .result-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: var(--surface-tertiary);
+        }
+
+        .document-card {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .doc-header {
+            padding: 24px;
+            background: linear-gradient(135deg, var(--accent-lighter), var(--surface));
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .doc-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .doc-meta {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .doc-body {
+            padding: 24px;
+        }
+
+        /* Table - Fluent Style */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-default);
+        }
+
+        .data-table th {
+            background: var(--surface-secondary);
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-subtle);
+            background: var(--surface);
+        }
+
+        .data-table tr:hover td {
+            background: var(--surface-tertiary);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Summary Card - Fluent Style */
+        .summary-card {
+            margin-top: 24px;
+            padding: 20px;
+            background: var(--surface-secondary);
+            border-radius: var(--radius-md);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+
+        .summary-label {
+            color: var(--text-secondary);
+        }
+
+        .summary-value {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .summary-total {
+            padding-top: 12px;
+            margin-top: 12px;
+            border-top: 2px solid var(--border-default);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .summary-total .summary-value {
+            color: var(--accent-primary);
+        }
+
+        /* Fluent Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-strong);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-tertiary);
+        }
+
+        /* File Drop Zone - Fluent Style */
+        .file-drop {
+            margin: 12px 16px;
+            padding: 16px;
+            background: var(--surface-secondary);
+            border: 2px dashed var(--border-strong);
+            border-radius: var(--radius-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .file-drop:hover {
+            background: var(--accent-lighter);
+            border-color: var(--accent-primary);
+        }
+
+        .file-drop-text {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fluent Sidebar -->
+    <div class="sidebar">
+        <!-- Brand -->
+        <div class="brand-area">
+            <div class="brand">
+                <div class="brand-icon">K</div>
+                <span>KIS ERP System</span>
+            </div>
+        </div>
+
+        <!-- New Chat Button -->
+        <button class="new-chat-btn">
+            <span>+</span>
+            <span>새 채팅 시작</span>
+        </button>
+
+        <!-- Navigation -->
+        <div class="nav-container">
+            <div class="nav-section">
+                <div class="nav-section-title">주요 기능</div>
+                <div class="nav-item active">
+                    <span class="nav-icon">🤖</span>
+                    <span>AI 매니저</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-icon">📄</span>
+                    <span>견적서 관리</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>매출/매입</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-icon">📧</span>
+                    <span>이메일</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>재고 관리</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>거래처</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">최근 작업</div>
+                <div class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>ABC회사 분전반 견적</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>XYZ공장 전기공사</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Profile -->
+        <div class="user-profile">
+            <div class="profile-card">
+                <div class="profile-avatar">이</div>
+                <div class="profile-details">
+                    <div class="profile-name">이충원</div>
+                    <div class="profile-role">대표이사</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Area -->
+    <div class="main-area">
+        <div class="content-layout">
+            <!-- Chat Panel -->
+            <div class="chat-panel">
+                <div class="chat-header">
+                    <div class="chat-title">
+                        AI 매니저
+                        <span class="model-chip">GPT-4o</span>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div class="messages-container">
+                    <div class="message-group">
+                        <div class="message">
+                            <div class="msg-avatar ai">AI</div>
+                            <div class="msg-content">
+                                <div class="msg-author">AI 매니저</div>
+                                <div class="msg-text">
+                                    안녕하세요! KIS ERP AI 매니저입니다.<br>
+                                    오늘 어떤 업무를 도와드릴까요?
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message-group">
+                        <div class="message">
+                            <div class="msg-avatar user">이</div>
+                            <div class="msg-content">
+                                <div class="msg-author">이충원</div>
+                                <div class="msg-text">
+                                    ABC회사 분전반 견적 작성해줘
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message-group">
+                        <div class="message">
+                            <div class="msg-avatar ai">AI</div>
+                            <div class="msg-content">
+                                <div class="msg-author">AI 매니저</div>
+                                <div class="msg-text">
+                                    네, ABC회사 분전반 견적을 작성하겠습니다.<br>
+                                    표준 사양으로 진행하겠습니다. 우측 화면에서 확인해주세요.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Drop Zone -->
+                <div class="file-drop">
+                    <div class="file-drop-text">
+                        📎 파일을 드래그하거나 클릭하여 업로드<br>
+                        <small style="color: var(--text-tertiary);">Excel, PDF, 이미지, CAD 지원</small>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-area">
+                    <div class="quick-actions">
+                        <div class="quick-chip">견적 작성</div>
+                        <div class="quick-chip">재고 확인</div>
+                        <div class="quick-chip">이메일 발송</div>
+                        <div class="quick-chip">세금계산서</div>
+                    </div>
+                    <div class="input-box">
+                        <textarea class="text-input" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+                        <button class="send-button">→</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Panel -->
+            <div class="result-panel">
+                <div class="result-header">
+                    <div class="result-title">견적서 #EST-2025-000123</div>
+                    <div class="result-actions">
+                        <button class="action-button">💾 저장</button>
+                        <button class="action-button">📧 이메일</button>
+                        <button class="action-button primary">📑 PDF 내보내기</button>
+                    </div>
+                </div>
+
+                <div class="result-content">
+                    <div class="document-card">
+                        <div class="doc-header">
+                            <h1 class="doc-title">견 적 서</h1>
+                            <div class="doc-meta">
+                                견적번호: EST-2025-000123<br>
+                                거래처: ABC회사<br>
+                                작성일: 2025년 9월 21일
+                            </div>
+                        </div>
+
+                        <div class="doc-body">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>품목</th>
+                                        <th>규격</th>
+                                        <th style="text-align: center;">수량</th>
+                                        <th style="text-align: right;">단가</th>
+                                        <th style="text-align: right;">금액</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>외함</td>
+                                        <td>STS 600x800x200</td>
+                                        <td style="text-align: center;">1</td>
+                                        <td style="text-align: right;">250,000</td>
+                                        <td style="text-align: right;">250,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td>메인차단기</td>
+                                        <td>100A 3P MCCB</td>
+                                        <td style="text-align: center;">1</td>
+                                        <td style="text-align: right;">85,000</td>
+                                        <td style="text-align: right;">85,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td>분기차단기</td>
+                                        <td>20A 2P MCB</td>
+                                        <td style="text-align: center;">8</td>
+                                        <td style="text-align: right;">15,000</td>
+                                        <td style="text-align: right;">120,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td>부스바</td>
+                                        <td>동바 20x5 3m</td>
+                                        <td style="text-align: center;">3</td>
+                                        <td style="text-align: right;">45,000</td>
+                                        <td style="text-align: right;">135,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td>설치비</td>
+                                        <td>기본 설치 및 시운전</td>
+                                        <td style="text-align: center;">1</td>
+                                        <td style="text-align: right;">100,000</td>
+                                        <td style="text-align: right;">100,000</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="summary-card">
+                                <div class="summary-row">
+                                    <span class="summary-label">공급가액</span>
+                                    <span class="summary-value">690,000원</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span class="summary-label">부가세 (10%)</span>
+                                    <span class="summary-value">69,000원</span>
+                                </div>
+                                <div class="summary-row summary-total">
+                                    <span class="summary-label">총 합계</span>
+                                    <span class="summary-value">759,000원</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

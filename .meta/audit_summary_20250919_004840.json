@@ -1,0 +1,66 @@
+{
+  "timestamp": "2025-09-19T00:48:40",
+  "project": "KIS_CORE_V2",
+  "audit_results": {
+    "engine_files": {
+      "total": 8,
+      "syntax_errors": 0,
+      "orphan_files": ["enclosure_solver.py"],
+      "missing_files": ["busbar_calc.py", "layout_planner.py"]
+    },
+    "cli_compliance": {
+      "compliant": 6,
+      "non_compliant": 1,
+      "percentage": 85.7
+    },
+    "evidence_generation": {
+      "make_evidence": 6,
+      "svg_generation": 5,
+      "full_compliance": 5,
+      "violations": ["spatial_assistant.py", "enclosure_solver.py"]
+    },
+    "forbidden_patterns": {
+      "network_code": 0,
+      "deployment_code": 0,
+      "api_calls": 0,
+      "foundation_only": true
+    },
+    "template_system": {
+      "named_ranges_defined": 13,
+      "cover_defined_names": 4,
+      "estimate_defined_names": 9,
+      "coverage_percent": 100,
+      "sample_cells_accessible": 10,
+      "sample_cells_total": 10
+    },
+    "work_evidence": {
+      "json_files": 14,
+      "svg_files": 7,
+      "evidence_json_files": 7,
+      "missing_pairs": 0,
+      "pairing_complete": true
+    },
+    "regression_cases": {
+      "found": false,
+      "schema_validation": "N/A"
+    }
+  },
+  "quality_metrics": {
+    "overall_compliance": 85.7,
+    "template_compliance": 100,
+    "evidence_compliance": 71.4,
+    "foundation_only": true
+  },
+  "warnings": [
+    "enclosure_solver.py is orphan (no main block)",
+    "spatial_assistant.py missing SVG generation",
+    "busbar_calc.py file not found",
+    "layout_planner.py file not found"
+  ],
+  "deliverables": [
+    ".meta/integrity_snapshot_20250919_004840.md",
+    ".meta/code_contract_report_20250919_004840.md",
+    ".meta/template_lint_20250919_004840.md",
+    ".meta/audit_summary_20250919_004840.json"
+  ]
+}

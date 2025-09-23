@@ -1,0 +1,18 @@
+{
+  "request_id": "REQ-2025-001",
+  "customer_key": "CUST-ABC12345",
+  "items": [
+    {
+      "sku": "PART-001",
+      "quantity": 10,
+      "description": "Standard component"
+    },
+    {
+      "sku": "PART-002",
+      "quantity": 5,
+      "description": "Premium component"
+    }
+  ],
+  "delivery_date": "2025-10-01",
+  "mode": "STANDARD"
+}

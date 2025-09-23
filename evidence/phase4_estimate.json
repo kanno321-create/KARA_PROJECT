@@ -1,0 +1,10 @@
+﻿{
+    "artifact":  "phase4_estimate",
+    "summary":  "/v1/estimate 응답 스냅샷",
+    "details":  {
+                    "panels":  2,
+                    "grand_total":  215000,
+                    "evidence_ref_count":  2
+                },
+    "sha256_placeholder":  "0000000000000000000000000000000000000000000000000000000000000000"
+}

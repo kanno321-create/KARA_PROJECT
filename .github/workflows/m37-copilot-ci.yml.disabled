@@ -1,0 +1,605 @@
+name: M37 Copilot CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - feat/m37-copilot-v3.7
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      test_level:
+        description: 'Test level to run'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - smoke
+          - unit
+          - integration
+          - full
+          - performance
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+  TESTING: true
+  LOG_LEVEL: INFO
+
+jobs:
+  # ═══════════════════════════════════════════════════
+  # 코드 품질 검사
+  # ═══════════════════════════════════════════════════
+  code-quality:
+    name: Code Quality & Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install flake8 black isort mypy bandit safety
+          pip install -r backend/requirements.txt
+
+      - name: Run Black formatter check
+        run: |
+          black --check --diff backend/src backend/tests
+
+      - name: Run isort import sorting check
+        run: |
+          isort --check-only --diff backend/src backend/tests
+
+      - name: Run flake8 linting
+        run: |
+          flake8 backend/src backend/tests --max-line-length=100 --extend-ignore=E203,W503
+
+      - name: Run mypy type checking
+        run: |
+          mypy backend/src --ignore-missing-imports
+
+      - name: Run bandit security scan
+        run: |
+          bandit -r backend/src -f json -o bandit-report.json
+
+      - name: Run safety vulnerability scan
+        run: |
+          safety check --json --output safety-report.json || true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Node.js dependencies
+        run: |
+          cd apps/web
+          npm ci
+
+      - name: Run ESLint
+        run: |
+          cd apps/web
+          npm run lint
+
+      - name: Run TypeScript type check
+        run: |
+          cd apps/web
+          npm run type-check
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+            safety-report.json
+
+  # ═══════════════════════════════════════════════════
+  # 스키마 및 정책 검증
+  # ═══════════════════════════════════════════════════
+  schema-validation:
+    name: Schema & Policy Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install jsonschema pyyaml
+
+      - name: Validate JSON schemas
+        run: |
+          python -c "
+          import json
+          import jsonschema
+          import os
+
+          schema_dir = 'ops/schemas'
+          for schema_file in os.listdir(schema_dir):
+              if schema_file.endswith('.json'):
+                  with open(os.path.join(schema_dir, schema_file)) as f:
+                      schema = json.load(f)
+                  jsonschema.Draft7Validator.check_schema(schema)
+                  print(f'✓ {schema_file} is valid')
+          "
+
+      - name: Validate YAML policies
+        run: |
+          python -c "
+          import yaml
+          import os
+
+          with open('ops/policies/copilot_policies.yml') as f:
+              policies = yaml.safe_load(f)
+
+          # 정책 구조 검증
+          assert 'tools' in policies
+          assert 'roles' in policies
+          assert 'risk_matrix' in policies
+          print('✓ Copilot policies are valid')
+          "
+
+      - name: Validate WhyTrace patterns
+        run: |
+          python -c "
+          import yaml
+          import os
+
+          patterns_file = 'backend/src/m37/whytrace/patterns/default_patterns.yml'
+          if os.path.exists(patterns_file):
+              with open(patterns_file) as f:
+                  patterns = yaml.safe_load(f)
+              print('✓ WhyTrace patterns are valid')
+          else:
+              print('⚠ WhyTrace patterns file not found, skipping')
+          "
+
+  # ═══════════════════════════════════════════════════
+  # 백엔드 테스트
+  # ═══════════════════════════════════════════════════
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    needs: [code-quality, schema-validation]
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: kis_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d kis_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    strategy:
+      matrix:
+        test-type: [unit, integration, api, e2e]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest-cov pytest-asyncio pytest-xdist pytest-timeout
+
+      - name: Set environment variables
+        run: |
+          echo "DATABASE_URL=postgresql://test:test@localhost:5432/kis_test" >> $GITHUB_ENV
+          echo "REDIS_URL=redis://localhost:6379/15" >> $GITHUB_ENV
+          echo "JWT_SECRET_KEY=test-secret-key-for-ci" >> $GITHUB_ENV
+          echo "ENVIRONMENT=testing" >> $GITHUB_ENV
+
+      - name: Run unit tests
+        if: matrix.test-type == 'unit'
+        run: |
+          cd backend
+          pytest tests/ -m "unit" --cov=src --cov-report=xml --cov-report=term-missing -v
+
+      - name: Run integration tests
+        if: matrix.test-type == 'integration'
+        run: |
+          cd backend
+          pytest tests/ -m "integration" --cov=src --cov-report=xml --cov-report=term-missing -v
+
+      - name: Run API tests
+        if: matrix.test-type == 'api'
+        run: |
+          cd backend
+          pytest tests/test_m37_api.py -v --timeout=30
+
+      - name: Run E2E tests
+        if: matrix.test-type == 'e2e'
+        run: |
+          cd backend
+          pytest tests/test_m37_e2e.py -v --timeout=60
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: backend/coverage.xml
+          flags: backend,${{ matrix.test-type }}
+          name: backend-${{ matrix.test-type }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results-backend-${{ matrix.test-type }}
+          path: |
+            backend/htmlcov/
+            backend/coverage.xml
+
+  # ═══════════════════════════════════════════════════
+  # 프론트엔드 테스트
+  # ═══════════════════════════════════════════════════
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    needs: [code-quality]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('apps/web/package-lock.json') }}
+
+      - name: Install dependencies
+        run: |
+          cd apps/web
+          npm ci
+
+      - name: Run unit tests
+        run: |
+          cd apps/web
+          npm run test:unit
+
+      - name: Run component tests
+        run: |
+          cd apps/web
+          npm run test:components
+
+      - name: Build frontend
+        run: |
+          cd apps/web
+          npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: apps/web/dist/
+
+  # ═══════════════════════════════════════════════════
+  # 성능 테스트
+  # ═══════════════════════════════════════════════════
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [backend-tests]
+    if: github.event.inputs.test_level == 'performance' || github.event.inputs.test_level == 'full'
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install pytest-benchmark locust
+
+      - name: Run performance tests
+        run: |
+          cd backend
+          pytest tests/ -m "performance" -v --benchmark-only --benchmark-json=benchmark.json
+
+      - name: Run load tests
+        run: |
+          cd backend
+          # Start FastAPI server in background
+          uvicorn src.main:app --host 0.0.0.0 --port 8000 &
+          sleep 10
+
+          # Run Locust load test
+          locust -f tests/load_test.py --headless -u 50 -r 10 -t 60s --host http://localhost:8000
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: |
+            backend/benchmark.json
+            backend/locust_report.html
+
+  # ═══════════════════════════════════════════════════
+  # 보안 테스트
+  # ═══════════════════════════════════════════════════
+  security-tests:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    needs: [backend-tests]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      - name: Run security tests
+        run: |
+          cd backend
+          pytest tests/ -m "security" -v
+
+      - name: OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'M37-Copilot'
+          path: '.'
+          format: 'ALL'
+
+      - name: Upload OWASP report
+        uses: actions/upload-artifact@v3
+        with:
+          name: owasp-report
+          path: reports/
+
+  # ═══════════════════════════════════════════════════
+  # 도커 이미지 빌드 및 테스트
+  # ═══════════════════════════════════════════════════
+  docker-build:
+    name: Docker Build & Test
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build backend Docker image
+        run: |
+          cd backend
+          docker build -t m37-copilot-backend:test .
+
+      - name: Build frontend Docker image
+        run: |
+          cd apps/web
+          docker build -t m37-copilot-frontend:test .
+
+      - name: Test Docker containers
+        run: |
+          # Backend container test
+          docker run --rm -d --name backend-test -p 8000:8000 m37-copilot-backend:test
+          sleep 10
+          curl -f http://localhost:8000/health || exit 1
+          docker stop backend-test
+
+      - name: Vulnerability scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'm37-copilot-backend:test'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # ═══════════════════════════════════════════════════
+  # 통합 테스트 (전체 시스템)
+  # ═══════════════════════════════════════════════════
+  integration-full:
+    name: Full System Integration Test
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    if: github.event.inputs.test_level == 'full' || github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start full system with Docker Compose
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+          sleep 30
+
+      - name: Run integration tests
+        run: |
+          # Health check all services
+          curl -f http://localhost:8000/health
+          curl -f http://localhost:3000
+
+          # Run E2E tests against running system
+          cd backend
+          pytest tests/test_m37_e2e.py -v --timeout=120
+
+      - name: Collect logs
+        if: always()
+        run: |
+          docker-compose -f docker-compose.test.yml logs > system-logs.txt
+
+      - name: Stop system
+        if: always()
+        run: |
+          docker-compose -f docker-compose.test.yml down
+
+      - name: Upload system logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: system-logs
+          path: system-logs.txt
+
+  # ═══════════════════════════════════════════════════
+  # 배포 준비 및 검증
+  # ═══════════════════════════════════════════════════
+  deployment-check:
+    name: Deployment Readiness Check
+    runs-on: ubuntu-latest
+    needs: [integration-full, security-tests, performance-tests]
+    if: github.ref == 'refs/heads/feat/m37-copilot-v3.7'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate deployment configurations
+        run: |
+          # Kubernetes manifests validation
+          if [ -d "k8s" ]; then
+            kubectl --dry-run=client --validate=true apply -f k8s/
+          fi
+
+          # Docker Compose validation
+          docker-compose -f docker-compose.prod.yml config
+
+      - name: Check version consistency
+        run: |
+          # Version in spec should match branch
+          grep -q "v3.7.0" spec/copilot.spec.md
+          grep -q "M37" spec/copilot.spec.md
+
+      - name: Generate deployment report
+        run: |
+          echo "# M37 Copilot v3.7.0 Deployment Report" > deployment-report.md
+          echo "" >> deployment-report.md
+          echo "## Test Results Summary" >> deployment-report.md
+          echo "- ✅ Code Quality: Passed" >> deployment-report.md
+          echo "- ✅ Backend Tests: Passed" >> deployment-report.md
+          echo "- ✅ Frontend Tests: Passed" >> deployment-report.md
+          echo "- ✅ Security Tests: Passed" >> deployment-report.md
+          echo "- ✅ Performance Tests: Passed" >> deployment-report.md
+          echo "- ✅ Integration Tests: Passed" >> deployment-report.md
+          echo "" >> deployment-report.md
+          echo "## Features Implemented" >> deployment-report.md
+          echo "- 🤖 RAG 검색 시스템 (TF-IDF + BM25)" >> deployment-report.md
+          echo "- 🔍 WhyTrace QA 엔진" >> deployment-report.md
+          echo "- ⚙️ 에이전트 실행 엔진" >> deployment-report.md
+          echo "- ✅ 승인 워크플로우" >> deployment-report.md
+          echo "- 🌐 실시간 스트리밍 API" >> deployment-report.md
+          echo "- 💾 분산 캐싱 시스템" >> deployment-report.md
+          echo "- 📊 실시간 모니터링" >> deployment-report.md
+          echo "- 🔐 엔터프라이즈 보안" >> deployment-report.md
+
+      - name: Upload deployment report
+        uses: actions/upload-artifact@v3
+        with:
+          name: deployment-report
+          path: deployment-report.md
+
+  # ═══════════════════════════════════════════════════
+  # 알림 및 완료
+  # ═══════════════════════════════════════════════════
+  notify-completion:
+    name: Notify Completion
+    runs-on: ubuntu-latest
+    needs: [deployment-check]
+    if: always()
+
+    steps:
+      - name: Determine overall status
+        run: |
+          if [ "${{ needs.deployment-check.result }}" == "success" ]; then
+            echo "status=success" >> $GITHUB_ENV
+            echo "message=🎉 M37 Copilot v3.7.0 모든 테스트 통과! 배포 준비 완료" >> $GITHUB_ENV
+          else
+            echo "status=failure" >> $GITHUB_ENV
+            echo "message=❌ M37 Copilot v3.7.0 테스트 실패. 로그를 확인하세요." >> $GITHUB_ENV
+          fi
+
+      - name: Create summary
+        run: |
+          echo "## 🚀 M37 Copilot v3.7.0 CI/CD 완료" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**상태**: ${{ env.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "**메시지**: ${{ env.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 테스트 결과" >> $GITHUB_STEP_SUMMARY
+          echo "- Code Quality: ${{ needs.code-quality.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend Tests: ${{ needs.backend-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend Tests: ${{ needs.frontend-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Security Tests: ${{ needs.security-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Performance Tests: ${{ needs.performance-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Integration Tests: ${{ needs.integration-full.result }}" >> $GITHUB_STEP_SUMMARY

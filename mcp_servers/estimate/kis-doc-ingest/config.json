@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-doc-ingest",
+    "code":  "MCP-1",
+    "description":  "PDF/이미지/CAD 텍스트 추출",
+    "priority":  "P0",
+    "endpoints":  {
+                      "execute":  "/kis-doc-ingest/execute",
+                      "health":  "/kis-doc-ingest/health"
+                  },
+    "status":  "INSTALLED"
+}

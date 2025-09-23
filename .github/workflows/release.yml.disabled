@@ -1,0 +1,218 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+      - beta
+      - internal
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Release channel'
+        required: true
+        default: 'internal'
+        type: choice
+        options:
+          - internal
+          - beta
+          - stable
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            build-cmd: npm run build:win
+            artifacts: |
+              dist/HKKOR-Setup-*.exe
+              dist/HKKOR-Portable-*.exe
+              dist/*.exe.sha256
+
+          - name: macOS
+            os: macos-latest
+            build-cmd: npm run build:mac
+            artifacts: |
+              dist/HKKOR-*.dmg
+              dist/*.dmg.sha256
+
+          - name: Linux
+            os: ubuntu-latest
+            build-cmd: npm run build:linux
+            artifacts: |
+              dist/HKKOR-*.AppImage
+              dist/*.AppImage.sha256
+
+    runs-on: ${{ matrix.os }}
+    name: Build ${{ matrix.name }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Prepare signing (Windows)
+        if: matrix.os == 'windows-latest' && github.event_name == 'push' && (contains(github.ref, 'tags') || github.ref == 'refs/heads/main')
+        run: |
+          echo "${{ secrets.WIN_CERT_BASE64 }}" | base64 -d > build/cert.pfx
+        shell: bash
+
+      - name: Prepare signing (macOS)
+        if: matrix.os == 'macos-latest' && github.event_name == 'push' && (contains(github.ref, 'tags') || github.ref == 'refs/heads/main')
+        run: |
+          # Import certificates for codesigning
+          echo "${{ secrets.MACOS_CERT_BASE64 }}" | base64 -d > certificate.p12
+          security create-keychain -p "${{ secrets.MACOS_KEYCHAIN_PASSWORD }}" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "${{ secrets.MACOS_KEYCHAIN_PASSWORD }}" build.keychain
+          security import certificate.p12 -k build.keychain -P "${{ secrets.MACOS_CERT_PASSWORD }}" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "${{ secrets.MACOS_KEYCHAIN_PASSWORD }}" build.keychain
+
+      - name: Build installer
+        run: ${{ matrix.build-cmd }}
+        env:
+          # Windows signing
+          WIN_CERT_PASSWORD: ${{ secrets.WIN_CERT_PASSWORD }}
+          # macOS signing
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # Release channel
+          RELEASE_CHANNEL: ${{ github.event.inputs.channel || 'auto' }}
+
+      - name: Create update package
+        run: |
+          node scripts/make-zip.mjs ${{ github.ref_name }} ${{ github.event.inputs.channel || 'auto' }}
+        shell: bash
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}-artifacts
+          path: ${{ matrix.artifacts }}
+          retention-days: 30
+
+      - name: Upload update package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}-update
+          path: |
+            dist/updates/*.zip
+            dist/updates/*.sha256
+          retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && contains(github.ref, 'tags')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Determine release channel
+        id: channel
+        run: |
+          if [[ "${{ github.ref_name }}" == *"-internal"* ]]; then
+            echo "channel=internal" >> $GITHUB_OUTPUT
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == *"-beta"* ]]; then
+            echo "channel=beta" >> $GITHUB_OUTPUT
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "channel=stable" >> $GITHUB_OUTPUT
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          prerelease: ${{ steps.channel.outputs.prerelease }}
+          draft: false
+          files: |
+            artifacts/**/*.exe
+            artifacts/**/*.dmg
+            artifacts/**/*.AppImage
+            artifacts/**/*.sha256
+            artifacts/**/*.zip
+          body: |
+            ## HKKOR AI Agent ${{ github.ref_name }}
+
+            ### Release Channel: ${{ steps.channel.outputs.channel }}
+
+            ### Installation
+
+            **Windows:**
+            - `HKKOR-Setup-*.exe` - Standard installer
+            - `HKKOR-Portable-*.exe` - Portable version
+
+            **macOS:**
+            - `HKKOR-*.dmg` - Disk image installer
+
+            **Linux:**
+            - `HKKOR-*.AppImage` - Universal package
+
+            ### Update Packages
+            Update packages are available for automatic updates via the built-in update system.
+
+            ### Verification
+            SHA256 checksums are provided for all artifacts.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-update:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (contains(github.ref, 'tags') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/internal')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Download update packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*-update'
+          path: updates
+
+      - name: Publish to update server
+        run: |
+          for zip in updates/*/*.zip; do
+            if [ -f "$zip" ]; then
+              version="${{ github.ref_name }}"
+              node scripts/publish-update.mjs "$version" "$zip"
+            fi
+          done
+        env:
+          BACKEND_BASE: ${{ secrets.BACKEND_BASE }}
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}

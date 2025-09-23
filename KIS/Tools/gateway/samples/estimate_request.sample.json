@@ -1,0 +1,35 @@
+﻿{
+  "project_id": "2025-0001",
+  "case_id": "2025-0001",
+  "site": {
+    "country": "KR",
+    "voltage_class": "LV",
+    "ambient_c": 32
+  },
+  "loads": [
+    {"id": "L1", "kva": 15.4, "phase": "A", "width_unit": 0.4, "heat_w": 320},
+    {"id": "L2", "kva": 22.1, "phase": "B", "width_unit": 0.4, "heat_w": 340},
+    {"id": "L3", "kva": 18.0, "phase": "C", "width_unit": 0.4, "heat_w": 300}
+  ],
+  "enclosure": {
+    "required_w": 520,
+    "required_h": 2050,
+    "required_d": 420
+  },
+  "ip_min": "IP54",
+  "requested_totals": {
+    "currency": "KRW",
+    "granularity": "summary"
+  },
+  "document": {
+    "project_name": "KIS Sample Plant",
+    "client": "KIS Industries",
+    "project_number": "KIS-2025-0001",
+    "date": "2025-09-19"
+  },
+  "brand": {
+    "primary_color": "003366",
+    "logo_ref": "assets/logo.svg",
+    "font_size": 11
+  }
+}

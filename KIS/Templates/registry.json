@@ -1,0 +1,15 @@
+﻿{
+  "version": "2025.09",
+  "files": [
+    {
+      "name": "Cover.xlsx",
+      "sha256": "3c09b2f1686a644dc932a88e36d91205422402f859026cf33b2a3c436ff1bfac",
+      "named_ranges": ["ProjectName", "Client", "Total", "Date", "QuoteNo", "BrandPrimaryColor", "LogoRef"]
+    },
+    {
+      "name": "Estimate.xlsx",
+      "sha256": "e57a7bbe4acb9c94ea90928bb5bba331dba188d4588dcef68520ba303ada82c6",
+      "named_ranges": ["Items", "VAT", "Subtotal", "GrandTotal", "BrandPrimaryColor", "LogoRef", "FontSize"]
+    }
+  ]
+}

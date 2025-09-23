@@ -1,0 +1,72 @@
+{
+  "timestamp": "2025-09-19T00:04:29",
+  "project": "KIS_CORE_V2",
+  "audit_results": {
+    "engine_files": {
+      "total": 9,
+      "required": 8,
+      "analysis_success": 9,
+      "compile_errors": 0,
+      "duplicate_orphan": 1,
+      "duplicate_file": "engine/engine_util_io.py"
+    },
+    "cli_compliance": {
+      "compliant_files": 7,
+      "non_compliant": 0,
+      "status": "PASS"
+    },
+    "evidence_generation": {
+      "full_compliance": 5,
+      "partial_compliance": 2,
+      "violations": 0,
+      "partial_files": ["estimate_formatter.py", "cover_tab_writer.py"],
+      "svg_count": 7,
+      "evidence_json_count": 7,
+      "missing_mappings": 0
+    },
+    "forbidden_patterns": {
+      "found": 0,
+      "false_positives": 5,
+      "note": "HTTP patterns are SVG namespace declarations"
+    },
+    "templates": {
+      "named_ranges_defined": 13,
+      "coverage_percent": 0,
+      "sample_cells_accessible": 0,
+      "stub_files": 2,
+      "issues": ["Cover.xlsx is 2-byte stub", "Estimate.xlsx is 2-byte stub"]
+    },
+    "work_evidence": {
+      "total_files": 14,
+      "svg_files": 7,
+      "evidence_json_files": 7,
+      "pairing_complete": true
+    },
+    "quality_metrics": {
+      "doc_lint_quality_score": 100,
+      "doc_lint_pass": true,
+      "code_contract_compliance": 95,
+      "template_compliance": 40
+    },
+    "temporary_files": {
+      "pycache_dirs": 1,
+      "pyc_files": 1,
+      "cleanup_needed": true
+    }
+  },
+  "deliverables": [
+    ".meta/integrity_snapshot_20250919_000429.md",
+    ".meta/code_contract_report_20250919_000429.md",
+    ".meta/template_lint_20250919_000429.md",
+    ".meta/audit_summary_20250919_000429.json"
+  ],
+  "foundation_only": true,
+  "auto_fix_needed": true,
+  "risk_level": "MEDIUM",
+  "recommendations": [
+    "Remove duplicate engine/engine_util_io.py file",
+    "Replace stub Excel templates with functional files",
+    "Clean temporary Python cache files",
+    "Add SVG generation to estimate_formatter.py and cover_tab_writer.py"
+  ]
+}

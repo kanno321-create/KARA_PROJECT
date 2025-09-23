@@ -1,0 +1,56 @@
+{
+  "action": "place",
+  "input_data": {
+    "breakers": [
+      {
+        "id": "L1_01",
+        "phase": "L1",
+        "rating": 20,
+        "type": "MCB",
+        "width_units": 1
+      },
+      {
+        "id": "L1_02",
+        "phase": "L1",
+        "rating": 25,
+        "type": "MCB",
+        "width_units": 1
+      },
+      {
+        "id": "L2_01",
+        "phase": "L2",
+        "rating": 20,
+        "type": "MCB",
+        "width_units": 1
+      },
+      {
+        "id": "L2_02",
+        "phase": "L2",
+        "rating": 25,
+        "type": "MCB",
+        "width_units": 1
+      },
+      {
+        "id": "L3_01",
+        "phase": "L3",
+        "rating": 30,
+        "type": "MCCB",
+        "width_units": 2
+      }
+    ],
+    "panel_specs": {
+      "width_units": 24,
+      "height_units": 20,
+      "pitch_mm": 17.5
+    },
+    "constraints": {
+      "max_phase_imbalance_pct": 4.0,
+      "thermal_derating": 0.8,
+      "min_clearance_mm": 5
+    }
+  },
+  "options": {
+    "timeout": 60,
+    "validate_only": false
+  }
+}

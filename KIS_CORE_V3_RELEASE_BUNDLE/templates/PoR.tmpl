@@ -1,0 +1,223 @@
+# Proof of Requirements (PoR)
+## {{project_name}} - {{component_name}}
+
+**Document Version**: {{document_version}}
+**Generated**: {{generation_timestamp}}
+**Reviewer**: {{reviewer_name}}
+**Approval Date**: {{approval_date}}
+
+---
+
+## 📋 **Requirement Traceability Matrix**
+
+| Req ID | Requirement | Implementation | Test Case | Status | Evidence |
+|--------|-------------|---------------|-----------|--------|----------|
+{{#each requirements}}
+| {{id}} | {{description}} | {{implementation_reference}} | {{test_case_id}} | {{status}} | {{evidence_link}} |
+{{/each}}
+
+---
+
+## 🎯 **Functional Requirements Validation**
+
+### Core Business Logic
+{{#each functional_requirements}}
+#### {{id}}: {{title}}
+**Requirement**: {{description}}
+**Acceptance Criteria**:
+{{#each acceptance_criteria}}
+- {{criterion}}
+{{/each}}
+
+**Implementation**:
+- **File**: `{{implementation_file}}`
+- **Function**: `{{implementation_function}}`
+- **Line**: {{line_number}}
+
+**Test Evidence**:
+- **Test File**: `{{test_file}}`
+- **Test Method**: `{{test_method}}`
+- **Coverage**: {{coverage_percentage}}%
+- **Status**: {{test_status}}
+
+**Validation**: {{validation_status}}
+{{/each}}
+
+---
+
+## ⚡ **Non-Functional Requirements Validation**
+
+### Performance Requirements
+| Requirement | Target | Actual | Status | Evidence |
+|-------------|--------|--------|--------|----------|
+| 견적 처리 시간 | ≤{{target_processing_time}}ms | {{actual_processing_time}}ms | {{processing_status}} | {{processing_evidence}} |
+| API 응답 시간 (p95) | ≤{{target_response_time}}ms | {{actual_response_time}}ms | {{response_status}} | {{response_evidence}} |
+| 동시 사용자 지원 | ≥{{target_concurrent_users}} | {{actual_concurrent_users}} | {{concurrency_status}} | {{concurrency_evidence}} |
+| 메모리 사용량 | ≤{{target_memory}}MB | {{actual_memory}}MB | {{memory_status}} | {{memory_evidence}} |
+
+### Reliability Requirements
+| Requirement | Target | Actual | Status | Evidence |
+|-------------|--------|--------|--------|----------|
+| 시스템 가용성 | ≥{{target_uptime}}% | {{actual_uptime}}% | {{uptime_status}} | {{uptime_evidence}} |
+| 오류율 | ≤{{target_error_rate}}% | {{actual_error_rate}}% | {{error_status}} | {{error_evidence}} |
+| 복구 시간 | ≤{{target_recovery_time}}min | {{actual_recovery_time}}min | {{recovery_status}} | {{recovery_evidence}} |
+
+### Security Requirements
+| Requirement | Standard | Implementation | Status | Evidence |
+|-------------|----------|----------------|--------|----------|
+| 인증 | {{auth_standard}} | {{auth_implementation}} | {{auth_status}} | {{auth_evidence}} |
+| 권한 제어 | {{authz_standard}} | {{authz_implementation}} | {{authz_status}} | {{authz_evidence}} |
+| 데이터 암호화 | {{encryption_standard}} | {{encryption_implementation}} | {{encryption_status}} | {{encryption_evidence}} |
+| 보안 스캔 | {{security_scan_standard}} | {{security_scan_results}} | {{security_status}} | {{security_evidence}} |
+
+---
+
+## ♿ **Accessibility Requirements (WCAG AA)**
+
+### Compliance Matrix
+| Guideline | Criterion | Implementation | Status | Evidence |
+|-----------|-----------|----------------|--------|----------|
+{{#each wcag_requirements}}
+| {{guideline}} | {{criterion}} | {{implementation}} | {{status}} | {{evidence}} |
+{{/each}}
+
+### Automated Testing Results
+- **Total Tests**: {{total_accessibility_tests}}
+- **Passed**: {{passed_accessibility_tests}}
+- **Failed**: {{failed_accessibility_tests}}
+- **Compliance Rate**: {{accessibility_compliance_rate}}%
+
+---
+
+## 📱 **Usability Requirements**
+
+### User Experience Metrics
+| Metric | Target | Actual | Status | Evidence |
+|--------|--------|--------|--------|----------|
+| 첫 사용자 완료율 | ≥{{target_completion_rate}}% | {{actual_completion_rate}}% | {{completion_status}} | {{completion_evidence}} |
+| 평균 작업 시간 | ≤{{target_task_time}}min | {{actual_task_time}}min | {{task_time_status}} | {{task_time_evidence}} |
+| 사용자 만족도 | ≥{{target_satisfaction}}/5 | {{actual_satisfaction}}/5 | {{satisfaction_status}} | {{satisfaction_evidence}} |
+| 오류 발생률 | ≤{{target_user_error_rate}}% | {{actual_user_error_rate}}% | {{user_error_status}} | {{user_error_evidence}} |
+
+---
+
+## 🧪 **Test Coverage Analysis**
+
+### Code Coverage
+- **Overall Coverage**: {{overall_coverage}}%
+- **Unit Tests**: {{unit_test_coverage}}%
+- **Integration Tests**: {{integration_test_coverage}}%
+- **E2E Tests**: {{e2e_test_coverage}}%
+
+### Test Categories
+{{#each test_categories}}
+#### {{category_name}}
+- **Tests**: {{test_count}}
+- **Passed**: {{passed_count}}
+- **Failed**: {{failed_count}}
+- **Coverage**: {{coverage_percentage}}%
+- **Evidence**: {{evidence_location}}
+{{/each}}
+
+---
+
+## 🏆 **Quality Gate Results**
+
+### FIX-4 Gate Analysis
+| Level | Threshold | Found | Status | Details |
+|-------|-----------|-------|--------|---------|
+| Critical | 0 | {{critical_issues}} | {{critical_status}} | {{critical_details}} |
+| Major | ≤2 | {{major_issues}} | {{major_status}} | {{major_details}} |
+| Minor | ≤4 | {{minor_issues}} | {{minor_status}} | {{minor_details}} |
+| Info | No limit | {{info_issues}} | {{info_status}} | {{info_details}} |
+
+**Overall FIX-4 Status**: {{fix4_overall_status}}
+
+### Polisher Quality Score
+- **Current Score**: {{polisher_current_score}}%
+- **Target Score**: ≥{{polisher_target_score}}%
+- **Status**: {{polisher_status}}
+- **Improvement Areas**: {{polisher_improvement_areas}}
+
+---
+
+## 📊 **Evidence Artifacts**
+
+### Documentation Evidence
+{{#each documentation_evidence}}
+- **{{artifact_type}}**: [{{artifact_name}}]({{artifact_path}})
+  - **Purpose**: {{purpose}}
+  - **Last Updated**: {{last_updated}}
+  - **Verified**: {{verification_status}}
+{{/each}}
+
+### Test Evidence
+{{#each test_evidence}}
+- **{{test_type}}**: [{{test_name}}]({{test_path}})
+  - **Coverage**: {{coverage}}%
+  - **Last Run**: {{last_run}}
+  - **Result**: {{result}}
+{{/each}}
+
+### Performance Evidence
+{{#each performance_evidence}}
+- **{{metric_name}}**: [{{report_name}}]({{report_path}})
+  - **Tool**: {{tool_used}}
+  - **Date**: {{measurement_date}}
+  - **Result**: {{metric_value}}
+{{/each}}
+
+---
+
+## ✅ **Compliance Summary**
+
+### Requirements Satisfaction
+- **Total Requirements**: {{total_requirements}}
+- **Implemented**: {{implemented_requirements}}
+- **Tested**: {{tested_requirements}}
+- **Verified**: {{verified_requirements}}
+- **Overall Compliance**: {{overall_compliance_rate}}%
+
+### Quality Standards
+- **FIX-4**: {{fix4_compliance}} ✅/❌
+- **Polisher ≥95%**: {{polisher_compliance}} ✅/❌
+- **WCAG AA**: {{wcag_compliance}} ✅/❌
+- **Performance**: {{performance_compliance}} ✅/❌
+
+---
+
+## 🚨 **Outstanding Issues**
+
+{{#each outstanding_issues}}
+### {{severity}} - {{issue_id}}
+**Title**: {{title}}
+**Description**: {{description}}
+**Impact**: {{impact}}
+**Mitigation**: {{mitigation}}
+**Target Resolution**: {{target_date}}
+**Owner**: {{owner}}
+{{/each}}
+
+---
+
+## 📝 **Sign-off**
+
+### Development Team
+- **Lead Developer**: {{lead_developer}} | {{dev_sign_date}} | {{dev_signature}}
+- **QA Lead**: {{qa_lead}} | {{qa_sign_date}} | {{qa_signature}}
+- **Security Review**: {{security_reviewer}} | {{security_date}} | {{security_signature}}
+
+### Business Stakeholders
+- **Product Owner**: {{product_owner}} | {{po_sign_date}} | {{po_signature}}
+- **Business Analyst**: {{business_analyst}} | {{ba_sign_date}} | {{ba_signature}}
+
+### Final Approval
+- **Project Manager**: {{project_manager}} | {{pm_sign_date}} | {{pm_signature}}
+- **Technical Architect**: {{tech_architect}} | {{arch_sign_date}} | {{arch_signature}}
+
+---
+
+**Document Hash**: {{document_hash}}
+**Verification Command**: `sha256sum {{document_path}}`
+**Generated by**: KIS Core Spec Kit v3.0
+**Template Version**: {{template_version}}

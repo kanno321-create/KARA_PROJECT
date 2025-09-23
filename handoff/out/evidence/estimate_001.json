@@ -1,0 +1,29 @@
+{
+  "estimate_id": "EST-2025-000001",
+  "customer_name": "***REDACTED***",
+  "customer_address": "***REDACTED***",
+  "customer_phone": "***REDACTED***",
+  "items": [
+    {
+      "sku": "PART-001",
+      "description": "Standard component",
+      "quantity": 10,
+      "unit_cost": "***REDACTED***",
+      "total_cost": "***REDACTED***"
+    },
+    {
+      "sku": "PART-002",
+      "description": "Premium component",
+      "quantity": 5,
+      "unit_cost": "***REDACTED***",
+      "total_cost": "***REDACTED***"
+    }
+  ],
+  "subtotal": 15000,
+  "tax": 1500,
+  "total": 16500,
+  "margin": "***REDACTED***",
+  "profit": "***REDACTED***",
+  "created_at": "2025-09-20T10:00:00Z",
+  "masked_fields": ["customer_name", "customer_address", "customer_phone", "unit_cost", "total_cost", "margin", "profit"]
+}

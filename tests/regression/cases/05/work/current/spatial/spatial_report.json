@@ -1,0 +1,159 @@
+{
+  "ts": 1758217536,
+  "checks_performed": {
+    "clearance": true,
+    "service_access": true,
+    "panel_boundaries": true,
+    "collision_detection": true
+  },
+  "clearance_violations": 10,
+  "clearance_details": [
+    {
+      "type": "horizontal_clearance",
+      "breakers": [
+        0,
+        1
+      ],
+      "required_mm": 50,
+      "position_1": [
+        0,
+        0,
+        50
+      ],
+      "position_2": [
+        45,
+        0,
+        50
+      ],
+      "uncertainty_mm": 2.0
+    },
+    {
+      "type": "horizontal_clearance",
+      "breakers": [
+        1,
+        2
+      ],
+      "required_mm": 50,
+      "position_1": [
+        45,
+        0,
+        50
+      ],
+      "position_2": [
+        90,
+        0,
+        50
+      ],
+      "uncertainty_mm": 2.0
+    },
+    {
+      "type": "horizontal_clearance",
+      "breakers": [
+        2,
+        3
+      ],
+      "required_mm": 50,
+      "position_1": [
+        90,
+        0,
+        50
+      ],
+      "position_2": [
+        135,
+        0,
+        50
+      ],
+      "uncertainty_mm": 2.0
+    },
+    {
+      "type": "horizontal_clearance",
+      "breakers": [
+        3,
+        4
+      ],
+      "required_mm": 50,
+      "position_1": [
+        135,
+        0,
+        50
+      ],
+      "position_2": [
+        180,
+        0,
+        50
+      ],
+      "uncertainty_mm": 2.0
+    },
+    {
+      "type": "horizontal_clearance",
+      "breakers": [
+        4,
+        5
+      ],
+      "required_mm": 50,
+      "position_1": [
+        180,
+        0,
+        50
+      ],
+      "position_2": [
+        225,
+        0,
+        50
+      ],
+      "uncertainty_mm": 2.0
+    }
+  ],
+  "service_access_ok": false,
+  "service_issues": [
+    {
+      "type": "service_depth",
+      "breaker": 0,
+      "required_mm": 200,
+      "actual_mm": 50,
+      "position": [
+        0,
+        0,
+        50
+      ]
+    },
+    {
+      "type": "service_depth",
+      "breaker": 1,
+      "required_mm": 200,
+      "actual_mm": 50,
+      "position": [
+        45,
+        0,
+        50
+      ]
+    },
+    {
+      "type": "service_depth",
+      "breaker": 2,
+      "required_mm": 200,
+      "actual_mm": 50,
+      "position": [
+        90,
+        0,
+        50
+      ]
+    }
+  ],
+  "boundary_violations": 0,
+  "boundary_details": [],
+  "collisions": 0,
+  "thresholds": {
+    "horizontal_clearance_mm": 50,
+    "vertical_clearance_mm": 600,
+    "service_depth_mm": 200,
+    "panel_pitch_mm": 45
+  },
+  "uncertainty": {
+    "position_accuracy_mm": 2.0,
+    "measurement_error_pct": 0.05,
+    "confidence_level": 0.95
+  },
+  "pass": false,
+  "breakers_checked": 12
+}

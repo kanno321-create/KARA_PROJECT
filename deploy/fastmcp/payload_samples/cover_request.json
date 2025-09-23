@@ -1,0 +1,26 @@
+{
+  "action": "cover",
+  "input_data": {
+    "project": {
+      "title": "Industrial Panel Upgrade Project",
+      "client": "XYZ Industries Ltd",
+      "number": "PROJ-2025-002",
+      "date": "2025-09-19"
+    },
+    "financial": {
+      "subtotal": 95000.00,
+      "vat": 9500.00,
+      "total": 104500.00
+    },
+    "enclosure": {
+      "sku": "PANEL-24x20-IP65",
+      "width_mm": 600,
+      "height_mm": 500,
+      "depth_mm": 200
+    }
+  },
+  "options": {
+    "timeout": 15,
+    "validate_only": false
+  }
+}

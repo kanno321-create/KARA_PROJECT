@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>견적 시스템 테스트</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+            background-color: #f9f9f9;
+            color: #323130;
+            font-size: 14px;
+        }
+
+        .estimate-container {
+            padding: 20px;
+            height: 100vh;
+            overflow: auto;
+            background: white;
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 40px);
+        }
+
+        /* 좌측 입력 영역 */
+        .left-panel {
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .input-section {
+            padding: 15px;
+            border: 1px solid #e1dfdd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #323130;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .form-row-horizontal {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            margin-bottom: 10px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #605e5c;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .form-input, .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d1d1d1;
+            border-radius: 2px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #0078d4;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d1d1d1;
+            border-radius: 2px;
+            background: white;
+            color: #323130;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #0078d4;
+            color: white;
+            border-color: #0078d4;
+        }
+
+        .btn-primary:hover {
+            background: #106ebe;
+        }
+
+        .btn:hover {
+            background: #f3f2f1;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        /* 중간 버튼 영역 */
+        .middle-panel {
+            width: 150px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 12px;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .generate-btn:hover {
+            background: #106ebe;
+        }
+
+        .clear-btn {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            color: #323130;
+            border: 1px solid #d1d1d1;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .clear-btn:hover {
+            background: #f3f2f1;
+        }
+
+        /* 우측 결과 영역 */
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .estimate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        .estimate-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #323130;
+        }
+
+        .estimate-total {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0078d4;
+        }
+
+        .estimate-table {
+            flex: 1;
+            border: 1px solid #e1dfdd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1dfdd;
+        }
+
+        th {
+            background: #f9f9f9;
+            font-weight: 600;
+            font-size: 14px;
+            color: #323130;
+        }
+
+        td {
+            font-size: 14px;
+            color: #323130;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .bottom-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* 분기 차단기 리스트 */
+        .branch-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e1dfdd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .branch-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f3f2f1;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .branch-item:last-child {
+            border-bottom: none;
+        }
+
+        .branch-item:hover {
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="estimate-container">
+        <div class="main-layout">
+
+            <!-- 좌측 입력 영역 -->
+            <div class="left-panel">
+
+                <!-- 고객 정보 -->
+                <div class="input-section">
+                    <div class="section-title">고객 정보</div>
+                    <div class="form-row">
+                        <label class="form-label">업체명</label>
+                        <input type="text" class="form-input" placeholder="업체명을 입력하세요">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">연락처</label>
+                        <input type="text" class="form-input" placeholder="연락처를 입력하세요">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">이메일</label>
+                        <input type="email" class="form-input" placeholder="이메일을 입력하세요">
+                    </div>
+                </div>
+
+                <!-- 외함 정보 -->
+                <div class="input-section">
+                    <div class="section-title">외함</div>
+                    <div class="form-row">
+                        <label class="form-label">설치</label>
+                        <select class="form-select">
+                            <option>옥내</option>
+                            <option>옥외</option>
+                            <option>옥내자립</option>
+                            <option>옥외자립</option>
+                            <option>전주부착형</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">함종류</label>
+                        <select class="form-select">
+                            <option>기성함</option>
+                            <option>주문제작함</option>
+                            <option>계량기함</option>
+                            <option>CT계량기함</option>
+                            <option>FRP 박스</option>
+                            <option>하이박스</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">재질</label>
+                        <select class="form-select">
+                            <option>STEEL 1.6T</option>
+                            <option>STEEL 1.0T</option>
+                            <option>STEEL 2.0T</option>
+                            <option>SUS201 1.0T</option>
+                            <option>SUS201 1.2T</option>
+                            <option>SUS201 1.5T</option>
+                            <option>SUS304 1.2T</option>
+                            <option>SUS304 1.5T</option>
+                            <option>SUS304 2.0T</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">기타요청</label>
+                        <input type="text" class="form-input" placeholder="기타 요청사항">
+                    </div>
+                </div>
+
+                <!-- 메인 차단기 -->
+                <div class="input-section">
+                    <div class="section-title">메인 차단기</div>
+                    <div class="form-row">
+                        <label class="form-label">종류</label>
+                        <select class="form-select">
+                            <option>MCCB</option>
+                            <option>ELB</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">극수</label>
+                        <select class="form-select">
+                            <option>4P</option>
+                            <option>3P</option>
+                            <option>2P</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">용량</label>
+                        <select class="form-select">
+                            <option>100A</option>
+                            <option>125A</option>
+                            <option>150A</option>
+                            <option>200A</option>
+                            <option>250A</option>
+                            <option>300A</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">브랜드</label>
+                        <input type="text" class="form-input" placeholder="브랜드명">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">수량</label>
+                        <input type="number" class="form-input" value="1" min="1">
+                    </div>
+                </div>
+
+                <!-- 분기 차단기 -->
+                <div class="input-section">
+                    <div class="section-title">분기 차단기</div>
+                    <div style="margin-bottom: 10px;">
+                        <button class="btn btn-primary">분기 추가</button>
+                    </div>
+
+                    <div class="branch-list">
+                        <div class="branch-item">
+                            <span>MCCB | 2P 30A | 수량 2</span>
+                            <button class="btn btn-small">삭제</button>
+                        </div>
+                        <div class="branch-item">
+                            <span>MCCB | 2P 50A | 수량 1</span>
+                            <button class="btn btn-small">삭제</button>
+                        </div>
+                        <div class="branch-item">
+                            <span>ELB | 2P 20A | 수량 4</span>
+                            <button class="btn btn-small">삭제</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 중간 버튼 영역 -->
+            <div class="middle-panel">
+                <button class="generate-btn">시스템 견적 생성</button>
+                <button class="generate-btn">AI 견적 생성</button>
+                <button class="clear-btn">화면 지우기</button>
+            </div>
+
+            <!-- 우측 결과 영역 -->
+            <div class="right-panel">
+
+                <!-- 견적 제목 및 합계 -->
+                <div class="estimate-header">
+                    <div class="estimate-title">배전반 견적 | 메인 MCCB 4P 100A | 분기 3개</div>
+                    <div class="estimate-total">합계: 485,000 원</div>
+                </div>
+
+                <!-- 견적 테이블 -->
+                <div class="estimate-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="width: 50px;">No</th>
+                                <th style="width: 200px;">품명</th>
+                                <th style="width: 250px;">규격</th>
+                                <th class="text-center" style="width: 60px;">단위</th>
+                                <th class="text-center" style="width: 70px;">수량</th>
+                                <th class="text-right" style="width: 120px;">단가</th>
+                                <th class="text-right" style="width: 120px;">금액</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center">1</td>
+                                <td>배전반함체</td>
+                                <td>STEEL 1.6T 옥내용</td>
+                                <td class="text-center">EA</td>
+                                <td class="text-center">1</td>
+                                <td class="text-right">150,000원</td>
+                                <td class="text-right">150,000원</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">2</td>
+                                <td>메인 차단기 MCCB</td>
+                                <td>4P 100A</td>
+                                <td class="text-center">EA</td>
+                                <td class="text-center">1</td>
+                                <td class="text-right">80,000원</td>
+                                <td class="text-right">80,000원</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">3</td>
+                                <td>분기 차단기 MCCB</td>
+                                <td>2P 30A</td>
+                                <td class="text-center">EA</td>
+                                <td class="text-center">2</td>
+                                <td class="text-right">25,000원</td>
+                                <td class="text-right">50,000원</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">4</td>
+                                <td>분기 차단기 MCCB</td>
+                                <td>2P 50A</td>
+                                <td class="text-center">EA</td>
+                                <td class="text-center">1</td>
+                                <td class="text-right">25,000원</td>
+                                <td class="text-right">25,000원</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">5</td>
+                                <td>분기 차단기 ELB</td>
+                                <td>2P 20A</td>
+                                <td class="text-center">EA</td>
+                                <td class="text-center">4</td>
+                                <td class="text-right">25,000원</td>
+                                <td class="text-right">100,000원</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">6</td>
+                                <td>배선자재</td>
+                                <td>VCTF 3.5sq x 3C</td>
+                                <td class="text-center">M</td>
+                                <td class="text-center">20</td>
+                                <td class="text-right">2,000원</td>
+                                <td class="text-right">40,000원</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">7</td>
+                                <td>조립공임</td>
+                                <td>배전반 조립 및 시험</td>
+                                <td class="text-center">식</td>
+                                <td class="text-center">1</td>
+                                <td class="text-right">40,000원</td>
+                                <td class="text-right">40,000원</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 하단 버튼 -->
+                <div class="bottom-buttons">
+                    <button class="btn btn-primary">엑셀 저장(회사 양식)</button>
+                    <button class="btn">CSV 저장</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1171 @@
+{
+  "timestamp": 1758217531,
+  "total_cases": 20,
+  "results": [
+    {
+      "case_id": 1,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\01\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\01\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 2,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\02\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\02\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 3,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\03\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\03\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 4,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\04\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\04\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 5,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\05\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\05\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 6,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\06\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\06\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 7,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\07\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\07\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 8,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\08\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\08\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 9,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\09\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\09\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 10,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.0%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=100)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\10\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\10\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.0,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 11,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\11\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\11\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 12,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\12\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\12\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 13,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\13\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\13\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 14,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\14\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\14\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 15,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\15\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\15\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 16,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\16\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\16\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 17,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\17\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\17\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 18,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\18\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\18\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 19,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\19\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\19\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    },
+    {
+      "case_id": 20,
+      "engines": {
+        "enclosure_solver": {
+          "returncode": 0,
+          "stdout": "[INFO] OK enclosure-solver (fit_score=0.93)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_placer": {
+          "returncode": 0,
+          "stdout": "[WARN] WARNING: OR-Tools not available, using fallback placement\n[WARN] Using fallback placement\n[INFO] OK breaker-placer (imbalance=3.9%)",
+          "stderr": "",
+          "success": true
+        },
+        "breaker_critic": {
+          "returncode": 0,
+          "stdout": "[INFO] OK Placement passed all checks (score=95)",
+          "stderr": "",
+          "success": true
+        },
+        "spatial_assistant": {
+          "returncode": 0,
+          "stdout": "[INFO] Spatial visualization saved to tests\\regression\\cases\\20\\work\\current\\spatial\\spatial_report.svg\n[WARN] WARN spatial-assistant: 10 clearance violations",
+          "stderr": "",
+          "success": true
+        },
+        "estimate_formatter": {
+          "returncode": 0,
+          "stdout": "[INFO] OK estimate-formatter (ranges=5/13)",
+          "stderr": "",
+          "success": true
+        },
+        "cover_tab_writer": {
+          "returncode": 0,
+          "stdout": "[INFO] OK cover-tab-writer",
+          "stderr": "",
+          "success": true
+        },
+        "doc_lint_guard": {
+          "returncode": 0,
+          "stdout": "[INFO] Lint report visualization saved to tests\\regression\\cases\\20\\work\\current\\lint\\doc_lint_result.svg\n[INFO] OK doc-lint-guard (quality=100)",
+          "stderr": "",
+          "success": true
+        }
+      },
+      "metrics": {
+        "phase_imbalance_pct": 3.9,
+        "clearance_violations": 0,
+        "thermal_violations": 0,
+        "format_lint_errors": 0,
+        "doc_lint_pass": true,
+        "doc_lint_quality_score": 100,
+        "evidence_pairs": 6,
+        "missing_pairs": 1
+      },
+      "overall_success": true
+    }
+  ],
+  "summary": {
+    "passed": 20,
+    "failed": 0,
+    "failed_cases": []
+  }
+}

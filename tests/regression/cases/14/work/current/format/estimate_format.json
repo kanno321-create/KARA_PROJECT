@@ -1,0 +1,109 @@
+{
+  "ts": 1758217546,
+  "estimate_data": {
+    "project_name": "KIS Electrical Installation",
+    "client": "Sample Client Co.",
+    "date": "2024-01-01",
+    "project_number": "PRJ-2024-001",
+    "items": [
+      {
+        "desc": "Main Distribution Panel",
+        "qty": 1,
+        "unit_price": 500000,
+        "total": 500000
+      },
+      {
+        "desc": "Circuit Breakers",
+        "qty": 12,
+        "unit_price": 50000,
+        "total": 600000
+      },
+      {
+        "desc": "Power Cabling (m)",
+        "qty": 100,
+        "unit_price": 5000,
+        "total": 500000
+      },
+      {
+        "desc": "Installation Labor",
+        "qty": 8,
+        "unit_price": 100000,
+        "total": 800000
+      },
+      {
+        "desc": "Testing & Commissioning",
+        "qty": 1,
+        "unit_price": 200000,
+        "total": 200000
+      }
+    ],
+    "subtotal": 2600000,
+    "vat": 260000,
+    "total": 2860000
+  },
+  "named_ranges": {
+    "total": 13,
+    "applied": 5,
+    "failed": [
+      "Project.Date",
+      "Project.Manager",
+      "Totals.Materials",
+      "Totals.Labor",
+      "BOM.Start",
+      "BOM.End",
+      "Enclosure.Model",
+      "Enclosure.Size"
+    ],
+    "injection_rate": 0.38461538461538464
+  },
+  "format_lint": {
+    "errors": 0,
+    "warnings": 0,
+    "error_details": [],
+    "warning_details": []
+  },
+  "sample_cells": {
+    "checked": 5,
+    "diff": 0,
+    "cells": [
+      {
+        "ref": "B3",
+        "sheet": "Cover",
+        "expected": "KIS Electrical Installation",
+        "actual": "KIS Electrical Installation",
+        "match": true
+      },
+      {
+        "ref": "B4",
+        "sheet": "Cover",
+        "expected": "Sample Client Co.",
+        "actual": "Sample Client Co.",
+        "match": true
+      },
+      {
+        "ref": "H52",
+        "sheet": "Estimate",
+        "expected": 2600000,
+        "actual": 2600000,
+        "match": true
+      },
+      {
+        "ref": "H53",
+        "sheet": "Estimate",
+        "expected": 260000,
+        "actual": 260000,
+        "match": true
+      },
+      {
+        "ref": "H54",
+        "sheet": "Estimate",
+        "expected": 2860000,
+        "actual": 2860000,
+        "match": true
+      }
+    ],
+    "match_rate": 1.0
+  },
+  "validation_pass": true,
+  "openpyxl_available": true
+}

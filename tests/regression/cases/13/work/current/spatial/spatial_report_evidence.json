@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "target": "spatial_report",
+  "timestamp": "2025-09-19T02:45:45.164418",
+  "summary": {
+    "clearance_violations": 10,
+    "boundary_violations": 0,
+    "collisions": 0,
+    "service_access": "ISSUES",
+    "status": "FAIL"
+  }
+}

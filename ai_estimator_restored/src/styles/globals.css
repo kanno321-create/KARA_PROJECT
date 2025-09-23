@@ -1,0 +1,266 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 16px;
+  --font-family: Pretendard, -apple-system, "Noto Sans KR", system-ui, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  
+  /* KIS Chat Design Tokens - Light Theme */
+  --color-bg: #F7F7F8;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F2F2F2;
+  --color-brand: #10A37F;
+  --color-brand-strong: #0E8F71;
+  --color-text-strong: #111111;
+  --color-text: #1F2328;
+  --color-text-subtle: #6B7280;
+  --color-border: #E5E7EB;
+  --color-focus: #3B82F6;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  
+  /* Spacing */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-80: 80px;
+  
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  
+  /* Typography Scale */
+  --type-display-28: 28px;
+  --type-display-28-lh: 36px;
+  --type-h1-24: 24px;
+  --type-h1-24-lh: 32px;
+  --type-h2-20: 20px;
+  --type-h2-20-lh: 28px;
+  --type-body-16: 16px;
+  --type-body-16-lh: 24px;
+  --type-body-14: 14px;
+  --type-body-14-lh: 20px;
+  --type-caption-12: 12px;
+  --type-caption-12-lh: 16px;
+  
+  /* Elevations */
+  --elevation-1: 0 1px 2px rgba(0,0,0,0.06);
+  --elevation-2: 0 8px 24px rgba(0,0,0,0.10);
+  
+  /* Legacy variables for compatibility */
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-brand);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--color-surface-2);
+  --secondary-foreground: var(--color-text);
+  --muted: var(--color-surface-2);
+  --muted-foreground: var(--color-text-subtle);
+  --accent: var(--color-surface-2);
+  --accent-foreground: var(--color-text);
+  --destructive: var(--color-error);
+  --destructive-foreground: #FFFFFF;
+  --border: var(--color-border);
+  --input: transparent;
+  --input-background: var(--color-surface);
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --ring: var(--color-focus);
+  --radius: var(--radius-lg);
+}
+
+.dark {
+  /* KIS Chat Design Tokens - Dark Theme */
+  --color-bg: #0C0C0D;
+  --color-surface: #171717;
+  --color-surface-2: #1F1F1F;
+  --color-brand: #10A37F;
+  --color-text-strong: #FAFAFA;
+  --color-text: #E5E7EB;
+  --color-text-subtle: #9CA3AF;
+  --color-border: #2A2A2A;
+  --color-focus: #60A5FA;
+  
+  /* Legacy variables for compatibility */
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-brand);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--color-surface-2);
+  --secondary-foreground: var(--color-text);
+  --muted: var(--color-surface-2);
+  --muted-foreground: var(--color-text-subtle);
+  --accent: var(--color-surface-2);
+  --accent-foreground: var(--color-text);
+  --destructive: var(--color-error);
+  --destructive-foreground: #FFFFFF;
+  --border: var(--color-border);
+  --input: var(--color-surface);
+  --input-background: var(--color-surface);
+  --ring: var(--color-focus);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-ring: var(--ring);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: calc(var(--radius-lg) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
+@layer base {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    .display-28 {
+      font-size: var(--type-display-28);
+      line-height: var(--type-display-28-lh);
+      font-weight: 600;
+    }
+
+    .h1-24 {
+      font-size: var(--type-h1-24);
+      line-height: var(--type-h1-24-lh);
+      font-weight: 600;
+    }
+
+    .h2-20 {
+      font-size: var(--type-h2-20);
+      line-height: var(--type-h2-20-lh);
+      font-weight: 600;
+    }
+
+    .body-16 {
+      font-size: var(--type-body-16);
+      line-height: var(--type-body-16-lh);
+      font-weight: 400;
+    }
+
+    .body-14 {
+      font-size: var(--type-body-14);
+      line-height: var(--type-body-14-lh);
+      font-weight: 400;
+    }
+
+    .caption-12 {
+      font-size: var(--type-caption-12);
+      line-height: var(--type-caption-12-lh);
+      font-weight: 400;
+    }
+
+    h1 {
+      font-size: var(--type-h1-24);
+      line-height: var(--type-h1-24-lh);
+      font-weight: 600;
+    }
+
+    h2 {
+      font-size: var(--type-h2-20);
+      line-height: var(--type-h2-20-lh);
+      font-weight: 600;
+    }
+
+    p {
+      font-size: var(--type-body-16);
+      line-height: var(--type-body-16-lh);
+      font-weight: 400;
+    }
+
+    button {
+      font-size: var(--type-body-16);
+      line-height: var(--type-body-16-lh);
+      font-weight: 500;
+    }
+
+    input {
+      font-size: var(--type-body-16);
+      line-height: var(--type-body-16-lh);
+      font-weight: 400;
+    }
+  }
+}
+
+html {
+  font-size: var(--font-size);
+  font-family: var(--font-family);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Chat-specific styles */
+.user-bubble {
+  max-width: min(720px, 60%);
+  background: var(--color-surface-2);
+  border-radius: 16px 4px 16px 16px;
+  padding: 12px 16px;
+}
+
+.ai-message {
+  max-width: min(720px, 64%);
+  color: var(--color-text-strong);
+}
+
+.input-footer {
+  position: sticky;
+  bottom: 0;
+  background: var(--color-bg);
+  min-height: 64px;
+}
+
+/* Dropdown menu z-index override */
+[data-radix-popper-content-wrapper] {
+  z-index: 99999 !important;
+}
+
+[data-radix-dropdown-menu-content] {
+  z-index: 99999 !important;
+}

@@ -1,0 +1,45 @@
+{
+  "timestamp": "2024-09-22 14:30:00",
+  "summary": {
+    "total_tests": 165,
+    "passed": 163,
+    "failed": 2,
+    "skipped": 0,
+    "success_rate": 98.8,
+    "duration_seconds": 45.2
+  },
+  "unit_tests": {
+    "total": 127,
+    "passed": 127,
+    "failed": 0,
+    "coverage_percent": 94.5
+  },
+  "integration_tests": {
+    "total": 23,
+    "passed": 21,
+    "failed": 2,
+    "coverage_percent": 87.3
+  },
+  "e2e_tests": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0,
+    "coverage_percent": 91.2
+  },
+  "failed_tests": [
+    {
+      "name": "estimate_calculation_edge_case",
+      "type": "integration",
+      "error": "Expected 1050.00, got 1052.30",
+      "file": "tests/integration/estimate.test.js",
+      "line": 127
+    },
+    {
+      "name": "concurrent_user_limit",
+      "type": "integration",
+      "error": "Timeout after 30s",
+      "file": "tests/integration/performance.test.js",
+      "line": 89
+    }
+  ]
+}

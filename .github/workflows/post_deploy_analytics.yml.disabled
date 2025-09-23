@@ -1,0 +1,430 @@
+name: M2.11 Post-Deploy Analytics & Release Notes
+
+on:
+  workflow_run:
+    workflows: ["M2.9 Production Canary Deploy"]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      force_analysis:
+        description: 'Force analytics regardless of deployment status'
+        required: false
+        default: 'false'
+        type: boolean
+      window_days:
+        description: 'Analysis window in days'
+        required: false
+        default: '30'
+        type: string
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+jobs:
+  post-deploy-analytics:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.inputs.force_analysis == 'true' }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+          sudo apt-get update
+          sudo apt-get install -y fonts-liberation fonts-dejavu-core
+
+      - name: Create Reports Directory
+        run: |
+          mkdir -p reports/charts
+          mkdir -p ops
+
+      - name: Collect CI/CD Data
+        run: |
+          echo "📊 Collecting CI/CD deployment data..."
+          node ops/analytics/collect_ci_data.js \
+            --workflow "M2.9 Production Canary Deploy" \
+            --lookback-days ${{ github.event.inputs.window_days || '30' }} \
+            --output ops/ci_data.json \
+            --verbose
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Calculate DORA Metrics
+        run: |
+          echo "📈 Computing DORA metrics..."
+          node ops/analytics/compute_dora.js \
+            --ci-data ops/ci_data.json \
+            --slo-history ops/slo_history.json \
+            --output ops/dora_metrics.json \
+            --window-days ${{ github.event.inputs.window_days || '30' }} \
+            --verbose
+
+      - name: Compute Error Budget Burn Rate
+        run: |
+          echo "💰 Calculating error budget burn rates..."
+          node ops/analytics/compute_budget_burn.js \
+            --slo-history ops/slo_history.json \
+            --slo-profile M29_SLO_PROFILE.json \
+            --output ops/budget_burn.json \
+            --window-days ${{ github.event.inputs.window_days || '30' }} \
+            --verbose
+
+      - name: Generate Analytics Charts
+        run: |
+          echo "📊 Generating analytics charts..."
+          node ops/analytics/gen_charts.js \
+            --dora-metrics ops/dora_metrics.json \
+            --budget-burn ops/budget_burn.json \
+            --ci-data ops/ci_data.json \
+            --output-dir reports/charts \
+            --verbose
+
+      - name: Generate Release Notes
+        run: |
+          echo "📝 Generating release notes..."
+          node ops/analytics/gen_release_notes.js \
+            --template ops/templates/release_notes.md.hbs \
+            --output reports/release_notes.md \
+            --ci-data ops/ci_data.json \
+            --dora-metrics ops/dora_metrics.json \
+            --budget-burn ops/budget_burn.json \
+            --verbose
+
+      - name: Generate Release Report
+        run: |
+          echo "📊 Generating comprehensive release report..."
+          node ops/analytics/gen_release_report.js \
+            --template ops/templates/release_report.html.hbs \
+            --output reports/release_report.html \
+            --ci-data ops/ci_data.json \
+            --dora-metrics ops/dora_metrics.json \
+            --budget-burn ops/budget_burn.json \
+            --charts-dir reports/charts \
+            --verbose
+
+      - name: Determine Semantic Version
+        id: semver
+        run: |
+          echo "🏷️ Determining semantic version..."
+          node ops/analytics/utils/semver_from_commits.js --output ops/version_info.json --verbose
+          
+          # Extract version info for GitHub outputs
+          VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('ops/version_info.json')).newVersion)")
+          NEEDS_RELEASE=$(node -e "console.log(JSON.parse(require('fs').readFileSync('ops/version_info.json')).needsRelease)")
+          BUMP_TYPE=$(node -e "console.log(JSON.parse(require('fs').readFileSync('ops/version_info.json')).bumpType)")
+          
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "needs_release=${NEEDS_RELEASE}" >> $GITHUB_OUTPUT
+          echo "bump_type=${BUMP_TYPE}" >> $GITHUB_OUTPUT
+          
+          echo "Version: ${VERSION}"
+          echo "Needs Release: ${NEEDS_RELEASE}"
+          echo "Bump Type: ${BUMP_TYPE}"
+
+      - name: Check Deployment Freeze Status
+        id: freeze_check
+        run: |
+          echo "🔒 Checking deployment freeze status..."
+          FREEZE_RISK=$(node -e "
+            try {
+              const budget = JSON.parse(require('fs').readFileSync('ops/budget_burn.json'));
+              console.log(budget.freeze_assessment?.freeze_risk || false);
+            } catch(e) {
+              console.log('false');
+            }
+          ")
+          
+          echo "freeze_risk=${FREEZE_RISK}" >> $GITHUB_OUTPUT
+          echo "Freeze Risk: ${FREEZE_RISK}"
+
+      - name: Create GitHub Release
+        if: steps.semver.outputs.needs_release == 'true' && steps.freeze_check.outputs.freeze_risk == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🚀 Creating GitHub release..."
+          
+          # Create and push tag
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a ${{ steps.semver.outputs.version }} -m "Release ${{ steps.semver.outputs.version }}"
+          git push origin ${{ steps.semver.outputs.version }}
+          
+          # Create release with generated notes
+          gh release create ${{ steps.semver.outputs.version }} \
+            --title "Release ${{ steps.semver.outputs.version }}" \
+            --notes-file reports/release_notes.md \
+            --verify-tag
+          
+          # Upload release report as asset
+          gh release upload ${{ steps.semver.outputs.version }} \
+            reports/release_report.html \
+            reports/release_report.md \
+            reports/charts/*.png
+
+      - name: Update CHANGELOG
+        if: steps.semver.outputs.needs_release == 'true'
+        run: |
+          echo "📝 Updating CHANGELOG.md..."
+          
+          # Prepend new release notes to CHANGELOG.md
+          if [ -f CHANGELOG.md ]; then
+            # Backup existing changelog
+            cp CHANGELOG.md CHANGELOG_backup.md
+            
+            # Create new changelog with latest release at top
+            echo "# Changelog" > CHANGELOG_new.md
+            echo "" >> CHANGELOG_new.md
+            cat reports/release_notes.md >> CHANGELOG_new.md
+            echo "" >> CHANGELOG_new.md
+            
+            # Append old changelog (skip first line if it's "# Changelog")
+            tail -n +2 CHANGELOG.md >> CHANGELOG_new.md
+            mv CHANGELOG_new.md CHANGELOG.md
+          else
+            # Create new changelog
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            cat reports/release_notes.md >> CHANGELOG.md
+          fi
+          
+          # Commit changelog update
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "docs: update CHANGELOG.md for ${{ steps.semver.outputs.version }}"
+          git push origin HEAD:${{ github.ref_name }}
+
+      - name: Archive Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-analytics-${{ github.run_id }}
+          path: |
+            reports/
+            ops/ci_data.json
+            ops/dora_metrics.json
+            ops/budget_burn.json
+            ops/version_info.json
+          retention-days: 90
+
+      - name: Send Slack Notification
+        if: env.SLACK_WEBHOOK_URL != ''
+        run: |
+          echo "💬 Sending Slack notification..."
+          
+          # Load metrics for notification
+          DORA_SCORE=$(node -e "
+            try {
+              const dora = JSON.parse(require('fs').readFileSync('ops/dora_metrics.json'));
+              console.log(dora.overall?.dora_score || 'Unknown');
+            } catch(e) { console.log('Unknown'); }
+          ")
+          
+          HEALTH_SCORE=$(node -e "
+            try {
+              const budget = JSON.parse(require('fs').readFileSync('ops/budget_burn.json'));
+              console.log(budget.health?.score || 'Unknown');
+            } catch(e) { console.log('Unknown'); }
+          ")
+          
+          DEPLOYMENT_COUNT=$(node -e "
+            try {
+              const ci = JSON.parse(require('fs').readFileSync('ops/ci_data.json'));
+              console.log(ci.deployments?.total_runs || 0);
+            } catch(e) { console.log(0); }
+          ")
+          
+          # Build Slack message
+          if [ "${{ steps.semver.outputs.needs_release }}" == "true" ]; then
+            RELEASE_INFO="🚀 *Released*: ${{ steps.semver.outputs.version }} (${{ steps.semver.outputs.bump_type }})"
+          else
+            RELEASE_INFO="📊 *Analysis Only* (No new release needed)"
+          fi
+          
+          FREEZE_STATUS=""
+          if [ "${{ steps.freeze_check.outputs.freeze_risk }}" == "true" ]; then
+            FREEZE_STATUS="⚠️ *Deployment Freeze Risk Detected*"
+          else
+            FREEZE_STATUS="✅ *Deployment Health Good*"
+          fi
+          
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"text\": \"M2.11 Post-Deploy Analytics Complete\",
+              \"blocks\": [
+                {
+                  \"type\": \"header\",
+                  \"text\": {
+                    \"type\": \"plain_text\",
+                    \"text\": \"📊 M2.11 Post-Deploy Analytics\"
+                  }
+                },
+                {
+                  \"type\": \"section\",
+                  \"text\": {
+                    \"type\": \"mrkdwn\",
+                    \"text\": \"${RELEASE_INFO}\\n${FREEZE_STATUS}\"
+                  }
+                },
+                {
+                  \"type\": \"section\",
+                  \"fields\": [
+                    {
+                      \"type\": \"mrkdwn\",
+                      \"text\": \"*DORA Score:*\\n${DORA_SCORE}\"
+                    },
+                    {
+                      \"type\": \"mrkdwn\",
+                      \"text\": \"*Error Budget Health:*\\n${HEALTH_SCORE}%\"
+                    },
+                    {
+                      \"type\": \"mrkdwn\",
+                      \"text\": \"*Deployments (30d):*\\n${DEPLOYMENT_COUNT}\"
+                    },
+                    {
+                      \"type\": \"mrkdwn\",
+                      \"text\": \"*Repository:*\\n${{ github.repository }}\"
+                    }
+                  ]
+                },
+                {
+                  \"type\": \"actions\",
+                  \"elements\": [
+                    {
+                      \"type\": \"button\",
+                      \"text\": {
+                        \"type\": \"plain_text\",
+                        \"text\": \"View Release Report\"
+                      },
+                      \"url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+                    }
+                  ]
+                }
+              ]
+            }" \
+            ${{ env.SLACK_WEBHOOK_URL }}
+
+      - name: Summary
+        run: |
+          echo "🎉 M2.11 Post-Deploy Analytics Complete!"
+          echo "========================================"
+          echo "Repository: ${{ github.repository }}"
+          echo "Workflow Run: ${{ github.run_id }}"
+          echo "Version: ${{ steps.semver.outputs.version }}"
+          echo "Needs Release: ${{ steps.semver.outputs.needs_release }}"
+          echo "Bump Type: ${{ steps.semver.outputs.bump_type }}"
+          echo "Freeze Risk: ${{ steps.freeze_check.outputs.freeze_risk }}"
+          echo "DORA Score: $(node -e 'try { console.log(JSON.parse(require("fs").readFileSync("ops/dora_metrics.json")).overall.dora_score); } catch(e) { console.log("Unknown"); }')"
+          echo "Health Score: $(node -e 'try { console.log(JSON.parse(require("fs").readFileSync("ops/budget_burn.json")).health.score + "%"); } catch(e) { console.log("Unknown"); }')"
+          echo "========================================"
+
+  # Handle deployment failures and trigger rollback analysis
+  deployment-failure-analysis:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Analyze Deployment Failure
+        run: |
+          echo "🚨 Analyzing deployment failure..."
+          
+          # Create failure analysis report
+          mkdir -p reports
+          
+          cat > reports/failure_analysis.md << 'EOF'
+          # Deployment Failure Analysis
+          
+          **Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Repository**: ${{ github.repository }}
+          **Workflow Run**: ${{ github.event.workflow_run.id }}
+          **Conclusion**: ${{ github.event.workflow_run.conclusion }}
+          
+          ## Failure Details
+          - **Workflow**: ${{ github.event.workflow_run.name }}
+          - **Branch**: ${{ github.event.workflow_run.head_branch }}
+          - **Commit**: ${{ github.event.workflow_run.head_sha }}
+          - **Actor**: ${{ github.event.workflow_run.triggering_actor.login }}
+          
+          ## Next Steps
+          1. Review workflow logs for specific failure reasons
+          2. Check if rollback was triggered (Exit Code 42)
+          3. Monitor SLO compliance for impact assessment
+          4. Update error budget calculations
+          
+          ## Links
+          - [Failed Workflow Run](${{ github.event.workflow_run.html_url }})
+          - [Repository](${{ github.server_url }}/${{ github.repository }})
+          EOF
+
+      - name: Send Failure Alert
+        if: env.SLACK_WEBHOOK_URL != ''
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"text\": \"🚨 M2.9 Production Deployment Failed\",
+              \"blocks\": [
+                {
+                  \"type\": \"header\",
+                  \"text\": {
+                    \"type\": \"plain_text\",
+                    \"text\": \"🚨 Deployment Failure Alert\"
+                  }
+                },
+                {
+                  \"type\": \"section\",
+                  \"text\": {
+                    \"type\": \"mrkdwn\",
+                    \"text\": \"*Repository:* ${{ github.repository }}\\n*Branch:* ${{ github.event.workflow_run.head_branch }}\\n*Commit:* \`${{ github.event.workflow_run.head_sha }}\`\\n*Actor:* ${{ github.event.workflow_run.triggering_actor.login }}\"
+                  }
+                },
+                {
+                  \"type\": \"actions\",
+                  \"elements\": [
+                    {
+                      \"type\": \"button\",
+                      \"text\": {
+                        \"type\": \"plain_text\",
+                        \"text\": \"View Failed Run\"
+                      },
+                      \"url\": \"${{ github.event.workflow_run.html_url }}\"
+                    }
+                  ]
+                }
+              ]
+            }" \
+            ${{ env.SLACK_WEBHOOK_URL }}
+
+      - name: Archive Failure Analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-analysis-${{ github.run_id }}
+          path: reports/failure_analysis.md
+          retention-days: 30

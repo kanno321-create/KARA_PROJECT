@@ -1,0 +1,9 @@
+{
+  "tag": "v1.0-post-restore",
+  "ts": "2025-09-19T11:57:44.541Z",
+  "polisher": 96,
+  "p50": 46,
+  "p95": 91,
+  "reuse": 0.72,
+  "handoff_checksum": "71e147af"
+}

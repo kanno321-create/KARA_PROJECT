@@ -1,0 +1,58 @@
+﻿{
+    "seed_id":  "enclosure-05",
+    "category":  "enclosure",
+    "request":  {
+                    "request_id":  "4552d62b-0acb-4018-ac1c-35f1abd8e3ca",
+                    "project_label":  "Retail Expansion",
+                    "submitted_by":  "automation.tester@kis.local",
+                    "knowledge_snapshot_id":  "5633ff56-5dc1-4a17-83b3-55e56526f32a",
+                    "distribution_panels":  [
+                                                {
+                                                    "panel_id":  "ENC-RX-E",
+                                                    "source_tab_index":  1,
+                                                    "subtotal":  112500,
+                                                    "line_items":  [
+                                                                       {
+                                                                           "category":  "enclosure",
+                                                                           "sku":  "ENC-RX-200A",
+                                                                           "quantity":  1,
+                                                                           "unit_price":  45000,
+                                                                           "line_total":  45000
+                                                                       },
+                                                                       {
+                                                                           "category":  "breaker",
+                                                                           "sku":  "BRK-100A-3P",
+                                                                           "quantity":  2,
+                                                                           "unit_price":  22500,
+                                                                           "line_total":  45000
+                                                                       }
+                                                                   ],
+                                                    "evidence_ref":  {
+                                                                         "bundle_id":  "seed__",
+                                                                         "json_path":  "evidence/seed__.json",
+                                                                         "visual_path":  "evidence/seed__.svg",
+                                                                         "log_path":  "evidence/logs/seed__.json",
+                                                                         "sha256":  "0000000000000000000000000000000000000000000000000000000000000000"
+                                                                     }
+                                                }
+                                            ],
+                    "pricing_overrides":  [
+
+                                          ],
+                    "validation_flags":  {
+                                             "run_fix4":  true,
+                                             "run_regression_sample":  true
+                                         }
+                },
+    "expected_gate_scores":  {
+                                 "gate1":  "PASS",
+                                 "gate2":  "PASS",
+                                 "gate3":  "PASS",
+                                 "gate4":  "PASS"
+                             },
+    "expected_metrics":  {
+                             "p95_ms":  1800,
+                             "error_ratio":  0
+                         },
+    "_note":  "Baseline enclosure seed"
+}

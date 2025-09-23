@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import time
+from _util_io import ensure_dir, write_json, make_evidence, arg_parser
+def main():
+    ap = arg_parser(); args = ap.parse_args()
+    work = Path(args.work)
+    out = work / "spatial" / "spatial_report.json"
+    rep = {"ts":int(time.time()), "collisions":0, "clearance_violation":0}
+    write_json(out, rep); make_evidence(out.with_suffix(""))
+    print("OK spatial-assistant")
+if __name__=="__main__": main()

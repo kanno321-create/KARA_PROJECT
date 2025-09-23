@@ -1,0 +1,46 @@
+{
+  "name": "kis_core_v2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
+    "axios": "^1.12.2",
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "electron": "^32.0.0",
+    "electron-window-state": "^5.0.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.20.0",
+    "mongoose": "^8.18.1",
+    "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.6",
+    "openai": "^5.22.0",
+    "pdf-parse": "^1.1.1",
+    "playwright": "^1.55.0",
+    "postgresql": "^0.0.1",
+    "sharp": "^0.34.4",
+    "socket.io": "^4.8.1",
+    "sqlite3": "^5.1.7",
+    "tesseract.js": "^6.0.1",
+    "winston": "^3.17.0",
+    "xlsx": "^0.18.5"
+  }
+}

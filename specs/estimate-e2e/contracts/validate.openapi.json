@@ -1,0 +1,103 @@
+﻿{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "KIS Validate API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/v1/validate": {
+      "post": {
+        "summary": "Validate FIX-4 gates for estimate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ValidateRequest": {
+        "type": "object",
+        "required": ["request_id", "estimate", "options"],
+        "properties": {
+          "request_id": { "type": "string", "format": "uuid" },
+          "estimate": { "$ref": "#/components/schemas/EstimateResponse" },
+          "options": {
+            "type": "object",
+            "properties": {
+              "include_qc_report": { "type": "boolean", "default": true },
+              "include_drift_scan": { "type": "boolean", "default": true }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValidateResponse": {
+        "type": "object",
+        "required": ["request_id", "fix4", "drift", "recommendations", "qc_report", "evidence"],
+        "properties": {
+          "request_id": { "type": "string", "format": "uuid" },
+          "fix4": {
+            "type": "object",
+            "required": ["gate1", "gate2", "gate3", "gate4"],
+            "properties": {
+              "gate1": { "$ref": "#/components/schemas/GateOutcome" },
+              "gate2": { "$ref": "#/components/schemas/GateOutcome" },
+              "gate3": { "$ref": "#/components/schemas/GateOutcome" },
+              "gate4": { "$ref": "#/components/schemas/GateOutcome" }
+            }
+          },
+          "drift": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "recommendations": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "qc_report": { "type": "string" },
+          "evidence": { "$ref": "#/components/schemas/EvidenceReference" },
+          "polisher_score": { "type": "number", "minimum": 0, "maximum": 100 },
+          "wcag": { "type": "string", "enum": ["AA", "AAA", "fail"] }
+        },
+        "additionalProperties": false
+      },
+      "EstimateResponse": {
+        "$ref": "./estimate.openapi.json#/components/schemas/EstimateResponse"
+      },
+      "EvidenceReference": {
+        "$ref": "./estimate.openapi.json#/components/schemas/EvidenceReference"
+      },
+      "GateOutcome": {
+        "type": "object",
+        "required": ["status", "details"],
+        "properties": {
+          "status": { "type": "string", "enum": ["PASS", "FAIL"] },
+          "details": { "type": "string" },
+          "evidence_ref": { "$ref": "#/components/schemas/EvidenceReference" }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

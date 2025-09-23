@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_016",
+    "category": "SAFE",
+    "item": "Item_16",
+    "specs": {
+      "model": "MODEL_7TJ1Q",
+      "quantity": 4,
+      "unitPrice": 3679809
+    },
+    "priority": 1,
+    "leadTime": 30,
+    "reliability": 0.95,
+    "created": "2025-09-19T11:57:44.134Z"
+  }
+]

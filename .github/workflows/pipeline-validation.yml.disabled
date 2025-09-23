@@ -1,0 +1,320 @@
+name: KIS Pipeline Validation
+
+on:
+  push:
+    branches: [ main, develop, 'feature/**' ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  pipeline-test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+        scenario: [simple_magnet, dual_bundle, all_bundle_types]
+      fail-fast: false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Create output directory
+      run: mkdir -p output docs
+    
+    - name: Validate core knowledge files
+      run: |
+        echo "🔍 Validating core knowledge structure..."
+        if [ ! -f "core/core_knowledge_v1.2_tagged.json" ]; then
+          echo "❌ Core knowledge file missing"
+          exit 1
+        fi
+        
+        # JSON 구조 검증
+        node -e "
+          const core = require('./core/core_knowledge_v1.2_tagged.json');
+          console.log('✅ Core knowledge loaded');
+          console.log('   Rules:', core.rules.bundles.length);
+          console.log('   Catalog items:', core.catalog.accessories.items.length);
+          console.log('   Drawing symbols:', Object.keys(core.catalog.drawing_symbols).length);
+          
+          if (core.rules.bundles.length !== 4) {
+            throw new Error('Expected 4 bundle rules');
+          }
+          if (core.catalog.accessories.items.length !== 7) {
+            throw new Error('Expected 7 catalog items');
+          }
+        "
+    
+    - name: Test individual CLI tools
+      run: |
+        echo "🧪 Testing CLI tools individually..."
+        
+        # Stage 1: Parse drawing
+        echo "Testing parse-drawing.js..."
+        node estim/parse-drawing.js tests/fixtures/synthetic_request.json
+        if [ ! -f "output/synthetic_request_parsed.json" ]; then
+          echo "❌ Stage 1 output missing"
+          exit 1
+        fi
+        
+        # Stage 2: Map accessories  
+        echo "Testing map-accessories.js..."
+        node estim/map-accessories.js output/synthetic_request_parsed.json
+        if [ ! -f "output/synthetic_request_mapped.json" ]; then
+          echo "❌ Stage 2 output missing"
+          exit 1
+        fi
+        
+        # Stage 3: Layout pack
+        echo "Testing layout-pack.js..."
+        node estim/layout-pack.js output/synthetic_request_mapped.json
+        if [ ! -f "output/synthetic_request_layout.json" ]; then
+          echo "❌ Stage 3 output missing"
+          exit 1
+        fi
+        
+        # Stage 4: Choose enclosure
+        echo "Testing choose-enclosure.js..."
+        node estim/choose-enclosure.js output/synthetic_request_layout.json
+        if [ ! -f "output/synthetic_request_enclosure.json" ]; then
+          echo "❌ Stage 4 output missing"
+          exit 1
+        fi
+        
+        # Stage 5: Estimate cost
+        echo "Testing estimate-cost.js..."
+        node estim/estimate-cost.js output/synthetic_request_enclosure.json
+        if [ ! -f "output/synthetic_request_cost.json" ]; then
+          echo "❌ Stage 5 output missing"
+          exit 1
+        fi
+        
+        # Stage 6: Judge score
+        echo "Testing judge-score.js..."
+        node estim/judge-score.js output/synthetic_request_cost.json
+        if [ ! -f "output/synthetic_request_final.json" ]; then
+          echo "❌ Stage 6 output missing"
+          exit 1
+        fi
+        
+        echo "✅ All CLI tools working"
+    
+    - name: Run full pipeline for ${{ matrix.scenario }}
+      run: |
+        echo "🚀 Running full pipeline for scenario: ${{ matrix.scenario }}"
+        
+        # Extract specific scenario and run pipeline
+        node -e "
+          const fs = require('fs');
+          const synthetic = require('./tests/fixtures/synthetic_request.json');
+          const scenario = synthetic.scenarios['${{ matrix.scenario }}'];
+          if (!scenario) {
+            throw new Error('Scenario not found: ${{ matrix.scenario }}');
+          }
+          
+          const scenarioFile = 'temp_${{ matrix.scenario }}.json';
+          fs.writeFileSync(scenarioFile, JSON.stringify(scenario, null, 2));
+          console.log('✅ Scenario extracted to', scenarioFile);
+        "
+        
+        # Run pipeline
+        node scripts/pipeline-runner.js temp_${{ matrix.scenario }}.json ${{ matrix.scenario }}
+        
+        # Validate results
+        if [ ! -f "output/temp_${{ matrix.scenario }}_final.json" ]; then
+          echo "❌ Pipeline did not complete successfully"
+          exit 1
+        fi
+    
+    - name: Validate bundle rule application
+      run: |
+        echo "🔍 Validating bundle rule application..."
+        
+        node -e "
+          const fs = require('fs');
+          const mappedResult = JSON.parse(fs.readFileSync('output/synthetic_request_mapped.json'));
+          const finalResult = JSON.parse(fs.readFileSync('output/synthetic_request_final.json'));
+          
+          console.log('Bundle summary:', mappedResult.bundle_summary);
+          console.log('Quality assessment:', finalResult.quality_assessment);
+          
+          // Bundle validation
+          const bundleItems = mappedResult.bundle_items || [];
+          const invalidBundles = bundleItems.filter(item => 
+            !item.bundle_flag || 
+            !item.parent_item_id || 
+            !item.rule_id ||
+            !item.why_trace
+          );
+          
+          if (invalidBundles.length > 0) {
+            console.error('❌ Invalid bundle items:', invalidBundles.length);
+            throw new Error('Bundle validation failed');
+          }
+          
+          // Cost validation
+          if (!finalResult.estimate_summary || !finalResult.estimate_summary.grand_total) {
+            throw new Error('Cost calculation missing');
+          }
+          
+          // Quality validation  
+          if (!finalResult.quality_assessment || typeof finalResult.quality_assessment.overall_score !== 'number') {
+            throw new Error('Quality assessment missing');
+          }
+          
+          console.log('✅ All validations passed');
+          console.log('   Bundle items:', bundleItems.length);
+          console.log('   Total cost:', finalResult.estimate_summary.grand_total.toLocaleString() + '원');
+          console.log('   Quality score:', finalResult.quality_assessment.overall_score + '/100');
+        "
+    
+    - name: Performance benchmark
+      run: |
+        echo "⚡ Running performance benchmark..."
+        
+        # Measure pipeline execution time
+        start_time=$(date +%s%N)
+        node scripts/pipeline-runner.js tests/fixtures/synthetic_request.json performance_test
+        end_time=$(date +%s%N)
+        
+        duration_ms=$(( (end_time - start_time) / 1000000 ))
+        echo "Pipeline execution time: ${duration_ms}ms"
+        
+        # Validate performance requirements
+        if [ $duration_ms -gt 10000 ]; then  # 10 seconds
+          echo "❌ Pipeline too slow: ${duration_ms}ms > 10000ms"
+          exit 1
+        fi
+        
+        echo "✅ Performance benchmark passed: ${duration_ms}ms"
+    
+    - name: Cost variance analysis
+      run: |
+        echo "💰 Analyzing cost variance..."
+        
+        node -e "
+          const fs = require('fs');
+          const results = fs.readdirSync('output')
+            .filter(f => f.endsWith('_final.json'))
+            .map(f => JSON.parse(fs.readFileSync('output/' + f)))
+            .filter(r => r.estimate_summary);
+          
+          if (results.length === 0) {
+            throw new Error('No cost results found');
+          }
+          
+          const costs = results.map(r => r.estimate_summary.grand_total);
+          const avgCost = costs.reduce((a, b) => a + b) / costs.length;
+          const maxVariance = Math.max(...costs.map(c => Math.abs(c - avgCost) / avgCost));
+          
+          console.log('Cost analysis:');
+          console.log('  Average:', avgCost.toLocaleString() + '원');
+          console.log('  Max variance:', (maxVariance * 100).toFixed(1) + '%');
+          
+          if (maxVariance > 0.15) {  // 15% threshold
+            console.error('❌ Cost variance too high:', (maxVariance * 100).toFixed(1) + '%');
+            process.exit(1);
+          }
+          
+          console.log('✅ Cost variance within acceptable range');
+        "
+    
+    - name: Upload pipeline results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: pipeline-results-${{ matrix.node-version }}-${{ matrix.scenario }}
+        path: |
+          output/
+          *.log
+        retention-days: 7
+    
+    - name: Generate test report
+      if: always()
+      run: |
+        echo "📋 Generating test report..."
+        
+        node -e "
+          const fs = require('fs');
+          const report = {
+            timestamp: new Date().toISOString(),
+            node_version: '${{ matrix.node-version }}',
+            scenario: '${{ matrix.scenario }}',
+            status: 'success',
+            files_generated: fs.readdirSync('output').length,
+            summary: 'Pipeline validation completed successfully'
+          };
+          
+          fs.writeFileSync('test-report.json', JSON.stringify(report, null, 2));
+          console.log('✅ Test report generated');
+        "
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+    - run: npm audit --audit-level moderate
+
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    - run: npm ci
+    - name: Lint JavaScript files
+      run: |
+        echo "🔍 Checking JavaScript syntax..."
+        find estim/ scripts/ -name "*.js" -exec node -c {} \;
+        echo "✅ All JavaScript files have valid syntax"
+    
+    - name: Validate JSON files  
+      run: |
+        echo "🔍 Validating JSON files..."
+        find . -name "*.json" -not -path "./node_modules/*" -not -path "./.git/*" -exec python3 -m json.tool {} \; > /dev/null
+        echo "✅ All JSON files are valid"
+
+  integration-summary:
+    needs: [pipeline-test, dependency-audit, code-quality]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+    - name: Integration Summary
+      run: |
+        echo "🎯 KIS Pipeline Validation Summary"
+        echo "=================================="
+        echo "Pipeline Tests: ${{ needs.pipeline-test.result }}"
+        echo "Dependency Audit: ${{ needs.dependency-audit.result }}"
+        echo "Code Quality: ${{ needs.code-quality.result }}"
+        
+        if [ "${{ needs.pipeline-test.result }}" != "success" ]; then
+          echo "❌ Pipeline tests failed"
+          exit 1
+        fi
+        
+        if [ "${{ needs.dependency-audit.result }}" != "success" ]; then
+          echo "⚠️ Dependency audit issues detected"
+        fi
+        
+        if [ "${{ needs.code-quality.result }}" != "success" ]; then
+          echo "❌ Code quality checks failed" 
+          exit 1
+        fi
+        
+        echo "✅ All validations passed - Ready for deployment"

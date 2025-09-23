@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_017",
+    "category": "SAVE",
+    "item": "Item_17",
+    "specs": {
+      "model": "MODEL_H979E",
+      "quantity": 16,
+      "unitPrice": 3862697
+    },
+    "priority": 2,
+    "leadTime": 14,
+    "reliability": 0.85,
+    "created": "2025-09-19T11:57:44.134Z"
+  }
+]

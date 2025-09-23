@@ -1,0 +1,91 @@
+name: ENFORCE-100 Policy Gate
+# Generated: 2025-09-16T15:50:12.055567
+# Version: M42.2
+# Stage: B
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  enforce-gate:
+    name: ENFORCE-100 Policy Gate
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Run P0 Violation Scanner
+      id: scanner
+      run: |
+        python scripts/enforce_100_scanners.py
+        echo "scan_complete=true" >> $GITHUB_OUTPUT
+
+    - name: Check violations
+      id: check
+      run: |
+        python -c "
+import json
+import sys
+
+# Load scan results
+with open('scan_results.json', 'r') as f:
+    results = json.load(f)
+
+p0_violations = results.get('p0_violations', 0)
+p1_violations = results.get('p1_violations', 0)
+
+# Check against policy
+if p0_violations > 0:
+    print(f'[BLOCKED] P0 violations detected: {p0_violations}')
+    sys.exit(1)
+
+if p1_violations > 2:
+    print(f'[WARNING] P1 violations detected: {p1_violations}')
+
+print('[PASS] Policy gate passed')
+        "
+
+    - name: Generate WhyTrace report
+      if: failure()
+      run: |
+        python scripts/generate_whytrace.py
+
+    - name: Post comment with violations
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('whytrace_report.json', 'utf8'));
+
+          const comment = `
+## [BLOCKED] ENFORCE-100 Policy Violations Detected
+
+**P0 Violations**: ${report.p0_violations}
+**P1 Violations**: ${report.p1_violations}
+
+### Resolution Steps:
+${report.resolution_steps}
+
+### WhyTrace ID: ${report.trace_id}
+
+For more details, see the [WhyTrace Dashboard](https://whytrace.hkkor.ai/${report.trace_id})
+          `;
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });

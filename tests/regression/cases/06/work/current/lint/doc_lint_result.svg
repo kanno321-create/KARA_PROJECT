@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="500" viewBox="0 0 700 500">
+<rect width="100%" height="100%" fill="#f9f9f9" stroke="#333" stroke-width="2"/>
+<text x="350" y="30" text-anchor="middle" font-size="22" font-weight="bold">Document Lint Report</text>
+<rect x="300" y="50" width="100" height="35" fill="#4caf50" rx="5"/>
+<text x="350" y="73" text-anchor="middle" font-size="16" fill="white">PASS</text>
+<text x="350" y="115" text-anchor="middle" font-size="18">Quality Score: 100/100</text>
+<text x="50" y="150" font-size="16" font-weight="bold">Document Status:</text>
+<circle cx="70" cy="175" r="6" fill="#4caf50"/>
+<text x="90" y="180" font-size="14">enclosure: OK</text>
+<circle cx="70" cy="200" r="6" fill="#4caf50"/>
+<text x="90" y="205" font-size="14">placement: OK</text>
+<circle cx="70" cy="225" r="6" fill="#4caf50"/>
+<text x="90" y="230" font-size="14">critic: OK</text>
+<circle cx="70" cy="250" r="6" fill="#4caf50"/>
+<text x="90" y="255" font-size="14">format: OK</text>
+<circle cx="70" cy="275" r="6" fill="#4caf50"/>
+<text x="90" y="280" font-size="14">cover: OK</text>
+<circle cx="70" cy="300" r="6" fill="#4caf50"/>
+<text x="90" y="305" font-size="14">spatial: OK</text>
+<text x="400" y="150" font-size="16" font-weight="bold">Issues:</text>
+<text x="400" y="175" font-size="14">Errors: 0</text>
+<text x="400" y="195" font-size="14">Warnings: 0</text>
+<text x="400" y="215" font-size="14">Evidence Files: 11</text>
+<text x="50" y="380" font-size="14">Field Completeness: 6/6</text>
+<rect x="50" y="400" width="300" height="20" fill="#e0e0e0" stroke="#333"/>
+<rect x="50" y="400" width="300" height="20" fill="#4caf50"/>
+</svg>

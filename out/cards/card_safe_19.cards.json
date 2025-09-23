@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_019",
+    "category": "SAFE",
+    "item": "Item_19",
+    "specs": {
+      "model": "MODEL_9EKOM",
+      "quantity": 12,
+      "unitPrice": 3117926
+    },
+    "priority": 1,
+    "leadTime": 30,
+    "reliability": 0.95,
+    "created": "2025-09-19T11:57:44.135Z"
+  }
+]

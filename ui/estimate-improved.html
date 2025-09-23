@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>견적 시스템 - 개선된 버전</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+            background-color: #f9f9f9;
+            color: #323130;
+            font-size: 14px;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Grid 기반 안정적 레이아웃 */
+        .app-layout {
+            height: 100vh;
+            width: 100vw;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: 1fr;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 사이드바 */
+        .sidebar-container {
+            grid-column: 1;
+            grid-row: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            background: #f9f9f9;
+            color: #323130;
+            border-right: 1px solid #e5e5e5;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            flex: 0 0 auto;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 48px;
+        }
+
+        .sidebar-scroll {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 4px;
+            color: #323130;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover {
+            background: #e1dfdd;
+        }
+
+        .nav-item.is-active {
+            background: #e1dfdd;
+            border-left: 3px solid #0078d4;
+            padding-left: 7px;
+        }
+
+        /* 메인 콘텐츠 */
+        .main-container {
+            grid-column: 2;
+            grid-row: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .main-content {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        .estimate-layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 20px;
+            height: calc(100vh - 40px);
+        }
+
+        /* 좌측 입력 영역 */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .input-section {
+            padding: 15px;
+            border: 1px solid #e1dfdd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #323130;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .form-row-horizontal {
+            display: flex;
+            gap: 8px;
+            align-items: end;
+            margin-bottom: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #605e5c;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .form-input, .form-select {
+            padding: 6px 10px;
+            border: 1px solid #d1d1d1;
+            border-radius: 2px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #0078d4;
+        }
+
+        .form-input-small {
+            width: 60px;
+        }
+
+        .form-select-small {
+            width: 80px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid #d1d1d1;
+            border-radius: 2px;
+            background: white;
+            color: #323130;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-primary {
+            background: #0078d4;
+            color: white;
+            border-color: #0078d4;
+        }
+
+        .btn-primary:hover {
+            background: #106ebe;
+        }
+
+        .btn:hover {
+            background: #f3f2f1;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        /* 우측 결과 영역 */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .estimate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        .estimate-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #323130;
+        }
+
+        .estimate-total {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0078d4;
+        }
+
+        .estimate-table {
+            flex: 1;
+            border: 1px solid #e1dfdd;
+            border-radius: 4px;
+            overflow: hidden;
+            min-height: 400px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e1dfdd;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f9f9f9;
+            font-weight: 600;
+            color: #323130;
+        }
+
+        td {
+            color: #323130;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .bottom-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* 분기/부속자재 리스트 */
+        .item-list {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #e1dfdd;
+            border-radius: 4px;
+            background: white;
+            margin-top: 8px;
+        }
+
+        .item-row {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f3f2f1;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-row:hover {
+            background: #f9f9f9;
+        }
+
+        /* 반응형 */
+        @media (max-width: 1200px) {
+            .estimate-layout {
+                grid-template-columns: 350px 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- 사이드바 -->
+        <aside class="sidebar-container">
+            <div class="sidebar-header">
+                <span style="font-size: 22px; font-weight: 600;">KIS AI</span>
+            </div>
+            <div class="sidebar-scroll">
+                <div class="nav-item">
+                    <span>📊 AI 매니저</span>
+                </div>
+                <div class="nav-item is-active">
+                    <span>📋 견적서</span>
+                </div>
+                <div class="nav-item">
+                    <span>💼 ERP</span>
+                </div>
+                <div class="nav-item">
+                    <span>📧 이메일</span>
+                </div>
+                <div class="nav-item">
+                    <span>📅 캘린더</span>
+                </div>
+                <div class="nav-item">
+                    <span>📐 도면</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 메인 영역 -->
+        <main class="main-container">
+            <div class="main-content">
+                <div class="estimate-layout">
+
+                    <!-- 좌측 입력 영역 -->
+                    <div class="left-panel">
+
+                        <!-- 고객 정보 -->
+                        <div class="input-section">
+                            <div class="section-title">고객 정보</div>
+                            <div class="form-row">
+                                <label class="form-label">업체명</label>
+                                <input type="text" class="form-input" placeholder="업체명을 입력하세요">
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-row">
+                                    <label class="form-label">연락처</label>
+                                    <input type="text" class="form-input" placeholder="연락처">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">이메일</label>
+                                    <input type="email" class="form-input" placeholder="이메일">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 외함 정보 (2열 2행) -->
+                        <div class="input-section">
+                            <div class="section-title">외함</div>
+                            <div class="form-grid">
+                                <div class="form-row">
+                                    <label class="form-label">설치</label>
+                                    <select class="form-select">
+                                        <option>옥내</option>
+                                        <option>옥외</option>
+                                        <option>옥내자립</option>
+                                        <option>옥외자립</option>
+                                        <option>전주부착형</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">함종류</label>
+                                    <select class="form-select">
+                                        <option>기성함</option>
+                                        <option>주문제작함</option>
+                                        <option>계량기함</option>
+                                        <option>CT계량기함</option>
+                                        <option>FRP 박스</option>
+                                        <option>하이박스</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">재질</label>
+                                    <select class="form-select">
+                                        <option>STEEL 1.6T</option>
+                                        <option>STEEL 1.0T</option>
+                                        <option>STEEL 2.0T</option>
+                                        <option>SUS201 1.0T</option>
+                                        <option>SUS201 1.2T</option>
+                                        <option>SUS201 1.5T</option>
+                                        <option>SUS304 1.2T</option>
+                                        <option>SUS304 1.5T</option>
+                                        <option>SUS304 2.0T</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">피커버</label>
+                                    <select class="form-select">
+                                        <option>아크릴</option>
+                                        <option>STEEL 1.6T</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 차단기 설정 -->
+                        <div class="input-section">
+                            <div class="section-title">차단기 설정</div>
+                            <div class="form-grid">
+                                <div class="form-row">
+                                    <label class="form-label">브랜드</label>
+                                    <select class="form-select">
+                                        <option>상도차단기</option>
+                                        <option>LS차단기</option>
+                                        <option>대륙차단기</option>
+                                        <option>비츠로차단기</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">종류</label>
+                                    <select class="form-select">
+                                        <option>표준형</option>
+                                        <option>경제형</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 메인 차단기 (컴팩트) -->
+                        <div class="input-section">
+                            <div class="section-title">메인 차단기</div>
+                            <div class="form-row-horizontal">
+                                <div style="flex: 1;">
+                                    <label class="form-label">종류</label>
+                                    <select class="form-select form-select-small">
+                                        <option>MCCB</option>
+                                        <option>ELB</option>
+                                    </select>
+                                </div>
+                                <div style="flex: 1;">
+                                    <label class="form-label">극수</label>
+                                    <select class="form-select form-select-small">
+                                        <option>4P</option>
+                                        <option>3P</option>
+                                        <option>2P</option>
+                                    </select>
+                                </div>
+                                <div style="flex: 1;">
+                                    <label class="form-label">용량</label>
+                                    <select class="form-select form-select-small">
+                                        <option>100A</option>
+                                        <option>125A</option>
+                                        <option>150A</option>
+                                        <option>200A</option>
+                                        <option>250A</option>
+                                        <option>300A</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">수량</label>
+                                    <input type="number" class="form-input form-input-small" value="1" min="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 분기 차단기 -->
+                        <div class="input-section">
+                            <div class="section-title">분기 차단기</div>
+                            <div id="branch-inputs">
+                                <div class="form-row-horizontal branch-row">
+                                    <div style="flex: 1;">
+                                        <label class="form-label">종류</label>
+                                        <select class="form-select form-select-small branch-type">
+                                            <option>MCCB</option>
+                                            <option>ELB</option>
+                                        </select>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <label class="form-label">극수</label>
+                                        <select class="form-select form-select-small branch-poles">
+                                            <option>2P</option>
+                                            <option>3P</option>
+                                            <option>4P</option>
+                                        </select>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <label class="form-label">용량</label>
+                                        <select class="form-select form-select-small branch-capacity">
+                                            <option>15A</option>
+                                            <option>20A</option>
+                                            <option>30A</option>
+                                            <option>40A</option>
+                                            <option>50A</option>
+                                            <option>60A</option>
+                                            <option>75A</option>
+                                            <option>100A</option>
+                                            <option>125A</option>
+                                            <option>150A</option>
+                                            <option>175A</option>
+                                            <option>200A</option>
+                                            <option>225A</option>
+                                            <option>250A</option>
+                                            <option>300A</option>
+                                            <option>400A</option>
+                                            <option>600A</option>
+                                            <option>800A</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">수량</label>
+                                        <input type="number" class="form-input form-input-small branch-qty" value="1" min="1">
+                                    </div>
+                                    <div>
+                                        <label class="form-label" style="visibility: hidden;">삭제</label>
+                                        <button class="btn btn-small remove-branch" style="display: none;">삭제</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="item-list" id="branch-list">
+                                <!-- 분기 차단기 목록이 여기 표시 -->
+                            </div>
+                        </div>
+
+                        <!-- 부속자재 -->
+                        <div class="input-section">
+                            <div class="section-title">부속자재</div>
+                            <div class="form-row-horizontal">
+                                <div style="flex: 1;">
+                                    <label class="form-label">마그네트</label>
+                                    <select class="form-select" id="magnet-type">
+                                        <option>MC-22</option>
+                                        <option>MC-32</option>
+                                        <option>MC-40</option>
+                                        <option>MC-50</option>
+                                        <option>MC-65</option>
+                                        <option>MC-75</option>
+                                        <option>MC-80</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">수량</label>
+                                    <input type="number" class="form-input form-input-small" id="magnet-qty" value="1" min="1">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="visibility: hidden;">추가</label>
+                                    <button class="btn btn-primary" onclick="addAccessory()">추가</button>
+                                </div>
+                            </div>
+
+                            <div class="item-list" id="accessory-list">
+                                <!-- 부속자재 목록이 여기 표시 -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- 우측 결과 영역 -->
+                    <div class="right-panel">
+
+                        <!-- 견적 제목 및 합계 -->
+                        <div class="estimate-header">
+                            <div class="estimate-title" id="estimate-title">(견적 없음)</div>
+                            <div class="estimate-total" id="estimate-total">합계: 0 원</div>
+                        </div>
+
+                        <!-- 견적 테이블 -->
+                        <div class="estimate-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 50px;">No</th>
+                                        <th style="width: 200px;">품명</th>
+                                        <th style="width: 200px;">규격</th>
+                                        <th class="text-center" style="width: 60px;">단위</th>
+                                        <th class="text-center" style="width: 70px;">수량</th>
+                                        <th class="text-right" style="width: 100px;">단가</th>
+                                        <th class="text-right" style="width: 120px;">금액</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="estimate-tbody">
+                                    <!-- 견적 데이터가 여기 표시 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 하단 버튼 -->
+                        <div class="bottom-buttons">
+                            <button class="btn btn-primary" onclick="generateEstimate()">견적 생성</button>
+                            <button class="btn btn-primary">엑셀 저장(회사 양식)</button>
+                            <button class="btn">CSV 저장</button>
+                            <button class="btn" onclick="clearAll()">화면 지우기</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let branches = [];
+        let accessories = [];
+
+        // 분기 차단기 선택 완료시 자동 추가
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('branch-type') ||
+                e.target.classList.contains('branch-poles') ||
+                e.target.classList.contains('branch-capacity') ||
+                e.target.classList.contains('branch-qty')) {
+
+                const row = e.target.closest('.branch-row');
+                const type = row.querySelector('.branch-type').value;
+                const poles = row.querySelector('.branch-poles').value;
+                const capacity = row.querySelector('.branch-capacity').value;
+                const qty = row.querySelector('.branch-qty').value;
+
+                if (type && poles && capacity && qty) {
+                    addBranch(type, poles, capacity, qty);
+                    addNewBranchRow();
+                }
+            }
+        });
+
+        function addBranch(type, poles, capacity, qty) {
+            branches.push({type, poles, capacity, qty});
+            updateBranchList();
+        }
+
+        function addNewBranchRow() {
+            const branchInputs = document.getElementById('branch-inputs');
+            const newRow = document.createElement('div');
+            newRow.className = 'form-row-horizontal branch-row';
+            newRow.innerHTML = `
+                <div style="flex: 1;">
+                    <label class="form-label">종류</label>
+                    <select class="form-select form-select-small branch-type">
+                        <option>MCCB</option>
+                        <option>ELB</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label class="form-label">극수</label>
+                    <select class="form-select form-select-small branch-poles">
+                        <option>2P</option>
+                        <option>3P</option>
+                        <option>4P</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label class="form-label">용량</label>
+                    <select class="form-select form-select-small branch-capacity">
+                        <option>15A</option>
+                        <option>20A</option>
+                        <option>30A</option>
+                        <option>40A</option>
+                        <option>50A</option>
+                        <option>60A</option>
+                        <option>75A</option>
+                        <option>100A</option>
+                        <option>125A</option>
+                        <option>150A</option>
+                        <option>175A</option>
+                        <option>200A</option>
+                        <option>225A</option>
+                        <option>250A</option>
+                        <option>300A</option>
+                        <option>400A</option>
+                        <option>600A</option>
+                        <option>800A</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">수량</label>
+                    <input type="number" class="form-input form-input-small branch-qty" value="1" min="1">
+                </div>
+                <div>
+                    <label class="form-label" style="visibility: hidden;">삭제</label>
+                    <button class="btn btn-small remove-branch" onclick="removeBranchRow(this)">삭제</button>
+                </div>
+            `;
+            branchInputs.appendChild(newRow);
+
+            // 이전 행의 삭제 버튼 표시
+            const prevRows = branchInputs.querySelectorAll('.branch-row');
+            if (prevRows.length > 1) {
+                prevRows[prevRows.length - 2].querySelector('.remove-branch').style.display = 'block';
+            }
+        }
+
+        function removeBranchRow(btn) {
+            btn.closest('.branch-row').remove();
+        }
+
+        function updateBranchList() {
+            const list = document.getElementById('branch-list');
+            list.innerHTML = '';
+            branches.forEach((branch, index) => {
+                const item = document.createElement('div');
+                item.className = 'item-row';
+                item.innerHTML = `
+                    <span>${branch.type} | ${branch.poles} ${branch.capacity} | 수량 ${branch.qty}</span>
+                    <button class="btn btn-small" onclick="removeBranch(${index})">삭제</button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function removeBranch(index) {
+            branches.splice(index, 1);
+            updateBranchList();
+        }
+
+        function addAccessory() {
+            const type = document.getElementById('magnet-type').value;
+            const qty = document.getElementById('magnet-qty').value;
+            accessories.push({name: `마그네트 ${type}`, qty: parseInt(qty)});
+            updateAccessoryList();
+            document.getElementById('magnet-qty').value = '1';
+        }
+
+        function updateAccessoryList() {
+            const list = document.getElementById('accessory-list');
+            list.innerHTML = '';
+            accessories.forEach((acc, index) => {
+                const item = document.createElement('div');
+                item.className = 'item-row';
+                item.innerHTML = `
+                    <span>${acc.name} x ${acc.qty}</span>
+                    <button class="btn btn-small" onclick="removeAccessory(${index})">삭제</button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function removeAccessory(index) {
+            accessories.splice(index, 1);
+            updateAccessoryList();
+        }
+
+        function generateEstimate() {
+            // 견적 생성 로직
+            const lines = [];
+            let no = 1;
+
+            // 외함
+            lines.push({
+                no: no++,
+                name: '배전반함체',
+                spec: 'STEEL 1.6T 옥내용',
+                unit: 'EA',
+                qty: 1,
+                price: 150000,
+                amount: 150000
+            });
+
+            // 메인 차단기
+            lines.push({
+                no: no++,
+                name: '메인 차단기 MCCB',
+                spec: '4P 100A',
+                unit: 'EA',
+                qty: 1,
+                price: 80000,
+                amount: 80000
+            });
+
+            // 분기 차단기
+            branches.forEach(branch => {
+                lines.push({
+                    no: no++,
+                    name: `분기 차단기 ${branch.type}`,
+                    spec: `${branch.poles} ${branch.capacity}`,
+                    unit: 'EA',
+                    qty: parseInt(branch.qty),
+                    price: 25000,
+                    amount: 25000 * parseInt(branch.qty)
+                });
+            });
+
+            // 부속자재
+            accessories.forEach(acc => {
+                lines.push({
+                    no: no++,
+                    name: acc.name,
+                    spec: '',
+                    unit: 'EA',
+                    qty: acc.qty,
+                    price: 15000,
+                    amount: 15000 * acc.qty
+                });
+            });
+
+            updateEstimateTable(lines);
+        }
+
+        function updateEstimateTable(lines) {
+            const tbody = document.getElementById('estimate-tbody');
+            tbody.innerHTML = '';
+            let total = 0;
+
+            lines.forEach(line => {
+                total += line.amount;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="text-center">${line.no}</td>
+                    <td>${line.name}</td>
+                    <td>${line.spec}</td>
+                    <td class="text-center">${line.unit}</td>
+                    <td class="text-center">${line.qty}</td>
+                    <td class="text-right">${line.price.toLocaleString()}원</td>
+                    <td class="text-right">${line.amount.toLocaleString()}원</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('estimate-title').textContent =
+                `배전반 견적 | 메인 MCCB 4P 100A | 분기 ${branches.length}개`;
+            document.getElementById('estimate-total').textContent =
+                `합계: ${total.toLocaleString()} 원`;
+        }
+
+        function clearAll() {
+            branches = [];
+            accessories = [];
+            updateBranchList();
+            updateAccessoryList();
+            document.getElementById('estimate-tbody').innerHTML = '';
+            document.getElementById('estimate-title').textContent = '(견적 없음)';
+            document.getElementById('estimate-total').textContent = '합계: 0 원';
+        }
+    </script>
+</body>
+</html>

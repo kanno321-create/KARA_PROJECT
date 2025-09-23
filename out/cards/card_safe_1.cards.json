@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_001",
+    "category": "SAFE",
+    "item": "Item_1",
+    "specs": {
+      "model": "MODEL_AJNVH",
+      "quantity": 17,
+      "unitPrice": 4919272
+    },
+    "priority": 1,
+    "leadTime": 30,
+    "reliability": 0.95,
+    "created": "2025-09-19T11:57:44.128Z"
+  }
+]

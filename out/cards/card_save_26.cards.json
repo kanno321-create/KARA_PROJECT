@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_026",
+    "category": "SAVE",
+    "item": "Item_26",
+    "specs": {
+      "model": "MODEL_CGQOF",
+      "quantity": 3,
+      "unitPrice": 871195
+    },
+    "priority": 2,
+    "leadTime": 14,
+    "reliability": 0.85,
+    "created": "2025-09-19T11:57:44.136Z"
+  }
+]

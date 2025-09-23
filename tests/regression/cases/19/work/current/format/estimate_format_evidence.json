@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "target": "estimate_format",
+  "timestamp": "2025-09-19T02:45:51.915060",
+  "summary": {
+    "named_ranges_injected": 5,
+    "named_ranges_total": 13,
+    "lint_errors": 0,
+    "sample_cells_diff": 0,
+    "validation": "PASS"
+  }
+}

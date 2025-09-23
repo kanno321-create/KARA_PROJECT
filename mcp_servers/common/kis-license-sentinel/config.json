@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-license-sentinel",
+    "code":  "MCP-11",
+    "description":  "라이선스 관리",
+    "priority":  "P0",
+    "endpoints":  {
+                      "execute":  "/kis-license-sentinel/execute",
+                      "health":  "/kis-license-sentinel/health"
+                  },
+    "status":  "INSTALLED"
+}

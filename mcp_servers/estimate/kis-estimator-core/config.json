@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-estimator-core",
+    "code":  "MCP-2",
+    "description":  "원가/마진 최적화",
+    "priority":  "P0",
+    "endpoints":  {
+                      "execute":  "/kis-estimator-core/execute",
+                      "health":  "/kis-estimator-core/health"
+                  },
+    "status":  "INSTALLED"
+}

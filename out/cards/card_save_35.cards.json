@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_035",
+    "category": "SAVE",
+    "item": "Item_35",
+    "specs": {
+      "model": "MODEL_N1YGM",
+      "quantity": 13,
+      "unitPrice": 1368045
+    },
+    "priority": 2,
+    "leadTime": 14,
+    "reliability": 0.85,
+    "created": "2025-09-19T11:57:44.137Z"
+  }
+]

@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import json
+from _util_io import write_json, read_json, make_evidence, arg_parser, MetricsCollector, log
+
+def critique_placement(work_dir: Path) -> dict:
+    """Independent validation of breaker placement against constraints"""
+    
+    # Load placement data
+    placement_file = work_dir / "placement" / "breaker_placement.json"
+    if not placement_file.exists():
+        return {"critic_pass": False, "reasons": ["Placement file not found"]}
+    
+    placement = read_json(placement_file)
+    
+    # Define thresholds
+    MAX_PHASE_IMBALANCE = 4.5
+    MAX_CLEARANCE_VIOLATIONS = 0
+    MAX_THERMAL_VIOLATIONS = 0
+    MAX_HEAT_PER_ZONE = 500  # Watts
+    
+    violations = []
+    warnings = []
+    
+    # Check phase imbalance
+    imbalance = placement.get("phase_imbalance_pct", 100)
+    if imbalance > MAX_PHASE_IMBALANCE:
+        violations.append(f"Phase imbalance {imbalance}% exceeds limit {MAX_PHASE_IMBALANCE}%")
+    elif imbalance > 4.0:
+        warnings.append(f"Phase imbalance {imbalance}% approaching limit")
+    
+    # Check clearances
+    clearance_violations = placement.get("clearances_violation", -1)
+    if clearance_violations > MAX_CLEARANCE_VIOLATIONS:
+        violations.append(f"Clearance violations: {clearance_violations}")
+    
+    # Check thermal
+    thermal_violations = placement.get("thermal_violation", -1)
+    total_heat = placement.get("total_heat_w", 0)
+    
+    if thermal_violations > MAX_THERMAL_VIOLATIONS:
+        violations.append(f"Thermal violations: {thermal_violations}")
+    
+    if total_heat > MAX_HEAT_PER_ZONE:
+        violations.append(f"Total heat {total_heat}W exceeds zone limit {MAX_HEAT_PER_ZONE}W")
+    
+    # Check slot conflicts
+    slots = placement.get("slots", [])
+    positions = {}
+    for slot in slots:
+        pos = slot.get("position", {})
+        pos_key = f"{pos.get('row', 0)},{pos.get('col', 0)}"
+        if pos_key in positions:
+            violations.append(f"Position conflict at {pos_key}")
+        positions[pos_key] = slot.get("breaker_id")
+    
+    # Generate explainable report
+    result = {
+        "critic_pass": len(violations) == 0,
+        "violations": violations,
+        "warnings": warnings,
+        "metrics": {
+            "phase_imbalance_pct": imbalance,
+            "clearance_violations": clearance_violations,
+            "thermal_violations": thermal_violations,
+            "total_heat_w": total_heat,
+            "slot_count": len(slots)
+        },
+        "recommendations": []
+    }
+    
+    # Add recommendations
+    if imbalance > 3.5:
+        result["recommendations"].append("Consider redistributing single-pole breakers")
+    if total_heat > MAX_HEAT_PER_ZONE * 0.8:
+        result["recommendations"].append("Consider forced ventilation or larger enclosure")
+    
+    return result
+
+def main():
+    ap = arg_parser()
+    args = ap.parse_args()
+    work = Path(args.work)
+    
+    metrics = MetricsCollector()
+    
+    with metrics.timer("breaker_critic"):
+        result = critique_placement(work)
+        out = work / "placement" / "breaker_critic.json"
+        write_json(out, result)
+        
+        # Generate evidence with violation highlights
+        evidence_data = {
+            "pass": result["critic_pass"],
+            "violations": len(result["violations"]),
+            "warnings": len(result["warnings"]),
+            "phase_imbalance": result["metrics"]["phase_imbalance_pct"]
+        }
+        make_evidence(out.with_suffix(""), evidence_data)
+        
+        if result["critic_pass"]:
+            log("OK breaker-critic")
+        else:
+            log(f"FAIL breaker-critic: {result['violations'][:1]}", "ERROR")
+    
+    metrics.save()
+
+if __name__ == "__main__":
+    main()

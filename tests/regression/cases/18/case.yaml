@@ -1,0 +1,9 @@
+test_case: "18"
+status: "skip"
+reason: "foundation-only mode"
+input:
+  project: null
+  panels: null
+expected:
+  result: null
+  evidence: null

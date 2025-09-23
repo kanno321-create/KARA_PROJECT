@@ -1,0 +1,25 @@
+{
+  "estimate": {
+    "project_name": "Regression Test Case 17",
+    "client": "TestClient_17",
+    "project_number": "REG-17-12345",
+    "date": "2025-09-19",
+    "subtotal": 466616.24,
+    "vat": 46661.62,
+    "total": 513277.86
+  },
+  "items": [
+    {
+      "description": "Main Panel Assembly",
+      "quantity": 1,
+      "unit_price": 279969.74,
+      "total": 279969.74
+    },
+    {
+      "description": "Breaker Installation",
+      "quantity": 18,
+      "unit_price": 10979.21,
+      "total": 186646.49
+    }
+  ]
+}

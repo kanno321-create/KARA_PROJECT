@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_010",
+    "category": "SAFE",
+    "item": "Item_10",
+    "specs": {
+      "model": "MODEL_3VDW1",
+      "quantity": 20,
+      "unitPrice": 3951732
+    },
+    "priority": 1,
+    "leadTime": 30,
+    "reliability": 0.95,
+    "created": "2025-09-19T11:57:44.132Z"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_022",
+    "category": "SAFE",
+    "item": "Item_22",
+    "specs": {
+      "model": "MODEL_SDKM7",
+      "quantity": 11,
+      "unitPrice": 2249067
+    },
+    "priority": 1,
+    "leadTime": 30,
+    "reliability": 0.95,
+    "created": "2025-09-19T11:57:44.135Z"
+  }
+]

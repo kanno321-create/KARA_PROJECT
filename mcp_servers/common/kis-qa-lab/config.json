@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-qa-lab",
+    "code":  "MCP-10",
+    "description":  "품질 검사",
+    "priority":  "P0",
+    "endpoints":  {
+                      "execute":  "/kis-qa-lab/execute",
+                      "health":  "/kis-qa-lab/health"
+                  },
+    "status":  "INSTALLED"
+}

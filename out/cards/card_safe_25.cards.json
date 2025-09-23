@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_025",
+    "category": "SAFE",
+    "item": "Item_25",
+    "specs": {
+      "model": "MODEL_DO9C5",
+      "quantity": 10,
+      "unitPrice": 1880337
+    },
+    "priority": 1,
+    "leadTime": 30,
+    "reliability": 0.95,
+    "created": "2025-09-19T11:57:44.136Z"
+  }
+]

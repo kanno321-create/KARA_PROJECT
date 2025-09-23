@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-email-template",
+    "code":  "MCP-6",
+    "description":  "반응형 이메일",
+    "priority":  "P2",
+    "endpoints":  {
+                      "execute":  "/kis-email-template/execute",
+                      "health":  "/kis-email-template/health"
+                  },
+    "status":  "INSTALLED"
+}

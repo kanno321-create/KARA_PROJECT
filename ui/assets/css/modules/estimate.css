@@ -1,0 +1,379 @@
+/* Estimate Module - Advanced Estimate System */
+
+/* Full Container Layout */
+.estimate-full-container {
+    display: flex;
+    height: 100%;
+    gap: 20px;
+    padding: 24px;
+    background: var(--color-bg);
+}
+
+/* Left Panel - Input Forms */
+.estimate-left-panel {
+    width: 45%;
+    overflow-y: auto;
+    padding-right: 20px;
+}
+
+/* Right Panel - Estimate Result */
+.estimate-right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+/* Sections */
+.section {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 12px 16px;
+    background: var(--color-sidebar);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-text);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-content {
+    padding: 16px;
+    background: var(--color-bg);
+}
+
+/* Header Toggle */
+.header-toggle-container {
+    display: flex;
+    align-items: center;
+}
+
+.header-toggle {
+    display: flex;
+    background: var(--color-bg);
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.header-toggle-option {
+    padding: 4px 12px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-size: 12px;
+    border-radius: 3px;
+    transition: var(--transition-fast);
+}
+
+.header-toggle-option.active {
+    background: var(--color-accent);
+    color: white;
+}
+
+/* Form Grids */
+.grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.grid-1x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* Form Elements */
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.form-input {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-bg);
+    font-size: 14px;
+    color: var(--color-text);
+    transition: var(--transition-fast);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.1);
+}
+
+.form-select {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-bg);
+    font-size: 14px;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.1);
+}
+
+/* Branch List */
+.branch-list {
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-bg);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.branch-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.branch-item:last-child {
+    border-bottom: none;
+}
+
+.branch-item:hover {
+    background: var(--color-hover);
+}
+
+/* Accessories List */
+.accessories-list {
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-bg);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.accessories-list-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-style: italic;
+    font-size: 13px;
+}
+
+.accessories-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.accessories-item:last-child {
+    border-bottom: none;
+}
+
+.accessories-item:hover {
+    background: var(--color-hover);
+}
+
+/* Estimate Header */
+.estimate-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--color-sidebar);
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.estimate-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.estimate-total {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-accent);
+}
+
+/* Estimate Table */
+.estimate-table {
+    flex: 1;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.estimate-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--color-bg);
+}
+
+.estimate-table th,
+.estimate-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.estimate-table th {
+    background: var(--color-sidebar);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--color-text);
+}
+
+.estimate-table td {
+    font-size: 14px;
+    color: var(--color-text);
+}
+
+.estimate-table tbody tr:hover {
+    background: var(--color-hover);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+/* Bottom Buttons */
+.bottom-buttons {
+    display: flex;
+    gap: 10px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}
+
+.bottom-buttons .btn {
+    padding: 10px 20px;
+}
+
+.bottom-buttons .btn-primary {
+    flex: 1;
+}
+
+/* Custom Buttons for Estimate */
+.btn {
+    padding: 8px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-bg);
+    color: var(--color-text);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: var(--transition-fast);
+}
+
+.btn:hover {
+    background: var(--color-hover);
+}
+
+.btn-primary {
+    background: var(--color-accent);
+    color: white;
+    border-color: var(--color-accent);
+}
+
+.btn-primary:hover {
+    background: #0E8A6B;
+}
+
+.btn-small {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+/* AI Chat Button */
+.ai-chat-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: var(--color-accent);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(16, 163, 127, 0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+}
+
+.ai-chat-button:hover {
+    background: #0E8A6B;
+    transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .estimate-full-container {
+        flex-direction: column;
+    }
+
+    .estimate-left-panel {
+        width: 100%;
+        padding-right: 0;
+        margin-bottom: 20px;
+    }
+
+    .grid-2x2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .estimate-full-container {
+        padding: 16px;
+    }
+
+    .section {
+        margin-bottom: 12px;
+    }
+
+    .bottom-buttons {
+        flex-direction: column;
+    }
+
+    .bottom-buttons .btn {
+        width: 100%;
+    }
+}

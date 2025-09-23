@@ -1,0 +1,32 @@
+[
+  {
+    "id": "rules-core",
+    "title": "KIS Rules Core",
+    "type": "json",
+    "path": "KIS/Rules/core_knowledge.json"
+  },
+  {
+    "id": "ai-estimation",
+    "title": "AI Estimation Core",
+    "type": "json",
+    "path": "KIS/Rules/ai_estimation_core.json"
+  },
+  {
+    "id": "policy-tax",
+    "title": "Policy Tax Margin",
+    "type": "json",
+    "path": "KIS/Rules/policy_tax_margin.json"
+  },
+  {
+    "id": "catalog-current",
+    "title": "Current Catalog",
+    "type": "json",
+    "path": "KIS/Catalog/snapshot_20250919.json"
+  },
+  {
+    "id": "replacement-logic",
+    "title": "Replacement Logic",
+    "type": "text",
+    "path": "docs/replacement_rules.md"
+  }
+]

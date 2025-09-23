@@ -1,0 +1,268 @@
+name: M2.10 Error Budget Guard
+
+on:
+  workflow_call:
+    inputs:
+      check_type:
+        description: 'Type of budget check (pre-deploy, post-deploy, scheduled)'
+        required: true
+        type: string
+        default: 'pre-deploy'
+      deployment_stage:
+        description: 'Deployment stage (1, 10, 50, 100)'
+        required: false
+        type: string
+        default: '1'
+    outputs:
+      deploy_allowed:
+        description: 'Whether deployment is allowed based on error budget'
+        value: ${{ jobs.budget-guard.outputs.deploy_allowed }}
+      freeze_status:
+        description: 'Current freeze status (active/inactive)'
+        value: ${{ jobs.budget-guard.outputs.freeze_status }}
+      error_budget_remaining:
+        description: 'Percentage of error budget remaining'
+        value: ${{ jobs.budget-guard.outputs.error_budget_remaining }}
+
+  workflow_dispatch:
+    inputs:
+      check_type:
+        description: 'Type of budget check'
+        type: choice
+        options:
+          - pre-deploy
+          - post-deploy
+          - scheduled
+          - emergency-check
+        default: 'emergency-check'
+      force_unfreeze:
+        description: 'Force unfreeze deployment (emergency override)'
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: '20'
+  SLO_HISTORY_FILE: 'ops/slo_history.json'
+  SLO_PROFILE_FILE: 'M29_SLO_PROFILE.json'
+
+jobs:
+  budget-guard:
+    runs-on: ubuntu-latest
+    name: 'Error Budget Guard Check'
+    timeout-minutes: 10
+    outputs:
+      deploy_allowed: ${{ steps.budget_check.outputs.deploy_allowed }}
+      freeze_status: ${{ steps.budget_check.outputs.freeze_status }}
+      error_budget_remaining: ${{ steps.budget_check.outputs.error_budget_remaining }}
+      
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 30
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install Dependencies
+      run: npm ci
+      
+    - name: Emergency Override Check
+      if: inputs.force_unfreeze == true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo "🚨 EMERGENCY OVERRIDE: Force unfreezing deployment"
+        echo "⚠️ This bypasses all error budget protections!"
+        
+        gh variable set DEPLOY_FREEZE --body "false"
+        gh variable set FREEZE_REASON --body "Emergency override by ${{ github.actor }} at $(date -u)"
+        
+        # Log emergency override
+        cat > ops/emergency_override.json << EOF
+        {
+          "timestamp": "$(date -u '+%Y-%m-%dT%H:%M:%SZ')",
+          "actor": "${{ github.actor }}",
+          "run_id": "${{ github.run_id }}",
+          "reason": "Emergency deployment override",
+          "previous_freeze_status": "$(cat ops/freeze_status.json | jq -r '.freeze_required // "unknown"')"
+        }
+        EOF
+        
+        echo "EMERGENCY_OVERRIDE=true" >> $GITHUB_ENV
+        
+    - name: Verify SLO Profile
+      if: env.EMERGENCY_OVERRIDE != 'true'
+      run: |
+        echo "🔍 Verifying SLO Profile integrity..."
+        node ops/tools/verify_slo_profile.js --profile "${{ env.SLO_PROFILE_FILE }}"
+        
+    - name: Load Current SLO History
+      if: env.EMERGENCY_OVERRIDE != 'true'
+      run: |
+        echo "📚 Loading SLO history for budget calculation..."
+        if [ ! -f "${{ env.SLO_HISTORY_FILE }}" ]; then
+          echo "⚠️ SLO history not found, initializing..."
+          mkdir -p ops
+          echo '{"entries": [], "last_updated": "'$(date -u '+%Y-%m-%dT%H:%M:%SZ')'"}' > "${{ env.SLO_HISTORY_FILE }}"
+        fi
+        
+        HISTORY_SIZE=$(cat "${{ env.SLO_HISTORY_FILE }}" | jq '.entries | length')
+        echo "📊 SLO history contains $HISTORY_SIZE entries"
+        
+    - name: Calculate Error Budget Status
+      id: budget_check
+      if: env.EMERGENCY_OVERRIDE != 'true'
+      run: |
+        echo "💰 Calculating current error budget status..."
+        
+        node ops/tools/freeze_status.js \
+          --history "${{ env.SLO_HISTORY_FILE }}" \
+          --profile "${{ env.SLO_PROFILE_FILE }}" \
+          --check-type "${{ inputs.check_type || 'pre-deploy' }}" \
+          --deployment-stage "${{ inputs.deployment_stage || '1' }}"
+          
+        # Extract results for workflow outputs
+        DEPLOY_ALLOWED=$(cat ops/freeze_status.json | jq -r '.deploy_allowed // false')
+        FREEZE_STATUS=$(cat ops/freeze_status.json | jq -r '.freeze_required // false')
+        ERROR_BUDGET_PCT=$(cat ops/freeze_status.json | jq -r '.error_budget_remaining // 0')
+        
+        echo "deploy_allowed=$DEPLOY_ALLOWED" >> $GITHUB_OUTPUT
+        echo "freeze_status=$FREEZE_STATUS" >> $GITHUB_OUTPUT
+        echo "error_budget_remaining=$ERROR_BUDGET_PCT" >> $GITHUB_OUTPUT
+        
+        echo "🔍 Budget Check Results:"
+        echo "  Deploy Allowed: $DEPLOY_ALLOWED"
+        echo "  Freeze Status: $FREEZE_STATUS"
+        echo "  Error Budget Remaining: $ERROR_BUDGET_PCT%"
+        
+    - name: Handle Emergency Override
+      if: env.EMERGENCY_OVERRIDE == 'true'
+      id: emergency_override
+      run: |
+        echo "deploy_allowed=true" >> $GITHUB_OUTPUT
+        echo "freeze_status=false" >> $GITHUB_OUTPUT
+        echo "error_budget_remaining=100" >> $GITHUB_OUTPUT
+        
+    - name: Update Repository Variables
+      if: env.EMERGENCY_OVERRIDE != 'true'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo "🔄 Updating repository deployment freeze variables..."
+        
+        FREEZE_STATUS="${{ steps.budget_check.outputs.freeze_status }}"
+        ERROR_BUDGET_PCT="${{ steps.budget_check.outputs.error_budget_remaining }}"
+        CHECK_TYPE="${{ inputs.check_type || 'pre-deploy' }}"
+        
+        if [ "$FREEZE_STATUS" = "true" ]; then
+          echo "🔒 Setting deployment freeze (Error budget: ${ERROR_BUDGET_PCT}%)"
+          gh variable set DEPLOY_FREEZE --body "true"
+          gh variable set FREEZE_REASON --body "Error budget exhausted: ${ERROR_BUDGET_PCT}% remaining (${CHECK_TYPE} check)"
+        else
+          echo "✅ Deployment allowed (Error budget: ${ERROR_BUDGET_PCT}%)"
+          gh variable set DEPLOY_FREEZE --body "false"
+          gh variable set FREEZE_REASON --body "Error budget healthy: ${ERROR_BUDGET_PCT}% remaining (${CHECK_TYPE} check)"
+        fi
+        
+        # Update last check timestamp
+        gh variable set LAST_BUDGET_CHECK --body "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+        
+    - name: Deployment Decision
+      run: |
+        DEPLOY_ALLOWED="${{ steps.budget_check.outputs.deploy_allowed || steps.emergency_override.outputs.deploy_allowed }}"
+        FREEZE_STATUS="${{ steps.budget_check.outputs.freeze_status || steps.emergency_override.outputs.freeze_status }}"
+        ERROR_BUDGET_PCT="${{ steps.budget_check.outputs.error_budget_remaining || steps.emergency_override.outputs.error_budget_remaining }}"
+        
+        echo "🎯 DEPLOYMENT DECISION SUMMARY"
+        echo "================================"
+        echo "Deploy Allowed: $DEPLOY_ALLOWED"
+        echo "Freeze Active: $FREEZE_STATUS"
+        echo "Error Budget: ${ERROR_BUDGET_PCT}%"
+        echo "Check Type: ${{ inputs.check_type || 'pre-deploy' }}"
+        echo "Stage: ${{ inputs.deployment_stage || '1' }}%"
+        echo "Emergency Override: ${EMERGENCY_OVERRIDE:-false}"
+        echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+        echo "================================"
+        
+        if [ "$DEPLOY_ALLOWED" != "true" ] && [ "${EMERGENCY_OVERRIDE:-false}" != "true" ]; then
+          echo "🚨 DEPLOYMENT BLOCKED: Error budget exhausted"
+          echo "   Current budget: ${ERROR_BUDGET_PCT}%"
+          echo "   Minimum required: $(cat M29_SLO_PROFILE.json | jq -r '.error_budget.freeze_threshold * 100')%"
+          echo "   Run error budget drill: npm run ops:drill"
+          exit 1
+        else
+          echo "✅ DEPLOYMENT APPROVED"
+        fi
+        
+    - name: Notify Slack
+      if: always()
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      run: |
+        if [ -n "$SLACK_WEBHOOK_URL" ] && [ "$SLACK_WEBHOOK_URL" != "https://hooks.slack.com/services/REPLACE/WITH/REAL-WEBHOOK" ]; then
+          echo "📱 Sending error budget notification..."
+          
+          DEPLOY_ALLOWED="${{ steps.budget_check.outputs.deploy_allowed || steps.emergency_override.outputs.deploy_allowed }}"
+          ERROR_BUDGET_PCT="${{ steps.budget_check.outputs.error_budget_remaining || steps.emergency_override.outputs.error_budget_remaining }}"
+          CHECK_TYPE="${{ inputs.check_type || 'pre-deploy' }}"
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          
+          if [ "${EMERGENCY_OVERRIDE:-false}" = "true" ]; then
+            EMOJI="🚨"
+            STATUS_TEXT="EMERGENCY OVERRIDE ACTIVE"
+            COLOR="danger"
+          elif [ "$DEPLOY_ALLOWED" = "true" ]; then
+            EMOJI="✅" 
+            STATUS_TEXT="DEPLOY APPROVED"
+            COLOR="good"
+          else
+            EMOJI="🔒"
+            STATUS_TEXT="DEPLOY BLOCKED"
+            COLOR="danger"
+          fi
+          
+          node scripts/notify_slack.js "$EMOJI M2.10 Budget Guard • $STATUS_TEXT • Budget: ${ERROR_BUDGET_PCT}% • ${CHECK_TYPE} • $TIMESTAMP"
+        else
+          echo "🧪 Slack notification skipped"
+        fi
+        
+    - name: Upload Budget Check Artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: budget-guard-${{ github.run_number }}
+        path: |
+          ops/freeze_status.json
+          ops/slo_history.json
+          ops/emergency_override.json
+        retention-days: 90
+        
+    - name: Commit Emergency Override Log
+      if: env.EMERGENCY_OVERRIDE == 'true'
+      run: |
+        echo "💾 Logging emergency override..."
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action - Budget Guard"
+        
+        git add ops/emergency_override.json
+        
+        git commit -m "$(cat <<'EOF'
+🚨 Emergency Override: Deployment freeze bypassed
+
+Actor: ${{ github.actor }}
+Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S')
+Run ID: ${{ github.run_id }}
+
+⚠️ This bypassed error budget protections!
+
+🚀 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+EOF
+)"
+        
+        echo "✅ Emergency override logged"

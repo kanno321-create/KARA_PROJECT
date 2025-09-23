@@ -1,0 +1,240 @@
+openapi: 3.1.0
+info:
+  title: KIS Estimate API
+  version: 1.0.0
+  description: |
+    Contract-first spec for /v1 estimate services. Error format is {code, message, path, hint}.
+servers:
+  - url: /v1
+paths:
+  /estimate/create:
+    post:
+      summary: Create an estimate and return enclosure size with evidence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstimateRequest'
+      responses:
+        '200':
+          description: Enclosure calculated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstimateCreateResponse'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /estimate/validate:
+    post:
+      summary: Validate inputs, brand rules, and knowledge presence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstimateRequest'
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstimateValidateResponse'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '500':
+          $ref: '#/components/responses/Error500'
+  /estimate/{id}/evidence:
+    get:
+      summary: Get evidence bundle for an estimate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Evidence bundle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvidenceResponse'
+        '404':
+          description: Not found
+components:
+  responses:
+    Error422:
+      description: Validation error (ABSTAIN → 질문)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error409:
+      description: Duplicate request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Brand:
+      type: string
+      enum: [SANGDO, LS, MIXED]
+    Form:
+      type: string
+      enum: [ECONOMIC, STANDARD]
+    Location:
+      type: string
+      enum: [INDOOR, OUTDOOR]
+    Mount:
+      type: string
+      enum: [FLUSH, SURFACE]
+    DeviceType:
+      type: string
+      enum: [MCCB, ELCB]
+    Poles:
+      type: string
+      enum: [2P, 3P, 4P]
+    BranchItem:
+      type: object
+      required: [poles, qty]
+      properties:
+        model:
+          type: string
+          description: Optional explicit model. If absent, AF+poles matching is used.
+        af:
+          type: integer
+          description: Frame size AF.
+        poles:
+          $ref: '#/components/schemas/Poles'
+        qty:
+          type: integer
+          minimum: 1
+    Accessories:
+      type: object
+      required: [enabled, items]
+      properties:
+        enabled:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              sku:
+                type: string
+              qty:
+                type: integer
+    EstimateRequest:
+      type: object
+      required: [brand, form, installation, device, main, branches, accessories]
+      properties:
+        brand:
+          $ref: '#/components/schemas/Brand'
+        form:
+          $ref: '#/components/schemas/Form'
+        installation:
+          type: object
+          required: [location, mount]
+          properties:
+            location: {"$ref":"#/components/schemas/Location"}
+            mount: {"$ref":"#/components/schemas/Mount"}
+        device:
+          type: object
+          required: [type]
+          properties:
+            type: {"$ref":"#/components/schemas/DeviceType"}
+        main:
+          type: object
+          required: [af, poles]
+          properties:
+            model:
+              type: string
+            af:
+              type: integer
+            poles:
+              $ref: '#/components/schemas/Poles'
+        branches:
+          type: array
+          items:
+            $ref: '#/components/schemas/BranchItem'
+        accessories:
+          $ref: '#/components/schemas/Accessories'
+        meta:
+          type: object
+          properties:
+            simulate_delay_ms:
+              type: integer
+            simulate_error:
+              type: string
+            dedup_key:
+              type: string
+    Enclosure:
+      type: object
+      required: [W, H, D, form]
+      properties:
+        W: {"type":"integer"}
+        H: {"type":"integer"}
+        D: {"type":"integer"}
+        form: {"$ref":"#/components/schemas/Form"}
+    Evidence:
+      type: object
+      properties:
+        rules_doc: {"type":"string"}
+        tables:
+          type: array
+          items:
+            type: object
+            properties:
+              source: {"type":"string"}
+              rows:
+                type: array
+                items: {"type":"object"}
+        brand_policy: {"type":"string"}
+        trace_id: {"type":"string"}
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: {"type":"string"}
+        message: {"type":"string"}
+        path: {"type":"string"}
+        hint: {"type":"string"}
+    EstimateCreateResponse:
+      type: object
+      required: [enclosure, inputs_snapshot, evidence]
+      properties:
+        enclosure: {"$ref":"#/components/schemas/Enclosure"}
+        inputs_snapshot: {"$ref":"#/components/schemas/EstimateRequest"}
+        evidence: {"$ref":"#/components/schemas/Evidence"}
+    EstimateValidateResponse:
+      type: object
+      required: [valid, evidence]
+      properties:
+        valid: {"type":"boolean"}
+        issues:
+          type: array
+          items: {"$ref":"#/components/schemas/Error"}
+        evidence: {"$ref":"#/components/schemas/Evidence"}
+    EvidenceResponse:
+      type: object
+      required: [bundle, inputs_snapshot]
+      properties:
+        bundle:
+          type: object
+          properties:
+            files: {"type":"array","items":{"type":"string"}}
+            size: {"type":"integer"}
+            sha256: {"type":"string"}
+        inputs_snapshot: {"$ref":"#/components/schemas/EstimateRequest"}

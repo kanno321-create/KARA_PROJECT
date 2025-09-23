@@ -1,0 +1,97 @@
+{
+  "registry": {
+    "checked_at": "2025-09-19T12:38:20.303593Z",
+    "files": [
+      {
+        "checked_at": "2025-09-19T12:38:20.296591Z",
+        "empty_values": [],
+        "hash": "3c09b2f1686a644dc932a88e36d91205422402f859026cf33b2a3c436ff1bfac",
+        "hash_match": true,
+        "missing_ranges": [
+          "ProjectName",
+          "Client",
+          "Total",
+          "Date",
+          "QuoteNo",
+          "BrandPrimaryColor",
+          "LogoRef"
+        ],
+        "name": "Cover.xlsx",
+        "named_ranges": [
+          "ProjectName",
+          "Client",
+          "Total",
+          "Date",
+          "QuoteNo",
+          "BrandPrimaryColor",
+          "LogoRef"
+        ],
+        "path": "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\KIS\\Templates\\Cover.xlsx",
+        "status": "warning"
+      },
+      {
+        "checked_at": "2025-09-19T12:38:20.299592Z",
+        "empty_values": [],
+        "hash": "e57a7bbe4acb9c94ea90928bb5bba331dba188d4588dcef68520ba303ada82c6",
+        "hash_match": true,
+        "missing_ranges": [
+          "Items",
+          "VAT",
+          "Subtotal",
+          "GrandTotal",
+          "BrandPrimaryColor",
+          "LogoRef",
+          "FontSize"
+        ],
+        "name": "Estimate.xlsx",
+        "named_ranges": [
+          "Items",
+          "VAT",
+          "Subtotal",
+          "GrandTotal",
+          "BrandPrimaryColor",
+          "LogoRef",
+          "FontSize"
+        ],
+        "path": "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\KIS\\Templates\\Estimate.xlsx",
+        "status": "warning"
+      }
+    ],
+    "summary": {
+      "hash_pass": 2,
+      "range_issues": 2,
+      "total": 2
+    },
+    "version": "2025.09"
+  },
+  "sandbox": {
+    "allowed_roots": [
+      "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\dist",
+      "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\KIS\\Engine",
+      "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\KIS\\Rules",
+      "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\KIS\\scripts",
+      "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\KIS\\Templates",
+      "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\KIS\\tests",
+      "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\KIS\\Tools",
+      "C:\\Users\\PC\\Desktop\\KIS_CORE_V2\\KIS\\Work"
+    ],
+    "allowed_suffixes": [
+      ".csv",
+      ".json",
+      ".log",
+      ".md",
+      ".parquet",
+      ".pdf",
+      ".png",
+      ".svg",
+      ".xlsx",
+      ".yaml",
+      ".yml"
+    ],
+    "license_guard": {
+      "message": "License/Cost guard stub - no issues detected",
+      "status": "pass"
+    }
+  },
+  "template": null
+}

@@ -1,0 +1,14 @@
+PK                  [Content_Types].xml
+PK                  _rels/.rels
+PK                  xl/workbook.xml
+PK                  xl/sharedStrings.xml
+PK                  xl/worksheets/sheet1.xml
+PK                  xl/styles.xml
+
+Mock Excel file content for E2E testing.
+This would be a real Excel file in production with:
+- Project information
+- BOM items with specifications
+- Customer details
+- Special requirements
+- Technical drawings references

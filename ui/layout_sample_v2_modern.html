@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIS AI - 통합 시스템</title>
+    <style>
+        /* 기본 스타일 (수정 없음) */
+        :root {
+            --titlebar-h: 0px;
+            --sidebar-w: 280px;
+            --gap: 12px;
+            --bg: #f9f9f9;
+            --bg-2: #f3f3f3;
+            --fg: #323130;
+            --muted: #605e5c;
+            --hover: #e1dfdd;
+            --border: #e5e5e5;
+            --primary: #0078d4;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        body {
+            margin: 0;
+            background: #ffffff;
+            color: #323130;
+            font-family: 'Segoe UI', system-ui, -apple-system, 'Roboto', 'Noto Sans KR', sans-serif;
+        }
+        .app-layout {
+            height: 100vh;
+            width: 100vw;
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            grid-template-rows: 1fr;
+            overflow: hidden;
+            position: relative;
+            transition: grid-template-columns 0.3s ease;
+        }
+        .app-layout.sidebar-collapsed {
+            grid-template-columns: 60px 1fr;
+        }
+        .sidebar-container {
+            grid-column: 1;
+            grid-row: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            background: var(--bg);
+            color: var(--fg);
+            border-right: 1px solid var(--border);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            position: relative;
+        }
+        .sidebar-header {
+            flex: 0 0 auto;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 48px;
+        }
+        .sidebar-header button {
+            background: transparent;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .sidebar-header button:hover {
+            background: var(--hover);
+        }
+        .sidebar-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .sidebar-scroll {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 12px;
+        }
+        .sidebar-section + .sidebar-section {
+            margin-top: 16px;
+        }
+        .sidebar-heading {
+            margin: 0 0 8px 0;
+            padding: 0 4px;
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .nav-list {
+            display: grid;
+            gap: 4px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 4px;
+            color: var(--fg);
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+        .nav-item:hover {
+            background: var(--hover);
+        }
+        .nav-item.is-active {
+            background: var(--hover);
+            border-left: 3px solid var(--primary);
+            padding-left: 13px;
+        }
+        .nav-item .icon {
+            font-size: 18px;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-edit {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+        .icon-search {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+        .icon-folder {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+        .icon-circle {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+        .icon-users {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+        .icon-cube {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27,6.96 12,12.01 20.73,6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+        .chat-item {
+            padding: 12px 16px 12px 32px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+        .chat-item:hover {
+            background: var(--hover);
+            color: var(--fg);
+        }
+        .account-section {
+            flex: 0 0 auto;
+            padding: 12px;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+        .account-button {
+            width: 100%;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 18px;
+            transition: background-color 0.2s ease;
+            background: transparent;
+            border: none;
+            text-align: left;
+        }
+        .account-button:hover {
+            background: var(--hover);
+        }
+        .account-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        .account-info {
+            flex: 1;
+        }
+        .account-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--fg);
+        }
+        .account-email {
+            font-size: 14px;
+            color: var(--muted);
+        }
+        .main-container {
+            grid-column: 2;
+            grid-row: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+            background: #ffffff;
+            overflow: hidden;
+        }
+        .version-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid #edebe9;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 0 0 auto;
+        }
+        .version-text {
+            font-size: 14px;
+            color: #605e5c;
+        }
+        .version-model {
+            font-size: 14px;
+            color: #0078d4;
+            font-weight: 500;
+        }
+        .main-content {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .ai-manager-view {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-x: hidden;
+        }
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            width: 100%;
+            transform: translateY(-10%);
+            overflow-x: hidden;
+        }
+        .company-logo {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+        .welcome-text {
+            font-size: 24px;
+            color: var(--muted);
+            margin-bottom: 30px;
+        }
+        .messages-container {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            padding: 20px 40px;
+        }
+        .messages-inner {
+            max-width: 1000px;
+            width: 80%;
+            margin: 0 auto;
+        }
+        .message {
+            padding: 20px 26px;
+            margin-bottom: 16px;
+            word-wrap: break-word;
+            font-size: 19px;
+            line-height: 1.7;
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+        }
+        .message-user {
+            background-color: #f7f7f7;
+            border-radius: 18px;
+            color: #323130;
+            margin-left: auto;
+            margin-right: 0;
+            text-align: right;
+        }
+        .message-ai {
+            color: #323130;
+            margin-left: 0;
+            margin-right: auto;
+            text-align: left;
+        }
+        .input-container {
+            flex: 0 0 auto;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .input-wrapper {
+            max-width: 800px;
+            width: 64%;
+            display: flex;
+            justify-content: center;
+        }
+        .input-box {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 24px;
+            border: 1px solid #d1d1d1;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            min-height: 72px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .input-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .input-button:hover {
+            background: #f3f2f1;
+        }
+        .input-button.send-button {
+            background: transparent;
+            color: #333;
+        }
+        .input-button.send-button:hover {
+            background: #f3f2f1;
+        }
+        .input-button.send-button:disabled {
+            background: transparent;
+            color: #c8c6c4;
+        }
+        .chat-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 17px;
+            line-height: 26px;
+            min-height: 52px;
+            padding: 14px 0;
+            font-family: inherit;
+            resize: none;
+        }
+        .chat-input::placeholder {
+            color: #999;
+        }
+        .view {
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s ease;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: auto;
+        }
+        .view.active {
+            opacity: 1;
+            transform: translateX(0);
+            position: relative;
+            pointer-events: auto;
+        }
+        .view:not(.active) {
+            pointer-events: none;
+        }
+        .estimates-view {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            padding: 0;
+        }
+        #estimates-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .sidebar-collapsed .sidebar-title,
+        .sidebar-collapsed .sidebar-heading,
+        .sidebar-collapsed .nav-item span,
+        .sidebar-collapsed .chat-item,
+        .sidebar-collapsed .account-info,
+        .sidebar-collapsed .icon:not(.nav-item .icon:first-child),
+        .sidebar-collapsed .account-avatar + .account-info,
+        .sidebar-collapsed .account-menu {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+        .sidebar-collapsed .sidebar-scroll {
+            padding: 8px;
+        }
+        .sidebar-collapsed .nav-item {
+            justify-content: center;
+            padding: 12px;
+            background: transparent !important;
+            border-left: none !important;
+        }
+        .sidebar-collapsed .nav-item.is-active {
+            background: var(--hover) !important;
+            border-left: none !important;
+            padding-left: 12px !important;
+        }
+        .sidebar-collapsed .account-button {
+            justify-content: center;
+            padding: 12px;
+        }
+        .sidebar-collapsed .account-avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+        }
+        .sidebar-title,
+        .sidebar-heading,
+        .nav-item span,
+        .chat-item,
+        .account-info {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        @media (max-width: 960px) {
+            .app-layout {
+                grid-template-columns: 60px 1fr;
+            }
+        }
+        .hidden {
+            display: none !important;
+        }
+        .account-menu {
+            position: absolute;
+            bottom: 80px;
+            left: 12px;
+            width: 240px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            padding: 8px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.2s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .account-menu.open {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .account-menu-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .account-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--fg);
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: background-color 0.15s ease;
+        }
+        .account-menu-item:hover {
+            background: var(--hover);
+        }
+        .account-menu-separator {
+            height: 1px;
+            background: var(--border);
+            margin: 8px 0;
+        }
+        .nav-item, .chat-item, .account-button {
+            transition: background-color 0.2s ease;
+        }
+        .erp-view {
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.3s ease;
+        }
+        .erp-view.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .erp-container {
+            display: flex;
+            height: 100vh;
+            background: #f8f9fa;
+        }
+        .erp-sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 1px solid #e9ecef;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+            overflow-y: auto;
+        }
+        .erp-sidebar::-webkit-scrollbar { display: none; }
+        .erp-sidebar { -ms-overflow-style: none; scrollbar-width: none; }
+        .erp-header-top {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 15px;
+        }
+        .erp-home-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        }
+        .erp-home-btn:hover {
+            background: linear-gradient(135deg, #0056b3, #004085);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+        }
+        .erp-logo {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            text-align: center;
+        }
+        .erp-logo h2 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .erp-subtitle {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .erp-menu-section {
+            border-bottom: 1px solid #e9ecef;
+        }
+        .erp-section-title {
+            padding: 12px 20px;
+            background: #f8f9fa;
+            font-weight: bold;
+            font-size: 14px;
+            color: #495057;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: background-color 0.2s ease;
+            display: block;
+        }
+        .erp-section-title:hover {
+            background: #e9ecef;
+        }
+        .erp-section-title.active {
+            background: #007bff;
+            color: white;
+        }
+        .erp-menu-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .erp-menu-item {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 13px;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: block;
+        }
+        .erp-menu-item:hover {
+            background: #f8f9fa;
+            color: #495057;
+        }
+        .erp-menu-item.active {
+            background: #e3f2fd;
+            color: #1976d2;
+            font-weight: 500;
+        }
+        .erp-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .erp-content::-webkit-scrollbar { display: none; }
+        .erp-content { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .erp-nav-btn {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c757d;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .erp-nav-btn:hover {
+            color: #495057;
+            background: #f8f9fa;
+        }
+        .erp-nav-btn.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+        }
+        .erp-section { display: none; }
+        .erp-section.active {
+            display: block;
+            animation: fadeInSlide 0.3s ease;
+        }
+        @keyframes fadeInSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .erp-card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .erp-card h3 {
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        .erp-feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout" id="appLayout">
+        <aside class="sidebar-container">
+            <div class="sidebar-header">
+                <button onclick="toggleSidebar()" title="메뉴 축소/확장">☰</button>
+                <div class="sidebar-title">KIS AI</div>
+            </div>
+            <div class="sidebar-scroll">
+                <div class="sidebar-section">
+                    <div class="sidebar-heading">채팅</div>
+                    <nav class="nav-list">
+                        <button class="nav-item" onclick="createNewChat()"><span class="icon">+</span><span>New chat</span></button>
+                        <div class="chat-item">AI ERP 견적시스템 설계</div>
+                        <div class="chat-item">사용자 매뉴얼 안내</div>
+                    </nav>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-heading">업무</div>
+                    <nav class="nav-list">
+                        <button class="nav-item is-active" onclick="switchToView('ai-manager')" data-view="ai-manager"><span class="icon icon-edit"></span><span>AI 매니저</span></button>
+                        <button class="nav-item" onclick="switchToView('estimates')" data-view="estimates"><span class="icon icon-search"></span><span>견적서</span></button>
+                        <button class="nav-item" onclick="switchToView('erp')" data-view="erp"><span class="icon icon-folder"></span><span>ERP</span></button>
+                    </nav>
+                </div>
+            </div>
+            <div class="account-section">
+                <button class="account-button" onclick="toggleAccountMenu()">
+                    <div class="account-avatar">이충</div>
+                    <div class="account-info">
+                        <div class="account-name">이충희</div>
+                        <div class="account-email">ceo@kis.com</div>
+                    </div>
+                    <span class="icon" id="accountChevron">▲</span>
+                </button>
+                <div class="account-menu" id="accountMenu">
+                    <button class="account-menu-item"><span>설정</span></button>
+                    <button class="account-menu-item"><span>로그아웃</span></button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-container">
+            <div class="version-header">
+                <span class="version-text">KIS CORE v2.0.0</span>
+                <span class="version-text">|</span>
+                <span class="version-model">ChatGPT-5 Thinking</span>
+            </div>
+            <div class="main-content">
+                <div class="ai-manager-view view active" id="aiManagerView">
+                    <div id="welcomeScreen" class="welcome-screen">
+                        <div class="company-logo">대한민국산업</div>
+                        <div class="welcome-text">무엇을 도와드릴까요?</div>
+                        <div class="input-container">
+                            <div class="input-wrapper">
+                                <div class="input-box">
+                                    <button class="input-button" title="파일 첨부">+</button>
+                                    <textarea class="chat-input" id="chatInput" placeholder="무엇이든 물어보세요." rows="1"></textarea>
+                                    <button class="input-button send-button" onclick="sendMessage()" title="전송"><img src="./CHAT.png" alt="전송" style="width: 48px; height: 48px;"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="messages-container hidden" id="messagesContainer">
+                        <div class="messages-inner" id="messagesInner"></div>
+                    </div>
+                    <div class="input-container hidden" id="chatInputContainer">
+                        <div class="input-wrapper">
+                            <div class="input-box">
+                                <button class="input-button" title="파일 첨부">+</button>
+                                <textarea class="chat-input" id="chatInputBottom" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+                                <button class="input-button send-button" onclick="sendMessage()" title="전송"><img src="./CHAT.png" alt="전송" style="width: 48px; height: 48px;"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="estimates-view view" id="estimatesView">
+                    <iframe id="estimates-iframe" class="hidden"></iframe>
+                </div>
+
+                <div class="erp-view view" id="erpView">
+                    <div class="erp-container">
+                         <div class="erp-sidebar">
+                            <div class="erp-logo">
+                                <div class="erp-header-top">
+                                    <button class="erp-home-btn" onclick="switchToView('ai-manager')" title="처음으로">🏠 처음으로</button>
+                                </div>
+                                <h2>(주)대한민국산업 ERP SYSTEM</h2>
+                                <span class="erp-subtitle">ERP V1.0</span>
+                            </div>
+                            <div class="erp-menu-section"><button class="erp-section-title">전표작성</button><ul class="erp-menu-list"><li><button class="erp-menu-item">매입/매출 전표</button></li></ul></div>
+                            <div class="erp-menu-section"><button class="erp-section-title">보고서/조회</button><ul class="erp-menu-list"><li><button class="erp-menu-item">매출 및 매입장 조회</button></li></ul></div>
+                         </div>
+                         <div class="erp-content">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let messages = [];
+        let isLoading = false;
+        let currentView = 'ai-manager';
+        let isAccountMenuOpen = false;
+
+        function toggleSidebar() {
+            document.getElementById('appLayout').classList.toggle('sidebar-collapsed');
+        }
+
+        function switchToView(viewName) {
+            if (currentView === viewName) return;
+            currentView = viewName;
+
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('is-active'));
+            document.querySelector(`[data-view="${viewName}"]`).classList.add('is-active');
+            
+            setTimeout(() => {
+                const targetView = document.getElementById(viewName + 'View');
+                if(targetView) targetView.classList.add('active');
+
+                const appLayout = document.getElementById('appLayout');
+                if (viewName === 'ai-manager') {
+                    if (messages.length > 0) {
+                        document.getElementById('welcomeScreen').classList.add('hidden');
+                        document.getElementById('messagesContainer').classList.remove('hidden');
+                        document.getElementById('chatInputContainer').classList.remove('hidden');
+                    } else {
+                        document.getElementById('welcomeScreen').classList.remove('hidden');
+                        document.getElementById('messagesContainer').classList.add('hidden');
+                        document.getElementById('chatInputContainer').classList.add('hidden');
+                    }
+                    if (appLayout.classList.contains('sidebar-collapsed')) {
+                        appLayout.classList.remove('sidebar-collapsed');
+                    }
+                } else if (viewName === 'estimates') {
+                    loadEstimateInterface();
+                    if (appLayout.classList.contains('sidebar-collapsed')) {
+                        appLayout.classList.remove('sidebar-collapsed');
+                    }
+                } else if (viewName === 'erp') {
+                    if (!appLayout.classList.contains('sidebar-collapsed')) {
+                        appLayout.classList.add('sidebar-collapsed');
+                    }
+                }
+            }, 50);
+        }
+
+        function loadEstimateInterface() {
+            const iframe = document.getElementById('estimates-iframe');
+            iframe.classList.remove('hidden');
+            iframe.src = './estimate-simple.html';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput').value ? document.getElementById('chatInput') : document.getElementById('chatInputBottom');
+            if (!input.value.trim()) return;
+            if (messages.length === 0) {
+                document.getElementById('welcomeScreen').classList.add('hidden');
+                document.getElementById('messagesContainer').classList.remove('hidden');
+                document.getElementById('chatInputContainer').classList.remove('hidden');
+            }
+            messages.push(input.value);
+            const messagesInner = document.getElementById('messagesInner');
+            messagesInner.innerHTML += `<div class="message message-user">${input.value}</div>`;
+            input.value = '';
+            setTimeout(() => {
+                messagesInner.innerHTML += `<div class="message message-ai">확인했습니다. 잠시만 기다려주세요.</div>`;
+                messagesInner.scrollTop = messagesInner.scrollHeight;
+            }, 1000);
+        }
+
+        function createNewChat() {
+            messages = [];
+            switchToView('ai-manager');
+        }
+
+        function toggleAccountMenu() {
+            isAccountMenuOpen = !isAccountMenuOpen;
+            document.getElementById('accountMenu').classList.toggle('open');
+            document.getElementById('accountChevron').textContent = isAccountMenuOpen ? '▼' : '▲';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.erp-section-title').forEach(button => {
+                button.addEventListener('click', () => {
+                    const list = button.nextElementSibling;
+                    const isActive = button.classList.toggle('active');
+                    list.style.maxHeight = isActive ? list.scrollHeight + "px" : "0";
+                });
+            });
+             document.querySelectorAll('.chat-input').forEach(input => {
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

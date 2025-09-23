@@ -1,0 +1,18 @@
+﻿{
+    "installed":  17,
+    "timestamp":  "20250922_205708",
+    "next_step":  "AI_SYSTEM_INTEGRATION",
+    "priority_distribution":  {
+                                  "P1":  3,
+                                  "P0":  9,
+                                  "P2":  4,
+                                  "P3":  1
+                              },
+    "status":  "SUCCESS",
+    "categories":  {
+                       "cad":  2,
+                       "common":  4,
+                       "estimate":  7,
+                       "erp":  4
+                   }
+}

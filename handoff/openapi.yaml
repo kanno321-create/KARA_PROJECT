@@ -1,0 +1,97 @@
+openapi: 3.0.0
+info:
+  title: KIS FastMCP Gateway
+  version: 0.1.0-rc2
+  description: >-
+    FastMCP-style gateway providing health, estimate, validation, and RAG endpoints
+servers:
+  - url: http://localhost:8080
+paths:
+  /v1/health:
+    get:
+      summary: Health probe
+      responses:
+        "200":
+          description: OK
+  /v1/estimate:
+    post:
+      summary: Run full estimator pipeline
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EstimateRequest"
+      responses:
+        "200":
+          description: Estimate generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EstimateResponse"
+        "422":
+          description: Quality gate failed
+  /v1/validate:
+    post:
+      summary: Validate templates, rules, and sandbox
+      responses:
+        "200":
+          description: Validation report
+  /v1/rag/query:
+    post:
+      summary: Query knowledge packs
+      responses:
+        "200":
+          description: RAG results
+  /v1/rag/pack:
+    post:
+      summary: Create or refresh a knowledge pack stub
+      responses:
+        "200":
+          description: Pack summary
+components:
+  schemas:
+    EstimateRequest:
+      type: object
+      required:
+        - project_id
+        - site
+        - loads
+        - requested_totals
+      properties:
+        project_id:
+          type: string
+        site:
+          type: object
+        loads:
+          type: array
+          items:
+            type: object
+        requested_totals:
+          type: object
+    EstimateResponse:
+      type: object
+      required:
+        - project_id
+        - export_ok
+        - totals
+        - evidence
+      properties:
+        project_id:
+          type: string
+        export_ok:
+          type: boolean
+        totals:
+          type: object
+        evidence:
+          type: array
+          items:
+            type: string
+        logs:
+          type: array
+          items:
+            type: string
+        next:
+          type: array
+          items:
+            type: string

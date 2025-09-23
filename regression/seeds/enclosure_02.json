@@ -1,0 +1,58 @@
+﻿{
+    "seed_id":  "enclosure-02",
+    "category":  "enclosure",
+    "request":  {
+                    "request_id":  "cecfecea-194d-47bf-8234-3fec5fdc0784",
+                    "project_label":  "Hospital Wing Upgrade",
+                    "submitted_by":  "automation.tester@kis.local",
+                    "knowledge_snapshot_id":  "4ff3a98e-ded4-46dd-89dd-847c0a4ff43b",
+                    "distribution_panels":  [
+                                                {
+                                                    "panel_id":  "ENC-HT-B",
+                                                    "source_tab_index":  1,
+                                                    "subtotal":  298400,
+                                                    "line_items":  [
+                                                                       {
+                                                                           "category":  "enclosure",
+                                                                           "sku":  "ENC-HT-600A",
+                                                                           "quantity":  1,
+                                                                           "unit_price":  119360,
+                                                                           "line_total":  119360
+                                                                       },
+                                                                       {
+                                                                           "category":  "breaker",
+                                                                           "sku":  "BRK-225A-3P",
+                                                                           "quantity":  2,
+                                                                           "unit_price":  59680,
+                                                                           "line_total":  119360
+                                                                       }
+                                                                   ],
+                                                    "evidence_ref":  {
+                                                                         "bundle_id":  "seed__",
+                                                                         "json_path":  "evidence/seed__.json",
+                                                                         "visual_path":  "evidence/seed__.svg",
+                                                                         "log_path":  "evidence/logs/seed__.json",
+                                                                         "sha256":  "0000000000000000000000000000000000000000000000000000000000000000"
+                                                                     }
+                                                }
+                                            ],
+                    "pricing_overrides":  [
+
+                                          ],
+                    "validation_flags":  {
+                                             "run_fix4":  true,
+                                             "run_regression_sample":  true
+                                         }
+                },
+    "expected_gate_scores":  {
+                                 "gate1":  "PASS",
+                                 "gate2":  "PASS",
+                                 "gate3":  "PASS",
+                                 "gate4":  "PASS"
+                             },
+    "expected_metrics":  {
+                             "p95_ms":  1800,
+                             "error_ratio":  0
+                         },
+    "_note":  "Verify enclosure change propagation"
+}

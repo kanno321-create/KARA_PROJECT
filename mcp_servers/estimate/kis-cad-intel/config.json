@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-cad-intel",
+    "code":  "MCP-4",
+    "description":  "CAD 도면 분석",
+    "priority":  "P1",
+    "endpoints":  {
+                      "execute":  "/kis-cad-intel/execute",
+                      "health":  "/kis-cad-intel/health"
+                  },
+    "status":  "INSTALLED"
+}

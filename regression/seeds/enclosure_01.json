@@ -1,0 +1,58 @@
+﻿{
+    "seed_id":  "enclosure-01",
+    "category":  "enclosure",
+    "request":  {
+                    "request_id":  "4051fea4-77d7-40d8-9e05-e761102504e8",
+                    "project_label":  "Factory MCC Retrofit",
+                    "submitted_by":  "automation.tester@kis.local",
+                    "knowledge_snapshot_id":  "595f4b2d-80b0-41e8-94e9-73ad30b10128",
+                    "distribution_panels":  [
+                                                {
+                                                    "panel_id":  "ENC-XL-A",
+                                                    "source_tab_index":  1,
+                                                    "subtotal":  215000,
+                                                    "line_items":  [
+                                                                       {
+                                                                           "category":  "enclosure",
+                                                                           "sku":  "ENC-XL-400A",
+                                                                           "quantity":  1,
+                                                                           "unit_price":  86000,
+                                                                           "line_total":  86000
+                                                                       },
+                                                                       {
+                                                                           "category":  "breaker",
+                                                                           "sku":  "BRK-125A-3P",
+                                                                           "quantity":  2,
+                                                                           "unit_price":  43000,
+                                                                           "line_total":  86000
+                                                                       }
+                                                                   ],
+                                                    "evidence_ref":  {
+                                                                         "bundle_id":  "seed__",
+                                                                         "json_path":  "evidence/seed__.json",
+                                                                         "visual_path":  "evidence/seed__.svg",
+                                                                         "log_path":  "evidence/logs/seed__.json",
+                                                                         "sha256":  "0000000000000000000000000000000000000000000000000000000000000000"
+                                                                     }
+                                                }
+                                            ],
+                    "pricing_overrides":  [
+
+                                          ],
+                    "validation_flags":  {
+                                             "run_fix4":  true,
+                                             "run_regression_sample":  true
+                                         }
+                },
+    "expected_gate_scores":  {
+                                 "gate1":  "PASS",
+                                 "gate2":  "PASS",
+                                 "gate3":  "PASS",
+                                 "gate4":  "PASS"
+                             },
+    "expected_metrics":  {
+                             "p95_ms":  1800,
+                             "error_ratio":  0
+                         },
+    "_note":  "All gates pass with enclosure focus"
+}

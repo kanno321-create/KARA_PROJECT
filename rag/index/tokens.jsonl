@@ -1,0 +1,12 @@
+{"id":"rules-core","ngrams":["VAT 10%","margin 12%","safe>save>instant","replacement plan"],"weight":1}
+{"id":"ai-estimation","ngrams":["estimate","validation","confidence score","prediction model"],"weight":0.95}
+{"id":"policy-tax","ngrams":["tax policy","margin calculation","pricing rules","discount tiers"],"weight":0.9}
+{"id":"catalog-current","ngrams":["BRK-125A","MCCB","unit price","lead time","safety cert"],"weight":0.85}
+{"id":"replacement-logic","ngrams":["replacement criteria","priority matrix","lifecycle","EOL"],"weight":0.88}
+{"id":"rules-core","ngrams":["foundation only","network zero","GA readonly","license isolation"],"weight":1}
+{"id":"ai-estimation","ngrams":["smoke test","regression 200","gates check","polisher 95"],"weight":0.92}
+{"id":"policy-tax","ngrams":["compliance","audit trail","evidence bundle","checksum sha256"],"weight":0.87}
+{"id":"catalog-current","ngrams":["alternative SKU","compatibility matrix","stock level","supplier"],"weight":0.83}
+{"id":"replacement-logic","ngrams":["risk assessment","cost benefit","TCO analysis","ROI"],"weight":0.89}
+{"id":"rules-core","ngrams":["ERP handoff","inbound path","dashboard pins","manifest v1"],"weight":0.94}
+{"id":"ai-estimation","ngrams":["p50 latency","p95 performance","reuse rate","cache hit"],"weight":0.91}

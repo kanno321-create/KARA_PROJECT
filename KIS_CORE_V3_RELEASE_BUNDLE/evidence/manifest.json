@@ -1,0 +1,53 @@
+{
+  "generated": "2024-09-22 14:30:00",
+  "version": "1.0.0",
+  "project": "KIS_CORE_V3",
+  "evidence_types": [
+    "test_results",
+    "coverage_reports",
+    "security_scans",
+    "performance_metrics",
+    "accessibility_reports",
+    "code_quality",
+    "api_documentation",
+    "deployment_logs"
+  ],
+  "artifacts": [
+    {
+      "name": "Test Results",
+      "type": "test_results",
+      "files": ["test_results.json", "junit_results.xml"],
+      "description": "Comprehensive test execution results with coverage metrics"
+    },
+    {
+      "name": "Code Coverage",
+      "type": "coverage_reports",
+      "files": ["coverage_summary.json", "coverage_report.html"],
+      "description": "Code coverage analysis with line, function, and branch coverage"
+    },
+    {
+      "name": "Security Scan",
+      "type": "security_scans",
+      "files": ["security_scan_results.json", "security_results.sarif"],
+      "description": "Comprehensive security vulnerability assessment"
+    },
+    {
+      "name": "Performance Metrics",
+      "type": "performance_metrics",
+      "files": ["performance_results.json", "performance_timeline.csv"],
+      "description": "Load testing results and resource utilization metrics"
+    },
+    {
+      "name": "Accessibility Report",
+      "type": "accessibility_reports",
+      "files": ["accessibility_results.json", "wcag_compliance_report.txt"],
+      "description": "WCAG 2.1 AA compliance assessment with violation details"
+    },
+    {
+      "name": "Code Quality Metrics",
+      "type": "code_quality",
+      "files": ["code_quality_metrics.json", "eslint_report.txt"],
+      "description": "Comprehensive code quality analysis including Polisher score and static analysis"
+    }
+  ]
+}

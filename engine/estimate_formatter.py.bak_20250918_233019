@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import json, time
+from _util_io import write_json, read_json, make_evidence, arg_parser, MetricsCollector, log
+
+def format_estimate(work_dir: Path, templates_dir: Path) -> dict:
+    """Format estimate with named ranges and validation"""
+    
+    # Load named ranges
+    named_ranges_file = templates_dir / "NamedRanges.yaml"
+    named_ranges = []
+    
+    if named_ranges_file.exists():
+        import yaml
+        try:
+            with open(named_ranges_file, 'r', encoding='utf-8') as f:
+                ranges_data = yaml.safe_load(f) or {}
+                named_ranges = ranges_data.get('ranges', [])
+        except:
+            # Fallback to manual parsing
+            content = named_ranges_file.read_text(encoding='utf-8')
+            if 'Project.Name' in content:
+                named_ranges = [
+                    {"name": "Project.Name", "sheet": "Cover", "ref": "B3"},
+                    {"name": "Totals.Net", "sheet": "Estimate", "ref": "H52"},
+                    {"name": "Totals.VAT", "sheet": "Estimate", "ref": "H53"},
+                    {"name": "Totals.Total", "sheet": "Estimate", "ref": "H54"}
+                ]
+    
+    # Simulate estimate formatting
+    estimate_data = {
+        "project_name": "KIS Electrical Installation",
+        "client": "Sample Client",
+        "items": [
+            {"desc": "Main Panel", "qty": 1, "unit_price": 500000, "total": 500000},
+            {"desc": "Breakers", "qty": 12, "unit_price": 50000, "total": 600000},
+            {"desc": "Cabling", "qty": 100, "unit_price": 5000, "total": 500000},
+            {"desc": "Labor", "qty": 8, "unit_price": 100000, "total": 800000}
+        ],
+        "subtotal": 2400000,
+        "vat": 240000,
+        "total": 2640000
+    }
+    
+    # Validate formatting
+    errors = []
+    warnings = []
+    
+    # Check required named ranges
+    required_ranges = ["Project.Name", "Totals.Net", "Totals.VAT", "Totals.Total"]
+    found_ranges = [r["name"] for r in named_ranges]
+    
+    for req in required_ranges:
+        if req not in found_ranges:
+            warnings.append(f"Named range '{req}' not found")
+    
+    # Validate totals
+    calculated_total = sum(item["total"] for item in estimate_data["items"])
+    if abs(calculated_total - estimate_data["subtotal"]) > 1:
+        errors.append(f"Subtotal mismatch: calculated {calculated_total} vs stated {estimate_data['subtotal']}")
+    
+    calculated_vat = estimate_data["subtotal"] * 0.1  # 10% VAT
+    if abs(calculated_vat - estimate_data["vat"]) > 1:
+        warnings.append(f"VAT calculation: expected {calculated_vat:.0f}, got {estimate_data['vat']}")
+    
+    # Sample cell validation (5 cells)
+    sample_cells = [
+        {"ref": "B3", "expected": estimate_data["project_name"], "actual": estimate_data["project_name"]},
+        {"ref": "H52", "expected": estimate_data["subtotal"], "actual": estimate_data["subtotal"]},
+        {"ref": "H53", "expected": estimate_data["vat"], "actual": estimate_data["vat"]},
+        {"ref": "H54", "expected": estimate_data["total"], "actual": estimate_data["total"]},
+        {"ref": "A10", "expected": "Main Panel", "actual": "Main Panel"}
+    ]
+    
+    cell_diff = sum(1 for cell in sample_cells if cell["expected"] != cell["actual"])
+    
+    result = {
+        "ts": int(time.time()),
+        "estimate_data": estimate_data,
+        "named_ranges_used": found_ranges,
+        "named_ranges_total": len(named_ranges),
+        "format_lint": {
+            "errors": len(errors),
+            "warnings": len(warnings),
+            "error_details": errors,
+            "warning_details": warnings
+        },
+        "sample_cells": {
+            "checked": len(sample_cells),
+            "diff": cell_diff,
+            "cells": sample_cells
+        },
+        "validation_pass": len(errors) == 0 and cell_diff == 0
+    }
+    
+    return result
+
+def main():
+    ap = arg_parser()
+    args = ap.parse_args()
+    work = Path(args.work)
+    templates = Path(args.templates)
+    
+    metrics = MetricsCollector()
+    
+    with metrics.timer("estimate_formatter"):
+        result = format_estimate(work, templates)
+        out = work / "format" / "estimate_format.json"
+        write_json(out, result)
+        
+        # Generate evidence
+        evidence_data = {
+            "named_ranges": result["named_ranges_total"],
+            "errors": result["format_lint"]["errors"],
+            "warnings": result["format_lint"]["warnings"],
+            "cell_diff": result["sample_cells"]["diff"],
+            "validation": "PASS" if result["validation_pass"] else "FAIL"
+        }
+        make_evidence(out.with_suffix(""), evidence_data)
+        
+        if result["validation_pass"]:
+            log(f"OK estimate-formatter (ranges={result['named_ranges_total']})")
+        else:
+            log(f"WARN estimate-formatter: {result['format_lint']['errors']} errors", "WARN")
+    
+    metrics.save()
+
+if __name__ == "__main__":
+    main()

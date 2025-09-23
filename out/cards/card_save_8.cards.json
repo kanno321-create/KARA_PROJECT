@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_008",
+    "category": "SAVE",
+    "item": "Item_8",
+    "specs": {
+      "model": "MODEL_KIG8G",
+      "quantity": 9,
+      "unitPrice": 4339052
+    },
+    "priority": 2,
+    "leadTime": 14,
+    "reliability": 0.85,
+    "created": "2025-09-19T11:57:44.131Z"
+  }
+]

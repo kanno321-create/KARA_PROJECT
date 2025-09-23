@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-breaker-placer",
+    "code":  "C1",
+    "description":  "차단기 배치 최적화",
+    "priority":  "P0",
+    "endpoints":  {
+                      "execute":  "/kis-breaker-placer/execute",
+                      "health":  "/kis-breaker-placer/health"
+                  },
+    "status":  "INSTALLED"
+}

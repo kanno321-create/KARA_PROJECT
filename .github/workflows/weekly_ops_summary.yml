@@ -1,0 +1,494 @@
+name: M2.11 Weekly Operations Summary
+
+on:
+  schedule:
+    # Run every Monday at 09:00 UTC (Adjust for your timezone)
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      weeks_back:
+        description: 'Number of weeks to analyze'
+        required: false
+        default: '4'
+        type: string
+      include_charts:
+        description: 'Include chart generation'
+        required: false
+        default: 'true'
+        type: boolean
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+jobs:
+  weekly-ops-summary:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+          sudo apt-get update
+          sudo apt-get install -y fonts-liberation fonts-dejavu-core
+
+      - name: Create Reports Directory
+        run: |
+          mkdir -p reports/weekly
+          mkdir -p reports/charts/weekly
+          mkdir -p ops
+
+      - name: Calculate Analysis Window
+        id: window
+        run: |
+          WEEKS_BACK=${{ github.event.inputs.weeks_back || '4' }}
+          DAYS_BACK=$((WEEKS_BACK * 7))
+          
+          echo "weeks_back=${WEEKS_BACK}" >> $GITHUB_OUTPUT
+          echo "days_back=${DAYS_BACK}" >> $GITHUB_OUTPUT
+          echo "report_date=$(date +%Y-%m-%d)" >> $GITHUB_OUTPUT
+          echo "report_week=$(date +%Y-W%U)" >> $GITHUB_OUTPUT
+          
+          echo "📅 Weekly Analysis Window:"
+          echo "  Weeks Back: ${WEEKS_BACK}"
+          echo "  Days Back: ${DAYS_BACK}"
+          echo "  Report Date: $(date +%Y-%m-%d)"
+          echo "  Report Week: $(date +%Y-W%U)"
+
+      - name: Collect CI/CD Data
+        run: |
+          echo "📊 Collecting CI/CD data for weekly analysis..."
+          node ops/analytics/collect_ci_data.js \
+            --workflow "M2.9 Production Canary Deploy" \
+            --lookback-days ${{ steps.window.outputs.days_back }} \
+            --output ops/ci_data_weekly.json \
+            --verbose
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Calculate Weekly DORA Trends
+        run: |
+          echo "📈 Computing DORA trends over ${{ steps.window.outputs.weeks_back }} weeks..."
+          node ops/analytics/compute_dora.js \
+            --ci-data ops/ci_data_weekly.json \
+            --slo-history ops/slo_history.json \
+            --output ops/dora_metrics_weekly.json \
+            --window-days ${{ steps.window.outputs.days_back }} \
+            --verbose
+
+      - name: Analyze Error Budget Trends
+        run: |
+          echo "💰 Analyzing error budget trends..."
+          node ops/analytics/compute_budget_burn.js \
+            --slo-history ops/slo_history.json \
+            --slo-profile M29_SLO_PROFILE.json \
+            --output ops/budget_burn_weekly.json \
+            --window-days ${{ steps.window.outputs.days_back }} \
+            --verbose
+
+      - name: Generate Weekly Charts
+        if: github.event.inputs.include_charts != 'false'
+        run: |
+          echo "📊 Generating weekly trend charts..."
+          node ops/analytics/gen_charts.js \
+            --dora-metrics ops/dora_metrics_weekly.json \
+            --budget-burn ops/budget_burn_weekly.json \
+            --ci-data ops/ci_data_weekly.json \
+            --output-dir reports/charts/weekly \
+            --chart-prefix "weekly_" \
+            --verbose
+
+      - name: Generate Weekly Operations Report
+        run: |
+          echo "📄 Generating comprehensive weekly operations report..."
+          
+          # Create weekly report template if it doesn't exist
+          cat > ops/templates/weekly_ops_report.md.hbs << 'EOF'
+          # Weekly Operations Summary - {{report_week}}
+          
+          **Period**: {{period_start}} to {{period_end}}  
+          **Generated**: {{generation_timestamp}}  
+          **Repository**: {{repository}}  
+          
+          ## 🚀 Deployment Summary
+          
+          ### Overall Statistics
+          - **Total Deployments**: {{deployments.total_runs}}
+          - **Successful Deployments**: {{deployments.successful_runs}} ({{success_rate}}%)
+          - **Failed Deployments**: {{deployments.failed_runs}}
+          - **Rollbacks**: {{deployments.rollback_runs}}
+          - **Average Duration**: {{avg_duration_minutes}}min
+          
+          ### Weekly Trend
+          {{#if weekly_comparison}}
+          - **vs. Previous Week**: {{weekly_comparison.deployment_change}}% change in deployment frequency
+          - **Success Rate Change**: {{weekly_comparison.success_rate_change}}%
+          {{/if}}
+          
+          ## 📊 DORA Metrics Overview
+          
+          ### Current Scores
+          - **Overall DORA Score**: {{dora.overall.dora_score}}
+          - **Lead Time**: {{dora.lead_time.avg_hours}}h ({{dora.lead_time.classification}})
+          - **Deployment Frequency**: {{dora.deployment_frequency.deployments_per_day}}/day ({{dora.deployment_frequency.dora_score}})
+          - **Change Failure Rate**: {{dora.change_failure_rate.failure_rate}}% ({{dora.change_failure_rate.dora_score}})
+          - **MTTR**: {{dora.mean_time_to_recovery.avg_recovery_minutes}}min ({{dora.mean_time_to_recovery.dora_score}})
+          
+          {{#if dora.overall.areas_for_improvement.length}}
+          ### 💡 Improvement Areas
+          {{#each dora.overall.areas_for_improvement}}
+          - {{this}}
+          {{/each}}
+          {{/if}}
+          
+          ## 💰 Error Budget Health
+          
+          ### Current Status
+          - **Overall Health Score**: {{budget.health.score}}% ({{budget.health.status}})
+          - **Availability Budget**: {{budget.sli_burn_rates.availability.budget_remaining_percent}}% remaining
+          - **P95 Latency Budget**: {{budget.sli_burn_rates.latency_p95_ms.budget_remaining_percent}}% remaining
+          - **API Response Budget**: {{budget.sli_burn_rates.api_response_ms.budget_remaining_percent}}% remaining
+          - **Error Rate Budget**: {{budget.sli_burn_rates.error_rate.budget_remaining_percent}}% remaining
+          
+          ### Freeze Risk Assessment
+          {{#if budget.freeze_assessment.freeze_risk}}
+          ⚠️ **Deployment Freeze Risk**: {{budget.freeze_assessment.risk_level}}
+          - Estimated days to freeze: {{budget.freeze_assessment.estimated_days_to_freeze}}
+          - Worst budget remaining: {{budget.freeze_assessment.worst_budget_remaining}}%
+          {{else}}
+          ✅ **No Freeze Risk**: All error budgets within healthy thresholds
+          {{/if}}
+          
+          ### Burn Rate Trends
+          - **24h Burn Rate**: {{budget.trends.24h.burn_rate_per_hour}}/hour
+          - **7d Violations**: {{budget.trends.7d.violations}} ({{budget.trends.7d.violation_rate}}%)
+          - **30d Violations**: {{budget.trends.30d.violations}} ({{budget.trends.30d.violation_rate}}%)
+          
+          ## 📈 Weekly Insights & Recommendations
+          
+          ### Performance Highlights
+          {{#if highlights.length}}
+          {{#each highlights}}
+          - {{this}}
+          {{/each}}
+          {{else}}
+          - Steady operational performance maintained
+          - No significant incidents or performance degradations
+          {{/if}}
+          
+          ### Recommendations for Next Week
+          {{#if recommendations.length}}
+          {{#each recommendations}}
+          - {{this}}
+          {{/each}}
+          {{else}}
+          - Continue current deployment practices
+          - Monitor error budget consumption trends
+          - Maintain focus on lead time optimization
+          {{/if}}
+          
+          ## 🔗 Related Links
+          - [Repository](${{ github.server_url }}/${{ github.repository }})
+          - [SLO Dashboard](link-to-your-slo-dashboard)
+          - [DORA Metrics History](link-to-your-dora-dashboard)
+          
+          ---
+          *Generated by M2.11 Weekly Operations Summary*
+          EOF
+          
+          # Generate the weekly report
+          node -e "
+          const fs = require('fs');
+          const Handlebars = require('handlebars');
+          const { format, subDays } = require('date-fns');
+          
+          // Load data
+          const ciData = JSON.parse(fs.readFileSync('ops/ci_data_weekly.json', 'utf-8'));
+          const doraMetrics = JSON.parse(fs.readFileSync('ops/dora_metrics_weekly.json', 'utf-8'));
+          const budgetBurn = JSON.parse(fs.readFileSync('ops/budget_burn_weekly.json', 'utf-8'));
+          
+          // Calculate metrics
+          const successRate = ciData.deployments.total_runs > 0 
+            ? Math.round((ciData.deployments.successful_runs / ciData.deployments.total_runs) * 100)
+            : 0;
+          
+          const avgDuration = ciData.summary.avg_deployment_duration_minutes || 0;
+          
+          // Generate insights
+          const highlights = [];
+          const recommendations = [];
+          
+          // Performance highlights
+          if (doraMetrics.overall.dora_score === 'Elite') {
+            highlights.push('🏆 Elite DORA performance maintained');
+          }
+          if (successRate >= 95) {
+            highlights.push('🎯 High deployment success rate (' + successRate + '%)');
+          }
+          if (budgetBurn.health.score >= 80) {
+            highlights.push('✅ Strong error budget health (' + budgetBurn.health.score + '%)');
+          }
+          
+          // Recommendations
+          if (doraMetrics.lead_time.avg_hours > 168) {
+            recommendations.push('🚀 Focus on reducing lead time through smaller batch sizes');
+          }
+          if (doraMetrics.change_failure_rate.failure_rate > 15) {
+            recommendations.push('🔧 Improve testing and quality gates to reduce change failure rate');
+          }
+          if (budgetBurn.health.score < 50) {
+            recommendations.push('⚠️ Critical: Address error budget consumption immediately');
+          }
+          if (ciData.deployments.rollback_runs > ciData.deployments.total_runs * 0.1) {
+            recommendations.push('🛡️ Investigate high rollback rate and improve deployment quality');
+          }
+          
+          // Prepare template data
+          const templateData = {
+            report_week: '${{ steps.window.outputs.report_week }}',
+            period_start: format(subDays(new Date(), ${{ steps.window.outputs.days_back }}), 'yyyy-MM-dd'),
+            period_end: format(new Date(), 'yyyy-MM-dd'),
+            repository: process.env.GITHUB_REPOSITORY || '${{ github.repository }}',
+            generation_timestamp: new Date().toISOString(),
+            
+            deployments: ciData.deployments,
+            success_rate: successRate,
+            avg_duration_minutes: Math.round(avgDuration),
+            
+            dora: doraMetrics,
+            budget: budgetBurn,
+            
+            highlights,
+            recommendations
+          };
+          
+          // Render report
+          const template = Handlebars.compile(fs.readFileSync('ops/templates/weekly_ops_report.md.hbs', 'utf-8'));
+          const report = template(templateData);
+          
+          // Write report
+          fs.writeFileSync('reports/weekly/ops_summary_${{ steps.window.outputs.report_week }}.md', report);
+          console.log('✅ Weekly operations report generated');
+          "
+
+      - name: Create Weekly Dashboard Data
+        run: |
+          echo "📊 Creating weekly dashboard data export..."
+          
+          # Generate JSON summary for external dashboards
+          node -e "
+          const fs = require('fs');
+          
+          const ciData = JSON.parse(fs.readFileSync('ops/ci_data_weekly.json', 'utf-8'));
+          const doraMetrics = JSON.parse(fs.readFileSync('ops/dora_metrics_weekly.json', 'utf-8'));
+          const budgetBurn = JSON.parse(fs.readFileSync('ops/budget_burn_weekly.json', 'utf-8'));
+          
+          const dashboardData = {
+            metadata: {
+              report_week: '${{ steps.window.outputs.report_week }}',
+              report_date: '${{ steps.window.outputs.report_date }}',
+              repository: '${{ github.repository }}',
+              analysis_period_days: ${{ steps.window.outputs.days_back }},
+              generated_at: new Date().toISOString()
+            },
+            
+            deployment_metrics: {
+              total_deployments: ciData.deployments.total_runs,
+              successful_deployments: ciData.deployments.successful_runs,
+              failed_deployments: ciData.deployments.failed_runs,
+              rollback_deployments: ciData.deployments.rollback_runs,
+              success_rate: ciData.deployments.total_runs > 0 
+                ? Math.round((ciData.deployments.successful_runs / ciData.deployments.total_runs) * 100)
+                : 0,
+              avg_duration_minutes: Math.round(ciData.summary.avg_deployment_duration_minutes || 0),
+              deployment_frequency: ciData.summary.deployment_frequency || 0
+            },
+            
+            dora_metrics: {
+              overall_score: doraMetrics.overall.dora_score,
+              lead_time: {
+                value_hours: doraMetrics.lead_time.avg_hours,
+                classification: doraMetrics.lead_time.classification,
+                score: doraMetrics.lead_time.dora_score || doraMetrics.lead_time.classification
+              },
+              deployment_frequency: {
+                value_per_day: doraMetrics.deployment_frequency.deployments_per_day,
+                classification: doraMetrics.deployment_frequency.dora_score
+              },
+              change_failure_rate: {
+                value_percent: doraMetrics.change_failure_rate.failure_rate,
+                classification: doraMetrics.change_failure_rate.dora_score
+              },
+              mttr: {
+                value_minutes: doraMetrics.mean_time_to_recovery.avg_recovery_minutes,
+                classification: doraMetrics.mean_time_to_recovery.dora_score
+              }
+            },
+            
+            error_budget: {
+              health_score: budgetBurn.health.score,
+              health_status: budgetBurn.health.status,
+              freeze_risk: budgetBurn.freeze_assessment?.freeze_risk || false,
+              freeze_risk_level: budgetBurn.freeze_assessment?.risk_level || 'Low',
+              sli_budgets: {
+                availability: budgetBurn.sli_burn_rates.availability.budget_remaining_percent,
+                latency_p95: budgetBurn.sli_burn_rates.latency_p95_ms.budget_remaining_percent,
+                api_response: budgetBurn.sli_burn_rates.api_response_ms.budget_remaining_percent,
+                error_rate: budgetBurn.sli_burn_rates.error_rate.budget_remaining_percent
+              },
+              burn_rates: {
+                hourly_24h: budgetBurn.trends?.['24h']?.burn_rate_per_hour || 0,
+                violations_7d: budgetBurn.trends?.['7d']?.violations || 0,
+                violations_30d: budgetBurn.trends?.['30d']?.violations || 0
+              }
+            }
+          };
+          
+          fs.writeFileSync('reports/weekly/dashboard_data_${{ steps.window.outputs.report_week }}.json', JSON.stringify(dashboardData, null, 2));
+          console.log('✅ Dashboard data export created');
+          "
+
+      - name: Archive Weekly Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-ops-summary-${{ steps.window.outputs.report_week }}
+          path: |
+            reports/weekly/
+            reports/charts/weekly/
+            ops/*_weekly.json
+          retention-days: 365
+
+      - name: Send Weekly Summary to Slack
+        if: env.SLACK_WEBHOOK_URL != ''
+        run: |
+          echo "💬 Sending weekly summary to Slack..."
+          
+          # Load metrics for notification
+          DORA_SCORE=$(node -e "
+            const dora = JSON.parse(require('fs').readFileSync('ops/dora_metrics_weekly.json'));
+            console.log(dora.overall?.dora_score || 'Unknown');
+          ")
+          
+          HEALTH_SCORE=$(node -e "
+            const budget = JSON.parse(require('fs').readFileSync('ops/budget_burn_weekly.json'));
+            console.log(budget.health?.score || 'Unknown');
+          ")
+          
+          DEPLOYMENT_COUNT=$(node -e "
+            const ci = JSON.parse(require('fs').readFileSync('ops/ci_data_weekly.json'));
+            console.log(ci.deployments?.total_runs || 0);
+          ")
+          
+          SUCCESS_RATE=$(node -e "
+            const ci = JSON.parse(require('fs').readFileSync('ops/ci_data_weekly.json'));
+            const rate = ci.deployments.total_runs > 0 
+              ? Math.round((ci.deployments.successful_runs / ci.deployments.total_runs) * 100)
+              : 0;
+            console.log(rate);
+          ")
+          
+          FREEZE_RISK=$(node -e "
+            const budget = JSON.parse(require('fs').readFileSync('ops/budget_burn_weekly.json'));
+            console.log(budget.freeze_assessment?.freeze_risk ? 'Yes' : 'No');
+          ")
+          
+          LEAD_TIME=$(node -e "
+            const dora = JSON.parse(require('fs').readFileSync('ops/dora_metrics_weekly.json'));
+            console.log(Math.round(dora.lead_time?.avg_hours || 0));
+          ")
+          
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"text\": \"📊 Weekly Operations Summary - ${{ steps.window.outputs.report_week }}\",
+              \"blocks\": [
+                {
+                  \"type\": \"header\",
+                  \"text\": {
+                    \"type\": \"plain_text\",
+                    \"text\": \"📊 Weekly Operations Summary\"
+                  }
+                },
+                {
+                  \"type\": \"section\",
+                  \"text\": {
+                    \"type\": \"mrkdwn\",
+                    \"text\": \"*Week:* ${{ steps.window.outputs.report_week }}\\n*Repository:* ${{ github.repository }}\\n*Analysis Period:* ${{ steps.window.outputs.weeks_back }} weeks\"
+                  }
+                },
+                {
+                  \"type\": \"section\",
+                  \"fields\": [
+                    {
+                      \"type\": \"mrkdwn\",
+                      \"text\": \"*🚀 Deployments:*\\n${DEPLOYMENT_COUNT} total\"
+                    },
+                    {
+                      \"type\": \"mrkdwn\",
+                      \"text\": \"*✅ Success Rate:*\\n${SUCCESS_RATE}%\"
+                    },
+                    {
+                      \"type\": \"mrkdwn\",
+                      \"text\": \"*📊 DORA Score:*\\n${DORA_SCORE}\"
+                    },
+                    {
+                      \"type\": \"mrkdwn\",
+                      \"text\": \"*💰 Error Budget:*\\n${HEALTH_SCORE}%\"
+                    },
+                    {
+                      \"type\": \"mrkdwn\",
+                      \"text\": \"*⏱️ Lead Time:*\\n${LEAD_TIME}h\"
+                    },
+                    {
+                      \"type\": \"mrkdwn\",
+                      \"text\": \"*🔒 Freeze Risk:*\\n${FREEZE_RISK}\"
+                    }
+                  ]
+                },
+                {
+                  \"type\": \"actions\",
+                  \"elements\": [
+                    {
+                      \"type\": \"button\",
+                      \"text\": {
+                        \"type\": \"plain_text\",
+                        \"text\": \"View Full Report\"
+                      },
+                      \"url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+                    }
+                  ]
+                }
+              ]
+            }" \
+            ${{ env.SLACK_WEBHOOK_URL }}
+
+      - name: Summary
+        run: |
+          echo "📊 Weekly Operations Summary Complete!"
+          echo "====================================="
+          echo "Week: ${{ steps.window.outputs.report_week }}"
+          echo "Analysis Period: ${{ steps.window.outputs.weeks_back }} weeks (${{ steps.window.outputs.days_back }} days)"
+          echo "Repository: ${{ github.repository }}"
+          echo "Deployments: $(node -e 'console.log(JSON.parse(require("fs").readFileSync("ops/ci_data_weekly.json")).deployments.total_runs)')"
+          echo "Success Rate: $(node -e 'const ci = JSON.parse(require("fs").readFileSync("ops/ci_data_weekly.json")); console.log(ci.deployments.total_runs > 0 ? Math.round((ci.deployments.successful_runs / ci.deployments.total_runs) * 100) + "%" : "N/A")')"
+          echo "DORA Score: $(node -e 'console.log(JSON.parse(require("fs").readFileSync("ops/dora_metrics_weekly.json")).overall.dora_score)')"
+          echo "Error Budget Health: $(node -e 'console.log(JSON.parse(require("fs").readFileSync("ops/budget_burn_weekly.json")).health.score + "% (" + JSON.parse(require("fs").readFileSync("ops/budget_burn_weekly.json")).health.status + ")")')"
+          echo "Generated Reports:"
+          echo "  - reports/weekly/ops_summary_${{ steps.window.outputs.report_week }}.md"
+          echo "  - reports/weekly/dashboard_data_${{ steps.window.outputs.report_week }}.json"
+          if [ "${{ github.event.inputs.include_charts }}" != "false" ]; then
+            echo "  - reports/charts/weekly/*.png"
+          fi
+          echo "====================================="

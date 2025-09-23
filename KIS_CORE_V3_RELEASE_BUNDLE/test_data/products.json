@@ -1,0 +1,360 @@
+[
+  {
+    "id": "PROD-AUTO-001",
+    "name": "산업용 로봇 팔 (6축)",
+    "category": "자동화장비",
+    "subcategory": "로봇",
+    "manufacturer": "KUKA",
+    "model": "KR 210 R3100",
+    "specifications": {
+      "payload": "210kg",
+      "reach": "3100mm",
+      "repeatability": "±0.06mm",
+      "axes": 6,
+      "power_consumption": "6.2kW",
+      "weight": "1050kg"
+    },
+    "pricing": {
+      "base_price": 125000000,
+      "currency": "KRW",
+      "unit": "ea",
+      "discount_tiers": [
+        {"quantity": 5, "discount_rate": 0.05},
+        {"quantity": 10, "discount_rate": 0.10},
+        {"quantity": 20, "discount_rate": 0.15}
+      ]
+    },
+    "availability": {
+      "lead_time_weeks": 12,
+      "stock_status": "made_to_order",
+      "supplier": "KUKA Korea"
+    },
+    "complexity_rating": "high",
+    "risk_factor": 1.2,
+    "ai_estimation_confidence": 0.92,
+    "created_at": "2024-01-10T10:00:00Z",
+    "updated_at": "2024-03-15T14:30:00Z"
+  },
+  {
+    "id": "PROD-CTRL-002",
+    "name": "PLC 제어반",
+    "category": "제어장비",
+    "subcategory": "PLC",
+    "manufacturer": "Siemens",
+    "model": "S7-1500 CPU 1516-3",
+    "specifications": {
+      "memory": "1MB",
+      "io_points": "16384",
+      "communication": "PROFINET, PROFIBUS",
+      "power_supply": "24V DC",
+      "operating_temp": "-25°C to +60°C",
+      "dimensions": "35x147x129mm"
+    },
+    "pricing": {
+      "base_price": 45000000,
+      "currency": "KRW",
+      "unit": "set",
+      "discount_tiers": [
+        {"quantity": 3, "discount_rate": 0.03},
+        {"quantity": 5, "discount_rate": 0.06},
+        {"quantity": 10, "discount_rate": 0.10}
+      ]
+    },
+    "availability": {
+      "lead_time_weeks": 8,
+      "stock_status": "in_stock",
+      "supplier": "지멘스코리아"
+    },
+    "complexity_rating": "medium",
+    "risk_factor": 1.1,
+    "ai_estimation_confidence": 0.88,
+    "created_at": "2024-01-15T09:20:00Z",
+    "updated_at": "2024-03-20T11:15:00Z"
+  },
+  {
+    "id": "PROD-CONV-003",
+    "name": "자동화 컨베이어 시스템",
+    "category": "물류장비",
+    "subcategory": "컨베이어",
+    "manufacturer": "다이후쿠",
+    "model": "Daifuku Belt Conveyor BC-600",
+    "specifications": {
+      "belt_width": "600mm",
+      "speed": "0.5-50m/min",
+      "load_capacity": "50kg/m",
+      "motor_power": "1.5kW",
+      "frame_material": "알루미늄",
+      "control": "인버터 제어"
+    },
+    "pricing": {
+      "base_price": 850000,
+      "currency": "KRW",
+      "unit": "m",
+      "discount_tiers": [
+        {"quantity": 100, "discount_rate": 0.08},
+        {"quantity": 300, "discount_rate": 0.12},
+        {"quantity": 500, "discount_rate": 0.15}
+      ]
+    },
+    "availability": {
+      "lead_time_weeks": 6,
+      "stock_status": "made_to_order",
+      "supplier": "다이후쿠코리아"
+    },
+    "complexity_rating": "medium",
+    "risk_factor": 1.1,
+    "ai_estimation_confidence": 0.91,
+    "created_at": "2024-02-01T13:45:00Z",
+    "updated_at": "2024-03-25T16:20:00Z"
+  },
+  {
+    "id": "PROD-AGV-004",
+    "name": "AGV (무인운반차)",
+    "category": "자동화장비",
+    "subcategory": "AGV",
+    "manufacturer": "미르 로보틱스",
+    "model": "MiR 1000",
+    "specifications": {
+      "payload": "1000kg",
+      "speed": "1.5m/s",
+      "battery_life": "8-10시간",
+      "navigation": "SLAM + LiDAR",
+      "safety": "안전 레이저 스캐너",
+      "dimensions": "1350x920x320mm"
+    },
+    "pricing": {
+      "base_price": 45000000,
+      "currency": "KRW",
+      "unit": "ea",
+      "discount_tiers": [
+        {"quantity": 5, "discount_rate": 0.08},
+        {"quantity": 10, "discount_rate": 0.12},
+        {"quantity": 20, "discount_rate": 0.16}
+      ]
+    },
+    "availability": {
+      "lead_time_weeks": 14,
+      "stock_status": "made_to_order",
+      "supplier": "MiR Korea"
+    },
+    "complexity_rating": "high",
+    "risk_factor": 1.3,
+    "ai_estimation_confidence": 0.89,
+    "created_at": "2024-02-10T11:30:00Z",
+    "updated_at": "2024-03-28T09:45:00Z"
+  },
+  {
+    "id": "PROD-5G-005",
+    "name": "5G 기지국 장비",
+    "category": "통신장비",
+    "subcategory": "기지국",
+    "manufacturer": "삼성전자",
+    "model": "Samsung Compact Macro 5G",
+    "specifications": {
+      "frequency_bands": "3.5GHz, 28GHz",
+      "throughput": "최대 7.5Gbps",
+      "coverage": "반경 1km",
+      "power_consumption": "2.5kW",
+      "antenna_ports": "64T64R",
+      "form_factor": "Compact Macro"
+    },
+    "pricing": {
+      "base_price": 95000000,
+      "currency": "KRW",
+      "unit": "ea",
+      "discount_tiers": [
+        {"quantity": 10, "discount_rate": 0.05},
+        {"quantity": 25, "discount_rate": 0.08},
+        {"quantity": 50, "discount_rate": 0.12}
+      ]
+    },
+    "availability": {
+      "lead_time_weeks": 16,
+      "stock_status": "made_to_order",
+      "supplier": "삼성전자"
+    },
+    "complexity_rating": "expert",
+    "risk_factor": 1.2,
+    "ai_estimation_confidence": 0.93,
+    "created_at": "2024-02-15T14:20:00Z",
+    "updated_at": "2024-03-30T12:10:00Z"
+  },
+  {
+    "id": "PROD-BATT-006",
+    "name": "배터리 셀 조립 장비",
+    "category": "제조장비",
+    "subcategory": "조립",
+    "manufacturer": "Wuxi Lead",
+    "model": "Lead Battery Assembly Line V3",
+    "specifications": {
+      "production_capacity": "1000셀/시간",
+      "cell_types": "리튬이온, LFP",
+      "automation_level": "완전자동",
+      "quality_control": "실시간 검사",
+      "power_requirement": "380V, 50Hz",
+      "footprint": "15m x 8m"
+    },
+    "pricing": {
+      "base_price": 180000000,
+      "currency": "KRW",
+      "unit": "set",
+      "discount_tiers": [
+        {"quantity": 2, "discount_rate": 0.05},
+        {"quantity": 3, "discount_rate": 0.08},
+        {"quantity": 5, "discount_rate": 0.12}
+      ]
+    },
+    "availability": {
+      "lead_time_weeks": 20,
+      "stock_status": "made_to_order",
+      "supplier": "Wuxi Lead Korea"
+    },
+    "complexity_rating": "expert",
+    "risk_factor": 1.4,
+    "ai_estimation_confidence": 0.87,
+    "created_at": "2024-02-20T16:15:00Z",
+    "updated_at": "2024-03-22T08:30:00Z"
+  },
+  {
+    "id": "PROD-ERP-007",
+    "name": "ERP 소프트웨어 라이선스",
+    "category": "소프트웨어",
+    "subcategory": "ERP",
+    "manufacturer": "SAP",
+    "model": "SAP Business One",
+    "specifications": {
+      "user_capacity": "무제한",
+      "modules": "재무, 구매, 판매, 재고, 생산",
+      "database": "SQL Server, HANA",
+      "deployment": "온프레미스, 클라우드",
+      "language": "한국어 지원",
+      "support": "24/7 기술지원"
+    },
+    "pricing": {
+      "base_price": 1700000,
+      "currency": "KRW",
+      "unit": "user/month",
+      "discount_tiers": [
+        {"quantity": 20, "discount_rate": 0.10},
+        {"quantity": 50, "discount_rate": 0.15},
+        {"quantity": 100, "discount_rate": 0.20}
+      ]
+    },
+    "availability": {
+      "lead_time_weeks": 2,
+      "stock_status": "available",
+      "supplier": "SAP Korea"
+    },
+    "complexity_rating": "medium",
+    "risk_factor": 1.0,
+    "ai_estimation_confidence": 0.98,
+    "created_at": "2024-03-01T10:45:00Z",
+    "updated_at": "2024-04-05T15:20:00Z"
+  },
+  {
+    "id": "PROD-WMS-008",
+    "name": "WMS 소프트웨어 라이선스",
+    "category": "소프트웨어",
+    "subcategory": "WMS",
+    "manufacturer": "Manhattan Associates",
+    "model": "Manhattan WMS",
+    "specifications": {
+      "warehouse_size": "무제한",
+      "features": "재고관리, 피킹최적화, 노동관리",
+      "integration": "ERP, TMS 연동",
+      "analytics": "실시간 대시보드",
+      "mobile": "모바일 앱 지원",
+      "cloud": "클라우드 네이티브"
+    },
+    "pricing": {
+      "base_price": 180000000,
+      "currency": "KRW",
+      "unit": "set",
+      "discount_tiers": [
+        {"quantity": 1, "discount_rate": 0.0}
+      ]
+    },
+    "availability": {
+      "lead_time_weeks": 4,
+      "stock_status": "available",
+      "supplier": "Manhattan Korea"
+    },
+    "complexity_rating": "medium",
+    "risk_factor": 1.0,
+    "ai_estimation_confidence": 0.98,
+    "created_at": "2024-03-05T12:30:00Z",
+    "updated_at": "2024-03-25T10:15:00Z"
+  },
+  {
+    "id": "PROD-LITH-009",
+    "name": "고순도 리튬 배터리 소재",
+    "category": "원자재",
+    "subcategory": "리튬",
+    "manufacturer": "포스코케미칼",
+    "model": "NCM 811 Cathode Material",
+    "specifications": {
+      "purity": "99.9%",
+      "composition": "Ni 80%, Co 10%, Mn 10%",
+      "particle_size": "10-15μm",
+      "specific_capacity": "200mAh/g",
+      "density": "2.8g/cm³",
+      "packaging": "25kg 포장"
+    },
+    "pricing": {
+      "base_price": 85000,
+      "currency": "KRW",
+      "unit": "kg",
+      "discount_tiers": [
+        {"quantity": 500, "discount_rate": 0.05},
+        {"quantity": 1000, "discount_rate": 0.08},
+        {"quantity": 2000, "discount_rate": 0.12}
+      ]
+    },
+    "availability": {
+      "lead_time_weeks": 3,
+      "stock_status": "in_stock",
+      "supplier": "포스코케미칼"
+    },
+    "complexity_rating": "low",
+    "risk_factor": 1.1,
+    "ai_estimation_confidence": 0.94,
+    "created_at": "2024-03-10T09:15:00Z",
+    "updated_at": "2024-03-20T14:40:00Z"
+  },
+  {
+    "id": "PROD-SERV-010",
+    "name": "시스템 통합 서비스",
+    "category": "엔지니어링",
+    "subcategory": "시스템통합",
+    "manufacturer": "내부 서비스",
+    "model": "전문 엔지니어링 팀",
+    "specifications": {
+      "expertise": "자동화, PLC, SCADA",
+      "experience": "15년 이상",
+      "team_size": "5-10명",
+      "languages": "한국어, 영어",
+      "certifications": "PMP, 6시그마",
+      "availability": "24/7 지원"
+    },
+    "pricing": {
+      "base_price": 150000,
+      "currency": "KRW",
+      "unit": "hr",
+      "discount_tiers": [
+        {"quantity": 100, "discount_rate": 0.05},
+        {"quantity": 200, "discount_rate": 0.08},
+        {"quantity": 500, "discount_rate": 0.12}
+      ]
+    },
+    "availability": {
+      "lead_time_weeks": 1,
+      "stock_status": "available",
+      "supplier": "내부 팀"
+    },
+    "complexity_rating": "expert",
+    "risk_factor": 1.3,
+    "ai_estimation_confidence": 1.0,
+    "created_at": "2024-01-05T08:00:00Z",
+    "updated_at": "2024-04-01T16:30:00Z"
+  }
+]

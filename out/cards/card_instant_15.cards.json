@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_015",
+    "category": "INSTANT",
+    "item": "Item_15",
+    "specs": {
+      "model": "MODEL_7L5UG",
+      "quantity": 10,
+      "unitPrice": 2007261
+    },
+    "priority": 3,
+    "leadTime": 3,
+    "reliability": 0.75,
+    "created": "2025-09-19T11:57:44.133Z"
+  }
+]

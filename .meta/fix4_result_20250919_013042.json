@@ -1,0 +1,60 @@
+{
+  "timestamp": "2025-09-19T01:30:42",
+  "pipeline": "FIX-4",
+  "execution_results": {
+    "enclosure_solver": {
+      "status": "PASS",
+      "fit_score": 0.93,
+      "output_file": "KIS/Work/current/enclosure/enclosure_plan.json"
+    },
+    "breaker_placer": {
+      "status": "WARN",
+      "gate_status": "PASS",
+      "phase_imbalance_pct": 3.9,
+      "clearances_violation": 0,
+      "thermal_violation": 0,
+      "warning": "OR-Tools not available, using fallback",
+      "output_file": "KIS/Work/current/placement/breaker_placement.json"
+    },
+    "estimate_formatter": {
+      "status": "PASS",
+      "gate_status": "PASS",
+      "lint_errors": 0,
+      "lint_warnings": 0,
+      "ranges_applied": "5/13",
+      "output_file": "KIS/Work/current/format/estimate_format.json"
+    },
+    "cover_tab_writer": {
+      "status": "PASS",
+      "compliance_pct": 100,
+      "output_file": "KIS/Work/current/cover/cover_tab.json"
+    },
+    "doc_lint_guard": {
+      "status": "FAIL",
+      "gate_status": "FAIL",
+      "quality_score": 90,
+      "validation_pass": null,
+      "errors": 1,
+      "output_file": "KIS/Work/current/lint/doc_lint_result.json"
+    }
+  },
+  "evidence_summary": {
+    "pre_execution": 21,
+    "post_execution": 21,
+    "new_evidence": 0,
+    "updated_evidence": 5
+  },
+  "gate_summary": {
+    "total_gates": 3,
+    "passed_gates": 2,
+    "failed_gates": 1,
+    "overall_status": "FAIL"
+  },
+  "network_calls": 0,
+  "foundation_only": true,
+  "failure_analysis": {
+    "primary_failure": "doc-lint-guard validation_pass=None",
+    "auto_retry": false,
+    "mitigation": false
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "start": "2025-09-19T11:57:43.971Z",
+  "steps": [
+    {
+      "step": "v0_smoke50",
+      "result": "OK"
+    },
+    {
+      "step": "v1_regen_cards",
+      "result": "OK"
+    },
+    {
+      "step": "merge_cards",
+      "result": "OK"
+    },
+    {
+      "step": "preview_and_perf",
+      "result": "OK"
+    },
+    {
+      "step": "gates_quickcheck",
+      "result": "OK"
+    },
+    {
+      "step": "regression_200",
+      "result": "OK"
+    },
+    {
+      "step": "erp_handoff",
+      "result": "OK"
+    },
+    {
+      "step": "update_pins",
+      "result": "OK"
+    },
+    {
+      "step": "manifest_write",
+      "result": "OK"
+    },
+    {
+      "step": "bundle_evidence",
+      "result": "OK"
+    }
+  ],
+  "overall_status": "OK",
+  "end": "2025-09-19T11:57:45.139Z"
+}

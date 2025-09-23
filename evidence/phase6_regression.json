@@ -1,0 +1,10 @@
+﻿{
+    "artifact":  "phase6_regression",
+    "summary":  "20 seeds replay 결과",
+    "details":  {
+                    "pass":  20,
+                    "fail":  0,
+                    "executed":  20
+                },
+    "sha256_placeholder":  "0000000000000000000000000000000000000000000000000000000000000000"
+}

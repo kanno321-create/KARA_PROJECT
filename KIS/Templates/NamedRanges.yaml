@@ -1,0 +1,15 @@
+version: v2.0
+ranges:
+  - {name: Project.Name, sheet: Cover, ref: B3}
+  - {name: Project.Client, sheet: Cover, ref: B4}
+  - {name: Project.Date, sheet: Cover, ref: B5}
+  - {name: Project.Manager, sheet: Cover, ref: B6}
+  - {name: Totals.Materials, sheet: Estimate, ref: H50}
+  - {name: Totals.Labor, sheet: Estimate, ref: H51}
+  - {name: Totals.Net, sheet: Estimate, ref: H52}
+  - {name: Totals.VAT, sheet: Estimate, ref: H53}
+  - {name: Totals.Total, sheet: Estimate, ref: H54}
+  - {name: BOM.Start, sheet: Estimate, ref: A10}
+  - {name: BOM.End, sheet: Estimate, ref: H49}
+  - {name: Enclosure.Model, sheet: Estimate, ref: B7}
+  - {name: Enclosure.Size, sheet: Estimate, ref: B8}

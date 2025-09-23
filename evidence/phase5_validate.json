@@ -1,0 +1,13 @@
+﻿{
+    "artifact":  "phase5_validate",
+    "summary":  "/v1/validate 응답 스냅샷",
+    "details":  {
+                    "gate3":  "PASS",
+                    "wcag":  "AA",
+                    "gate4":  "PASS",
+                    "gate1":  "PASS",
+                    "polisher":  96,
+                    "gate2":  "PASS"
+                },
+    "sha256_placeholder":  "0000000000000000000000000000000000000000000000000000000000000000"
+}

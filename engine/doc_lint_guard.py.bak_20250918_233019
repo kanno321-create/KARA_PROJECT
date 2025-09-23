@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import json, time
+from _util_io import write_json, read_json, make_evidence, arg_parser, MetricsCollector, log
+
+def lint_documents(work_dir: Path) -> dict:
+    """Final document quality check with detailed error reporting"""
+    
+    errors = []
+    warnings = []
+    
+    # Check all generated documents
+    documents = {
+        "enclosure": work_dir / "enclosure" / "enclosure_plan.json",
+        "placement": work_dir / "placement" / "breaker_placement.json",
+        "critic": work_dir / "placement" / "breaker_critic.json",
+        "format": work_dir / "format" / "estimate_format.json",
+        "cover": work_dir / "cover" / "cover_tab.json"
+    }
+    
+    doc_status = {}
+    
+    for doc_name, doc_path in documents.items():
+        if not doc_path.exists():
+            errors.append(f"Missing document: {doc_name}")
+            doc_status[doc_name] = "MISSING"
+            continue
+        
+        try:
+            data = read_json(doc_path)
+            doc_status[doc_name] = "OK"
+            
+            # Document-specific checks
+            if doc_name == "enclosure":
+                if data.get("selected_sku", {}).get("fit_score", 0) < 0.93:
+                    errors.append(f"Enclosure fit_score below 0.93")
+            
+            elif doc_name == "placement":
+                if data.get("phase_imbalance_pct", 100) > 4.0:
+                    errors.append(f"Phase imbalance exceeds 4.0%")
+                if data.get("clearances_violation", 1) > 0:
+                    errors.append(f"Clearance violations detected")
+            
+            elif doc_name == "critic":
+                if not data.get("critic_pass", False):
+                    warnings.append(f"Critic validation failed")
+            
+            elif doc_name == "format":
+                if data.get("format_lint", {}).get("errors", 1) > 0:
+                    errors.append(f"Format errors: {data['format_lint']['errors']}")
+            
+            elif doc_name == "cover":
+                if not data.get("compliance", {}).get("pass", False):
+                    errors.append(f"Cover compliance failed")
+        
+        except Exception as e:
+            errors.append(f"Invalid JSON in {doc_name}: {str(e)}")
+            doc_status[doc_name] = "INVALID"
+    
+    # Check evidence files
+    evidence_count = 0
+    for doc_path in documents.values():
+        if doc_path.exists():
+            svg_path = doc_path.with_suffix(".svg")
+            json_path = doc_path.parent / (doc_path.stem + "_evidence.json")
+            if svg_path.exists():
+                evidence_count += 1
+            if json_path.exists():
+                evidence_count += 1
+    
+    # Field completeness checks
+    field_checks = {
+        "project_name": False,
+        "client": False,
+        "totals": False,
+        "signature": False
+    }
+    
+    cover_file = documents["cover"]
+    if cover_file.exists():
+        cover_data = read_json(cover_file)
+        field_checks["project_name"] = bool(cover_data.get("cover_data", {}).get("project", {}).get("title"))
+        field_checks["client"] = bool(cover_data.get("cover_data", {}).get("project", {}).get("client"))
+        field_checks["totals"] = bool(cover_data.get("cover_data", {}).get("financial", {}).get("total"))
+        field_checks["signature"] = bool(cover_data.get("cover_data", {}).get("signature", {}).get("prepared_by"))
+    
+    incomplete_fields = [k for k, v in field_checks.items() if not v]
+    if incomplete_fields:
+        errors.append(f"Incomplete fields: {', '.join(incomplete_fields)}")
+    
+    # Final result
+    result = {
+        "ts": int(time.time()),
+        "errors": len(errors),
+        "warnings": len(warnings),
+        "error_details": errors[:10],  # First 10 errors
+        "warning_details": warnings[:5],
+        "documents": doc_status,
+        "evidence_files": evidence_count,
+        "field_completeness": field_checks,
+        "pass": len(errors) == 0,
+        "quality_score": max(0, 100 - (len(errors) * 10) - (len(warnings) * 2))
+    }
+    
+    return result
+
+def main():
+    ap = arg_parser()
+    args = ap.parse_args()
+    work = Path(args.work)
+    
+    metrics = MetricsCollector()
+    
+    with metrics.timer("doc_lint_guard"):
+        result = lint_documents(work)
+        out = work / "lint" / "doc_lint_result.json"
+        write_json(out, result)
+        
+        # Generate evidence
+        evidence_data = {
+            "errors": result["errors"],
+            "warnings": result["warnings"],
+            "documents": f"{sum(1 for v in result['documents'].values() if v == 'OK')}/{len(result['documents'])}",
+            "quality_score": result["quality_score"],
+            "status": "PASS" if result["pass"] else "FAIL"
+        }
+        make_evidence(out.with_suffix(""), evidence_data)
+        
+        if result["pass"]:
+            log(f"OK doc-lint-guard (quality={result['quality_score']})")
+        else:
+            log(f"FAIL doc-lint-guard: {result['errors']} errors", "ERROR")
+    
+    metrics.save()
+
+if __name__ == "__main__":
+    main()

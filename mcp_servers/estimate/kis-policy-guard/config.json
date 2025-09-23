@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-policy-guard",
+    "code":  "MCP-3",
+    "description":  "컴플라이언스 검증",
+    "priority":  "P0",
+    "endpoints":  {
+                      "execute":  "/kis-policy-guard/execute",
+                      "health":  "/kis-policy-guard/health"
+                  },
+    "status":  "INSTALLED"
+}

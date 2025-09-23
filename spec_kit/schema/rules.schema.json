@@ -1,0 +1,198 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kis-core.com/schemas/rules.schema.json",
+  "title": "KIS Core Rules Schema",
+  "description": "Validation schema for business rules and quality gates in KIS Core system",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Schema version following semantic versioning"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "author": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": ["created", "author"]
+    },
+    "qualityGates": {
+      "type": "object",
+      "properties": {
+        "fix4": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "thresholds": {
+              "type": "object",
+              "properties": {
+                "critical": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 0
+                },
+                "major": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2
+                },
+                "minor": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                "info": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": ["critical", "major", "minor", "info"]
+            }
+          },
+          "required": ["enabled", "thresholds"]
+        },
+        "polisher": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "minimumScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "weights": {
+              "type": "object",
+              "properties": {
+                "complexity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "maintainability": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "reliability": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "security": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": ["complexity", "maintainability", "reliability", "security"]
+            }
+          },
+          "required": ["enabled", "minimumScore", "weights"]
+        },
+        "wcag": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "level": {
+              "type": "string",
+              "enum": ["A", "AA", "AAA"]
+            },
+            "guidelines": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["perceivable", "operable", "understandable", "robust"]
+              }
+            }
+          },
+          "required": ["enabled", "level", "guidelines"]
+        }
+      },
+      "required": ["fix4", "polisher", "wcag"]
+    },
+    "performance": {
+      "type": "object",
+      "properties": {
+        "thresholds": {
+          "type": "object",
+          "properties": {
+            "p95ResponseTime": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "95th percentile response time in milliseconds"
+            },
+            "uptime": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Required uptime percentage"
+            },
+            "maxMemoryUsage": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Maximum memory usage in MB"
+            }
+          },
+          "required": ["p95ResponseTime", "uptime"]
+        }
+      },
+      "required": ["thresholds"]
+    },
+    "businessRules": {
+      "type": "object",
+      "properties": {
+        "estimateAccuracy": {
+          "type": "object",
+          "properties": {
+            "maxErrorRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Maximum allowed error rate percentage"
+            },
+            "validationMethod": {
+              "type": "string",
+              "enum": ["historical", "expert", "benchmark"]
+            }
+          },
+          "required": ["maxErrorRate", "validationMethod"]
+        },
+        "processingTime": {
+          "type": "object",
+          "properties": {
+            "reductionTarget": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Target processing time reduction percentage"
+            },
+            "baselineMs": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Baseline processing time in milliseconds"
+            }
+          },
+          "required": ["reductionTarget", "baselineMs"]
+        }
+      },
+      "required": ["estimateAccuracy", "processingTime"]
+    }
+  },
+  "required": ["version", "metadata", "qualityGates", "performance", "businessRules"]
+}

@@ -1,0 +1,54 @@
+version: "1.0.0"
+description: "KIS Estimator operation mode configuration"
+
+# Operation Mode
+mode: LIVE                    # LIVE | MOCK
+
+# LIVE mode settings
+live:
+  require_api_keys: true
+  validate_catalog: true
+  enable_external_calls: true
+  use_real_templates: true
+  enforce_slo: true
+  slo_targets:
+    p95_latency_ms: 2000
+    error_rate: 0.005
+    availability: 0.999
+
+# MOCK mode settings
+mock:
+  require_api_keys: false
+  validate_catalog: false
+  enable_external_calls: false
+  use_mock_responses: true
+  enforce_slo: false
+  mock_delay_ms: 100
+
+# Common settings
+common:
+  enable_masking: true
+  enable_audit_log: true
+  enable_desktop_guard: true
+  enable_circuit_breaker: true
+  max_request_size_mb: 10
+  request_timeout_seconds: 30
+
+# Feature toggles
+features:
+  diff_viewer:
+    enabled: true
+    read_only: true
+  autofix:
+    enabled: true
+    proposal_only: true
+  inventory_scoring:
+    enabled: true
+    lead_penalty_cap: 0.10
+    adder_cap: 0.15
+
+# Component health checks
+health_checks:
+  gateway: "/v1/health"
+  evidence: "/v1/evidence/health"
+  templates: "/v1/templates/health"

@@ -1,0 +1,112 @@
+﻿{
+    "cad":  [
+                {
+                    "priority":  "P0",
+                    "code":  "CAD-1",
+                    "name":  "ezdxf-renderer",
+                    "description":  "DXF 파일 생성/편집"
+                },
+                {
+                    "priority":  "P0",
+                    "code":  "CAD-2",
+                    "name":  "svg-generator",
+                    "description":  "벡터 그래픽 생성"
+                }
+            ],
+    "erp_ai":  [
+                   {
+                       "priority":  "P3",
+                       "code":  "MCP-7",
+                       "name":  "kis-ledger-bridge",
+                       "description":  "회계 자동화"
+                   },
+                   {
+                       "priority":  "P2",
+                       "code":  "MCP-8",
+                       "name":  "kis-etax-adapter",
+                       "description":  "전자세금계산서"
+                   },
+                   {
+                       "priority":  "P2",
+                       "code":  "MCP-6",
+                       "name":  "kis-email-template",
+                       "description":  "반응형 이메일"
+                   },
+                   {
+                       "priority":  "P2",
+                       "code":  "MCP-5",
+                       "name":  "kis-forecast",
+                       "description":  "수요 예측"
+                   }
+               ],
+    "estimate_ai":  [
+                        {
+                            "priority":  "P0",
+                            "code":  "MCP-1",
+                            "name":  "kis-doc-ingest",
+                            "description":  "PDF/이미지/CAD 텍스트 추출"
+                        },
+                        {
+                            "priority":  "P0",
+                            "code":  "MCP-2",
+                            "name":  "kis-estimator-core",
+                            "description":  "원가/마진 최적화"
+                        },
+                        {
+                            "priority":  "P0",
+                            "code":  "MCP-3",
+                            "name":  "kis-policy-guard",
+                            "description":  "컴플라이언스 검증"
+                        },
+                        {
+                            "priority":  "P1",
+                            "code":  "MCP-4",
+                            "name":  "kis-cad-intel",
+                            "description":  "CAD 도면 분석"
+                        },
+                        {
+                            "priority":  "P0",
+                            "code":  "C1",
+                            "name":  "kis-breaker-placer",
+                            "description":  "차단기 배치 최적화"
+                        },
+                        {
+                            "priority":  "P0",
+                            "code":  "C2",
+                            "name":  "kis-enclosure-solver",
+                            "description":  "외함 규격 계산"
+                        },
+                        {
+                            "priority":  "P1",
+                            "code":  "SP",
+                            "name":  "kis-spatial-assistant",
+                            "description":  "2.5D 공간 분석"
+                        }
+                    ],
+    "common":  [
+                   {
+                       "priority":  "P0",
+                       "code":  "MCP-10",
+                       "name":  "kis-qa-lab",
+                       "description":  "품질 검사"
+                   },
+                   {
+                       "priority":  "P0",
+                       "code":  "MCP-11",
+                       "name":  "kis-license-sentinel",
+                       "description":  "라이선스 관리"
+                   },
+                   {
+                       "priority":  "P0",
+                       "code":  "MCP-12",
+                       "name":  "kis-cost-guard",
+                       "description":  "비용 통제"
+                   },
+                   {
+                       "priority":  "P0",
+                       "code":  "MCP-14",
+                       "name":  "kis-ops-telemetry",
+                       "description":  "운영 모니터링"
+                   }
+               ]
+}

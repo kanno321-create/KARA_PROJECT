@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "target": "breaker_critic",
+  "timestamp": "2025-09-19T02:45:41.792460",
+  "summary": {
+    "pass": true,
+    "score": 100,
+    "violations_count": 0,
+    "warnings_count": 0,
+    "phase_imbalance": 3.0
+  }
+}

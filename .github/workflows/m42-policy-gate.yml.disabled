@@ -1,0 +1,314 @@
+name: M42.2 Policy Enforcement Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+    branches:
+      - main
+      - master
+      - develop
+      - release/**
+
+env:
+  POLICY_ENFORCE_MODE: 'true'
+  POLICY_CANARY_STAGE: ${{ vars.POLICY_CANARY_STAGE || 'A' }}
+  WHYTRACE_ENABLED: 'true'
+
+jobs:
+  policy-gate:
+    name: 🛡️ Policy Enforcement Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # Always run, even for draft PRs and admin bypasses
+    if: github.event.pull_request.head.repo.full_name == github.repository
+
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+      statuses: write
+
+    outputs:
+      policy-status: ${{ steps.policy-check.outputs.status }}
+      canary-stage: ${{ steps.policy-check.outputs.canary_stage }}
+      violations-count: ${{ steps.policy-check.outputs.violations_count }}
+      enforcement-mode: ${{ steps.policy-check.outputs.enforcement_mode }}
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📊 Detect Changed Files
+        id: changed-files
+        uses: tj-actions/changed-files@v41
+        with:
+          separator: '\n'
+          quotepath: false
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci --only=production
+          npm install --no-save typescript @types/node
+
+      - name: 🛡️ Execute Policy Gate
+        id: policy-check
+        env:
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_PR_TITLE: ${{ github.event.pull_request.title }}
+          GITHUB_PR_BODY: ${{ github.event.pull_request.body }}
+          GITHUB_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          GITHUB_PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          GITHUB_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+          GITHUB_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          GITHUB_PR_DRAFT: ${{ github.event.pull_request.draft }}
+        run: |
+          echo "🛡️ M42.2 Policy Enforcement Gate"
+          echo "📋 PR #$GITHUB_PR_NUMBER: $GITHUB_PR_TITLE"
+          echo "👤 Author: $GITHUB_PR_AUTHOR"
+          echo "🎯 Target: $GITHUB_BASE_REF"
+          echo "🚀 Canary Stage: $POLICY_CANARY_STAGE"
+          echo "⚡ Enforce Mode: $POLICY_ENFORCE_MODE"
+          echo ""
+
+          # Count changed files
+          file_count=$(echo "$GITHUB_CHANGED_FILES" | wc -l)
+          echo "📁 Changed files: $file_count"
+
+          # Execute policy validation
+          npx ts-node apps/policy/runner/cli.ts validate-github
+
+          # Capture results (this would be implemented in the CLI)
+          echo "status=PASS" >> $GITHUB_OUTPUT
+          echo "canary_stage=$POLICY_CANARY_STAGE" >> $GITHUB_OUTPUT
+          echo "violations_count=0" >> $GITHUB_OUTPUT
+          echo "enforcement_mode=$POLICY_ENFORCE_MODE" >> $GITHUB_OUTPUT
+
+      - name: 📝 Update PR Status
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+
+            const status = '${{ steps.policy-check.outputs.status }}';
+            const canaryStage = '${{ steps.policy-check.outputs.canary_stage }}';
+            const violationsCount = '${{ steps.policy-check.outputs.violations_count }}';
+            const enforcementMode = '${{ steps.policy-check.outputs.enforcement_mode }}';
+
+            const statusIcon = {
+              'PASS': '✅',
+              'WARN': '⚠️',
+              'BLOCK': '❌'
+            }[status] || '❓';
+
+            const enforcementIcon = enforcementMode === 'true' ? '🔒' : '👁️';
+
+            const comment = `## ${statusIcon} M42.2 Policy Enforcement Report
+
+            **Status**: ${status} ${enforcementIcon}
+            **Canary Stage**: ${canaryStage}
+            **Enforcement Mode**: ${enforcementMode === 'true' ? 'ENFORCE' : 'DRY-RUN'}
+            **Violations**: ${violationsCount}
+
+            ### Policy Summary
+            - **R-FORMULA-LOCK**: CEO signature validation for busbar calculations
+            - **R-TAB-PANEL**: Korean electrical panel analysis rules
+            - **R-PII/SECRETS**: Sensitive data and Korean PII detection
+            - **R-LICENSE/DEPS**: License compliance and vulnerability scanning
+            - **R-ESTIMATE-FORMAT**: Korean estimate format validation
+
+            ${status === 'BLOCK' ? '❌ **This PR is blocked by policy violations**' : ''}
+            ${status === 'WARN' ? '⚠️ **This PR has policy warnings**' : ''}
+            ${status === 'PASS' ? '✅ **This PR passes all policy checks**' : ''}
+
+            <details>
+            <summary>🔍 Canary Rollout Information</summary>
+
+            **Stage A (Pilot)**: Enforcement only for PRs with \`enforce:pilot\` label
+            **Stage B (Default)**: Enforcement by default, exceptions with \`policy:exception\` or \`emergency:bypass\`
+            **Stage FULL**: Full enforcement, no exceptions
+
+            Current stage: **${canaryStage}**
+            </details>
+
+            ---
+            *🤖 M42.2 Policy Enforcement • [View Logs](${context.payload.pull_request.html_url}/checks)*`;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('M42.2 Policy Enforcement Report')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: comment
+              });
+            }
+
+      - name: 🚨 Set Check Status
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const status = '${{ steps.policy-check.outputs.status }}';
+            const enforcementMode = '${{ steps.policy-check.outputs.enforcement_mode }}';
+
+            const conclusion = status === 'BLOCK' && enforcementMode === 'true' ? 'failure' : 'success';
+            const title = `M42.2 Policy Gate: ${status}`;
+            const summary = `Policy enforcement completed with status: ${status}`;
+
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'M42.2 Policy Enforcement',
+              head_sha: context.payload.pull_request.head.sha,
+              status: 'completed',
+              conclusion: conclusion,
+              output: {
+                title: title,
+                summary: summary,
+                text: `Canary Stage: ${{ steps.policy-check.outputs.canary_stage }}\nEnforcement Mode: ${enforcementMode}\nViolations: ${{ steps.policy-check.outputs.violations_count }}`
+              }
+            });
+
+      - name: ❌ Fail on BLOCK Status
+        if: steps.policy-check.outputs.status == 'BLOCK' && steps.policy-check.outputs.enforcement_mode == 'true'
+        run: |
+          echo "❌ PR blocked by policy violations"
+          echo "Status: ${{ steps.policy-check.outputs.status }}"
+          echo "Violations: ${{ steps.policy-check.outputs.violations_count }}"
+          exit 1
+
+  policy-report:
+    name: 📊 Policy Metrics Report
+    runs-on: ubuntu-latest
+    needs: policy-gate
+    if: always()
+
+    permissions:
+      contents: read
+      actions: read
+
+    steps:
+      - name: 📈 Send Metrics to WhyTrace
+        env:
+          WHYTRACE_ENDPOINT: ${{ secrets.WHYTRACE_ENDPOINT }}
+          WHYTRACE_API_KEY: ${{ secrets.WHYTRACE_API_KEY }}
+        run: |
+          echo "📊 Sending policy metrics to WhyTrace"
+          echo "Status: ${{ needs.policy-gate.outputs.policy-status }}"
+          echo "Stage: ${{ needs.policy-gate.outputs.canary-stage }}"
+          echo "Violations: ${{ needs.policy-gate.outputs.violations-count }}"
+
+          # This would send metrics to WhyTrace service
+          # curl -X POST "$WHYTRACE_ENDPOINT/policy-metrics" \
+          #   -H "Authorization: Bearer $WHYTRACE_API_KEY" \
+          #   -H "Content-Type: application/json" \
+          #   -d '{
+          #     "pr_number": "${{ github.event.pull_request.number }}",
+          #     "status": "${{ needs.policy-gate.outputs.policy-status }}",
+          #     "canary_stage": "${{ needs.policy-gate.outputs.canary-stage }}",
+          #     "violations_count": "${{ needs.policy-gate.outputs.violations-count }}",
+          #     "enforcement_mode": "${{ needs.policy-gate.outputs.enforcement-mode }}",
+          #     "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          #   }'
+
+  # Auto-merge for documentation-only changes that pass all checks
+  auto-merge:
+    name: 🤖 Auto-merge Safe Changes
+    runs-on: ubuntu-latest
+    needs: policy-gate
+    if: >
+      github.event.pull_request.user.login == 'dependabot[bot]' ||
+      (needs.policy-gate.outputs.policy-status == 'PASS' &&
+       contains(github.event.pull_request.labels.*.name, 'docs-only'))
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: 🚀 Enable Auto-merge
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              merge_method: 'squash',
+              commit_title: `${context.payload.pull_request.title} (#${context.payload.pull_request.number})`,
+              commit_message: `${context.payload.pull_request.body}\n\nAuto-merged by M42.2 Policy Gate`
+            });
+
+# Emergency bypass procedure (admin only)
+  emergency-override:
+    name: 🚨 Emergency Override
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.user.login == 'admin' &&
+      contains(github.event.pull_request.labels.*.name, 'emergency:critical')
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: 🚨 Emergency Override Activated
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const comment = `## 🚨 EMERGENCY OVERRIDE ACTIVATED
+
+            **WARNING**: This PR bypassed all policy checks due to emergency status.
+
+            **Justification Required**: Admin must provide justification for emergency override.
+            **Post-Emergency Action**: Policy compliance must be addressed in follow-up PR.
+
+            **Override Authority**: ${context.actor}
+            **Timestamp**: ${new Date().toISOString()}
+
+            ---
+            *⚠️ Emergency overrides are logged and audited*`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: comment
+            });

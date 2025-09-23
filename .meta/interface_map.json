@@ -1,0 +1,429 @@
+[
+  {
+    "file": "engine\\_util_io.py",
+    "functions": [
+      {
+        "name": "__init__",
+        "args": [
+          {
+            "name": "self",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "timer",
+        "args": [
+          {
+            "name": "self",
+            "default": null
+          },
+          {
+            "name": "step_name",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "save",
+        "args": [
+          {
+            "name": "self",
+            "default": null
+          },
+          {
+            "name": "path",
+            "default": "'.meta/metrics.json'"
+          }
+        ]
+      },
+      {
+        "name": "ensure_dir",
+        "args": [
+          {
+            "name": "p",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "write_json",
+        "args": [
+          {
+            "name": "p",
+            "default": null
+          },
+          {
+            "name": "obj",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "read_json",
+        "args": [
+          {
+            "name": "p",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "write_text",
+        "args": [
+          {
+            "name": "p",
+            "default": null
+          },
+          {
+            "name": "text",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "make_evidence",
+        "args": [
+          {
+            "name": "base",
+            "default": null
+          },
+          {
+            "name": "data",
+            "default": "None"
+          },
+          {
+            "name": "kind",
+            "default": "'svg'"
+          }
+        ]
+      },
+      {
+        "name": "arg_parser",
+        "args": []
+      },
+      {
+        "name": "log",
+        "args": [
+          {
+            "name": "msg",
+            "default": null
+          },
+          {
+            "name": "level",
+            "default": "'INFO'"
+          }
+        ]
+      }
+    ],
+    "classes": [
+      {
+        "name": "MetricsCollector",
+        "bases": []
+      }
+    ],
+    "cli_args": [],
+    "imports": [
+      "json",
+      "os",
+      "argparse",
+      "pathlib",
+      "time",
+      "sys",
+      "pathlib",
+      "contextlib",
+      "datetime"
+    ],
+    "outputs": [
+      "\\.json\\\"",
+      "\\.svg\\\"",
+      "_evidence\\.json",
+      "with_suffix\\("
+    ]
+  },
+  {
+    "file": "engine\\breaker_critic.py",
+    "functions": [
+      {
+        "name": "critique_placement",
+        "args": [
+          {
+            "name": "work_dir",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "main",
+        "args": []
+      }
+    ],
+    "classes": [],
+    "cli_args": [],
+    "imports": [
+      "pathlib",
+      "json",
+      "_util_io"
+    ],
+    "outputs": [
+      "\\.json\\\"",
+      "with_suffix\\("
+    ]
+  },
+  {
+    "file": "engine\\breaker_placer.py",
+    "functions": [
+      {
+        "name": "optimize_placement",
+        "args": [
+          {
+            "name": "work_dir",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "main",
+        "args": []
+      }
+    ],
+    "classes": [],
+    "cli_args": [],
+    "imports": [
+      "pathlib",
+      "json",
+      "time",
+      "random",
+      "_util_io"
+    ],
+    "outputs": [
+      "\\.json\\\"",
+      "with_suffix\\("
+    ]
+  },
+  {
+    "file": "engine\\cover_tab_writer.py",
+    "functions": [
+      {
+        "name": "write_cover",
+        "args": [
+          {
+            "name": "work_dir",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "check_empty",
+        "args": [
+          {
+            "name": "obj",
+            "default": null
+          },
+          {
+            "name": "path",
+            "default": "''"
+          }
+        ]
+      },
+      {
+        "name": "main",
+        "args": []
+      }
+    ],
+    "classes": [],
+    "cli_args": [],
+    "imports": [
+      "pathlib",
+      "json",
+      "time",
+      "_util_io"
+    ],
+    "outputs": [
+      "\\.json\\\"",
+      "with_suffix\\("
+    ]
+  },
+  {
+    "file": "engine\\doc_lint_guard.py",
+    "functions": [
+      {
+        "name": "lint_documents",
+        "args": [
+          {
+            "name": "work_dir",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "main",
+        "args": []
+      }
+    ],
+    "classes": [],
+    "cli_args": [],
+    "imports": [
+      "pathlib",
+      "json",
+      "time",
+      "_util_io"
+    ],
+    "outputs": [
+      "\\.json\\\"",
+      "\\.svg\\\"",
+      "_evidence\\.json",
+      "with_suffix\\("
+    ]
+  },
+  {
+    "file": "engine\\enclosure_solver.py",
+    "functions": [
+      {
+        "name": "calculate_enclosure",
+        "args": [
+          {
+            "name": "work_dir",
+            "default": null
+          },
+          {
+            "name": "rules_dir",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "main",
+        "args": []
+      }
+    ],
+    "classes": [],
+    "cli_args": [],
+    "imports": [
+      "pathlib",
+      "json",
+      "time",
+      "random",
+      "_util_io"
+    ],
+    "outputs": [
+      "\\.json\\\"",
+      "with_suffix\\("
+    ]
+  },
+  {
+    "file": "engine\\engine_util_io.py",
+    "functions": [
+      {
+        "name": "ensure_dir",
+        "args": [
+          {
+            "name": "p",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "write_json",
+        "args": [
+          {
+            "name": "p",
+            "default": null
+          },
+          {
+            "name": "obj",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "write_text",
+        "args": [
+          {
+            "name": "p",
+            "default": null
+          },
+          {
+            "name": "text",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "make_evidence",
+        "args": [
+          {
+            "name": "base",
+            "default": null
+          }
+        ]
+      }
+    ],
+    "classes": [],
+    "cli_args": [],
+    "imports": [
+      "json",
+      "time",
+      "pathlib"
+    ],
+    "outputs": [
+      "_evidence\\.json",
+      "with_suffix\\("
+    ]
+  },
+  {
+    "file": "engine\\estimate_formatter.py",
+    "functions": [
+      {
+        "name": "format_estimate",
+        "args": [
+          {
+            "name": "work_dir",
+            "default": null
+          },
+          {
+            "name": "templates_dir",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "main",
+        "args": []
+      }
+    ],
+    "classes": [],
+    "cli_args": [],
+    "imports": [
+      "pathlib",
+      "json",
+      "time",
+      "_util_io",
+      "yaml"
+    ],
+    "outputs": [
+      "\\.json\\\"",
+      "with_suffix\\("
+    ]
+  },
+  {
+    "file": "engine\\spatial_assistant.py",
+    "functions": [
+      {
+        "name": "main",
+        "args": []
+      }
+    ],
+    "classes": [],
+    "cli_args": [],
+    "imports": [
+      "pathlib",
+      "time",
+      "_util_io"
+    ],
+    "outputs": [
+      "\\.json\\\"",
+      "with_suffix\\("
+    ]
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "roles": {
+    "planner": {
+      "capabilities": ["analysis", "decomposition", "prioritization"],
+      "no_solo": true,
+      "evidence_required": true
+    },
+    "researcher": {
+      "capabilities": ["search", "validation", "reference"],
+      "no_solo": true,
+      "evidence_required": true
+    },
+    "implementer": {
+      "capabilities": ["coding", "integration", "optimization"],
+      "no_solo": true,
+      "evidence_required": true
+    },
+    "critic": {
+      "capabilities": ["review", "testing", "quality"],
+      "no_solo": true,
+      "evidence_required": true
+    },
+    "evaluator": {
+      "capabilities": ["metrics", "performance", "compliance"],
+      "no_solo": true,
+      "evidence_required": true
+    },
+    "reporter": {
+      "capabilities": ["summary", "documentation", "evidence"],
+      "no_solo": true,
+      "evidence_required": true
+    }
+  },
+  "consensus_required": true,
+  "min_agents": 2
+}

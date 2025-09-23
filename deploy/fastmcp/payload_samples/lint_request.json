@@ -1,0 +1,41 @@
+{
+  "action": "lint",
+  "input_data": {
+    "documents": {
+      "enclosure": {
+        "required": true,
+        "path": "enclosure/enclosure_plan.json"
+      },
+      "placement": {
+        "required": true,
+        "path": "placement/breaker_placement.json"
+      },
+      "critic": {
+        "required": true,
+        "path": "placement/breaker_critic.json"
+      },
+      "format": {
+        "required": true,
+        "path": "format/estimate_format.json"
+      },
+      "cover": {
+        "required": true,
+        "path": "cover/cover_tab.json"
+      },
+      "spatial": {
+        "required": true,
+        "path": "spatial/spatial_report.json"
+      }
+    },
+    "criteria": {
+      "min_quality_score": 90,
+      "max_phase_imbalance_pct": 4.0,
+      "max_violations": 0,
+      "require_evidence_pairs": true
+    }
+  },
+  "options": {
+    "timeout": 20,
+    "validate_only": false
+  }
+}

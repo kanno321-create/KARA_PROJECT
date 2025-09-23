@@ -1,0 +1,52 @@
+﻿{
+    "project_id":  "2025-0001-case-16",
+    "case_id":  "2025-0001",
+    "site":  {
+                 "ambient_c":  30,
+                 "voltage_class":  "LV",
+                 "country":  "KR"
+             },
+    "loads":  [
+                  {
+                      "phase":  "A",
+                      "width_unit":  0.45,
+                      "id":  "L16A",
+                      "heat_w":  426,
+                      "kva":  18.4
+                  },
+                  {
+                      "width_unit":  0.45,
+                      "id":  "L16B",
+                      "heat_w":  420,
+                      "kva":  18.6
+                  },
+                  {
+                      "phase":  "C",
+                      "width_unit":  0.45,
+                      "id":  "L16C",
+                      "heat_w":  425,
+                      "kva":  15.8
+                  }
+              ],
+    "enclosure":  {
+                      "required_d":  360,
+                      "required_w":  650,
+                      "required_h":  1760
+                  },
+    "ip_min":  "IP54",
+    "requested_totals":  {
+                             "granularity":  "summary",
+                             "currency":  "KRW"
+                         },
+    "document":  {
+                     "date":  "2025-09-19",
+                     "project_number":  "KIS-2025-16",
+                     "project_name":  "Project-16",
+                     "client":  "Client-16"
+                 },
+    "brand":  {
+                  "logo_ref":  "assets/logo.svg",
+                  "primary_color":  "003366",
+                  "font_size":  11
+              }
+}

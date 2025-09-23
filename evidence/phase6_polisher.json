@@ -1,0 +1,9 @@
+﻿{
+    "artifact":  "phase6_polisher",
+    "summary":  "디자인 점수 검증",
+    "details":  {
+                    "polisher":  96,
+                    "wcag":  "AA"
+                },
+    "sha256_placeholder":  "0000000000000000000000000000000000000000000000000000000000000000"
+}

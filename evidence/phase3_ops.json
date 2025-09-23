@@ -1,0 +1,10 @@
+﻿{
+    "artifact":  "phase3_ops",
+    "summary":  "구조화 로그 출력",
+    "details":  {
+                    "ok":  true,
+                    "events":  5,
+                    "last_event":  "validate.requested"
+                },
+    "sha256_placeholder":  "0000000000000000000000000000000000000000000000000000000000000000"
+}

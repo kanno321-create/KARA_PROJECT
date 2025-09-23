@@ -1,0 +1,17 @@
+{
+  "id": "smoke_12",
+  "items": [
+    {
+      "id": "smoke_12",
+      "category": "SEC",
+      "quantity": 10,
+      "unitPrice": 344443,
+      "margin": 0.15,
+      "vat": 0.1
+    }
+  ],
+  "subtotal": 3444430,
+  "margin": 516664.5,
+  "vat": 396109.44999999995,
+  "total": 4357203.95
+}

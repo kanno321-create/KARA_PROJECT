@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-ops-telemetry",
+    "code":  "MCP-14",
+    "description":  "운영 모니터링",
+    "priority":  "P0",
+    "endpoints":  {
+                      "execute":  "/kis-ops-telemetry/execute",
+                      "health":  "/kis-ops-telemetry/health"
+                  },
+    "status":  "INSTALLED"
+}

@@ -1,0 +1,2514 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIS AI - ?듯빀 ?쒖뒪??/title>
+    <style>
+        /* ??踰꾩쟾怨?100% ?숈씪??ChatGPT ?ㅽ???*/
+        :root {
+            --titlebar-h: 0px;
+            --sidebar-w: 280px;
+            --gap: 12px;
+            --bg: #f9f9f9;
+            --bg-2: #f3f3f3;
+            --fg: #323130;
+            --muted: #605e5c;
+            --hover: #e1dfdd;
+            --border: #e5e5e5;
+            --primary: #0078d4;
+        }
+
+        /* ?꾩껜 ?믪씠 泥댁씤 */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        body {
+            margin: 0;
+            background: #ffffff;
+            color: #323130;
+            font-family: 'Segoe UI', system-ui, -apple-system, 'Roboto', 'Noto Sans KR', sans-serif;
+        }
+
+        /* 猷⑦듃 ?덉씠?꾩썐: Grid 2??*/
+        .app-layout {
+            height: 100vh;
+            width: 100vw;
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            grid-template-rows: 1fr;
+            overflow: hidden;
+            position: relative;
+            transition: grid-template-columns 0.3s ease;
+        }
+
+        .app-layout.sidebar-collapsed {
+            grid-template-columns: 60px 1fr;
+        }
+
+        /* ?ъ씠?쒕컮 */
+        .sidebar-container {
+            grid-column: 1;
+            grid-row: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            background: var(--bg);
+            color: var(--fg);
+            border-right: 1px solid var(--border);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000; /* ?ъ씠?쒕컮 ?곗꽑?쒖쐞 */
+            position: relative;
+        }
+
+        .sidebar-header {
+            flex: 0 0 auto;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 48px;
+        }
+
+        .sidebar-header button {
+            background: transparent;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .sidebar-header button:hover {
+            background: var(--hover);
+        }
+
+        .sidebar-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .sidebar-scroll {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 12px;
+        }
+
+        .sidebar-section + .sidebar-section {
+            margin-top: 16px;
+        }
+
+        .sidebar-heading {
+            margin: 0 0 8px 0;
+            padding: 0 4px;
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .nav-list {
+            display: grid;
+            gap: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 4px;
+            color: var(--fg);
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;        }
+
+        .nav-item:hover {
+            background: var(--hover);
+        }
+
+        .nav-item.is-active {
+            background: var(--hover);
+            border-left: 3px solid var(--primary);
+            padding-left: 13px;
+        }
+
+        .nav-item .icon {
+            font-size: 18px;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ?대?吏 湲곕컲 SVG ?꾩씠肄섎뱾 */
+        .icon-edit {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+
+        .icon-search {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+
+        .icon-folder {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+
+        .icon-circle {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+
+        .icon-users {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+
+        .icon-cube {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27,6.96 12,12.01 20.73,6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+
+        .chat-item {
+            padding: 12px 16px 12px 32px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .chat-item:hover {
+            background: var(--hover);
+            color: var(--fg);
+        }
+
+        .account-section {
+            flex: 0 0 auto;
+            padding: 12px;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+
+        .account-button {
+            width: 100%;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 18px;
+            transition: background-color 0.2s ease;
+            background: transparent;
+            border: none;
+            text-align: left;
+        }
+
+        .account-button:hover {
+            background: var(--hover);
+        }
+
+        .account-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .account-info {
+            flex: 1;
+        }
+
+        .account-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--fg);
+        }
+
+        .account-email {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* 硫붿씤 ?곸뿭 */
+        .main-container {
+            grid-column: 2;
+            grid-row: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .version-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid #edebe9;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 0 0 auto;
+        }
+
+        .version-text {
+            font-size: 14px;
+            color: #605e5c;
+        }
+
+        .version-model {
+            font-size: 14px;
+            color: #0078d4;
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* AI 留ㅻ땲? ?붾㈃ (湲곕낯 ?붾㈃) */
+        .ai-manager-view {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-x: hidden; /* ?섑룊 ?ㅽ겕濡ㅻ컮 ?④? */
+        }
+
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            width: 100%;
+            transform: translateY(-10%); /* ?꾩껜瑜??꾨줈 ?대룞 */
+            overflow-x: hidden; /* ?섑룊 ?ㅽ겕濡ㅻ컮 ?④? */
+        }
+
+        .company-logo {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .welcome-text {
+            font-size: 24px;
+            color: var(--muted);
+            margin-bottom: 30px; /* ?щ갚 異뺤냼 */
+        }
+
+        .messages-container {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            padding: 20px 40px;
+        }
+
+        .messages-inner {
+            max-width: 1000px;
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .message {
+            padding: 20px 26px;
+            margin-bottom: 16px;
+            word-wrap: break-word;
+            font-size: 19px;
+            line-height: 1.7;
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+        }
+
+        .message-user {
+            background-color: #f7f7f7;
+            border-radius: 18px;
+            color: #323130;
+            margin-left: auto;
+            margin-right: 0;
+            text-align: right;
+        }
+
+        .message-ai {
+            color: #323130;
+            margin-left: 0;
+            margin-right: auto;
+            text-align: left;
+        }
+
+        .input-container {
+            flex: 0 0 auto;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .input-wrapper {
+            max-width: 800px; /* 1000px?먯꽌 800px濡?異뺤냼 (20% 異뺤냼) */
+            width: 64%; /* 80%?먯꽌 64%濡?異뺤냼 (20% 異뺤냼) */
+            display: flex;
+            justify-content: center;
+        }
+
+        .input-box {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            padding: 14px 18px; /* 16px 20px?먯꽌 14px 18px濡?異뺤냼 (10% 異뺤냼) */
+            border-radius: 24px;
+            border: 1px solid #d1d1d1;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            min-height: 72px; /* 80px?먯꽌 72px濡?異뺤냼 (10% 異뺤냼) */
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .input-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .input-button:hover {
+            background: #f3f2f1;
+        }
+
+        .input-button.send-button {
+            background: transparent;
+            color: #333;
+        }
+
+        .input-button.send-button:hover {
+            background: #f3f2f1;
+        }
+
+        .input-button.send-button:disabled {
+            background: transparent;
+            color: #c8c6c4;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 17px;
+            line-height: 26px;
+            min-height: 52px;
+            padding: 14px 0;
+            font-family: inherit;
+            resize: none;
+        }
+
+        .chat-input::placeholder {
+            color: #999;
+        }
+
+        /* 酉??꾪솚 ?좊땲硫붿씠??*/
+        .view {
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s ease;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: auto;
+        }
+
+        .view.active {
+            opacity: 1;
+            transform: translateX(0);
+            position: relative;
+            pointer-events: auto;
+        }
+
+        .view:not(.active) {
+            pointer-events: none;
+        }
+
+        /* 寃ъ쟻???붾㈃ */
+        .estimates-view {
+            padding: 40px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .estimates-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .estimates-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #323130;
+        }
+
+        .estimates-controls {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            padding: 12px 16px;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 300px;
+        }
+
+        .dropdown {
+            padding: 12px 16px;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 150px;
+            background: white;
+        }
+
+        .new-estimate-btn {
+            padding: 12px 24px;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .new-estimate-btn:hover {
+            background: #106ebe;
+        }
+
+        .estimates-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .estimates-table th,
+        .estimates-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #edebe9;
+        }
+
+        .estimates-table th {
+            background: #f3f2f1;
+            font-weight: 600;
+            color: #323130;
+            font-size: 14px;
+        }
+
+        .estimates-table td {
+            font-size: 14px;
+            color: #323130;
+        }
+
+        .estimates-table tr:hover {
+            background: #faf9f8;
+        }
+
+        /* ?ъ씠?쒕컮 ?묓옒 ?곹깭 */
+        .sidebar-collapsed .sidebar-title,
+        .sidebar-collapsed .sidebar-heading,
+        .sidebar-collapsed .nav-item span,
+        .sidebar-collapsed .chat-item,
+        .sidebar-collapsed .account-info,
+        .sidebar-collapsed .icon:not(.nav-item .icon:first-child),
+        .sidebar-collapsed .account-avatar + .account-info,
+        .sidebar-collapsed .account-menu {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        .sidebar-collapsed .sidebar-scroll {
+            padding: 8px;
+        }
+
+        .sidebar-collapsed .nav-item {
+            justify-content: center;
+            padding: 12px;
+            background: transparent !important;
+            border-left: none !important;
+        }
+
+        .sidebar-collapsed .nav-item.is-active {
+            background: var(--hover) !important;
+            border-left: none !important;
+            padding-left: 12px !important;
+        }
+
+        .sidebar-collapsed .account-button {
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .sidebar-collapsed .account-avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+        }
+
+        /* ?묓??덉? ?딆쓣 ?뚯쓽 湲곕낯 ?곹깭 */
+        .sidebar-title,
+        .sidebar-heading,
+        .nav-item span,
+        .chat-item,
+        .account-info {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        /* 諛섏쓳??*/
+        @media (max-width: 960px) {
+            .app-layout {
+                grid-template-columns: 60px 1fr;
+            }
+        }
+
+        /* ?④? ?대옒??*/
+        .hidden {
+            display: none !important;
+        }
+
+        /* 怨꾩젙 硫붾돱 */
+        .account-menu {
+            position: absolute;
+            bottom: 80px;
+            left: 12px;
+            width: 240px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            padding: 8px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.2s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .account-menu.open {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .account-menu-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .account-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--fg);
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: background-color 0.15s ease;
+        }
+
+        .account-menu-item:hover {
+            background: var(--hover);
+        }
+
+        .account-menu-separator {
+            height: 1px;
+            background: var(--border);
+            margin: 8px 0;
+        }
+
+        /* 遺?쒕윭???좊땲硫붿씠??- ?꾩씠肄??붾뱾由??쒓굅 */
+        .nav-item, .chat-item, .account-button {
+            transition: background-color 0.2s ease;
+        }
+
+        /* 紐⑤뱺 ?대┃ 媛?ν븳 ?붿냼??媛뺥솕 */
+        .nav-item, .chat-item, .account-button, .input-button,
+        .estimates-ai-chat-button, .erp-ai-chat-button, .erp-home-btn,
+        .send-button, .erp-menu-item, .erp-menu-section h4,
+        button, [onclick], [data-view] {
+            cursor: pointer;
+        }
+
+        /* 紐⑤뱺 ?ㅻ쾭?덉씠 諛?諛곌꼍 ?붿냼 */
+        .welcome-screen, .messages-container, .input-container,
+        .erp-view, .estimates-view, .ai-manager-view {            z-index: 1 !important;
+        }
+
+        /* ?꾩껜 ?섏씠吏 ?ㅽ겕濡ㅻ컮 ?쒓굅 - ?덉쟾??諛⑸쾿 */
+        html, body {
+            overflow-x: hidden;
+        }
+
+        /* 硫붿씤 而⑦뀒?대꼫 ?ㅽ겕濡ㅻ컮 ?쒓굅 */
+        .main-content::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        .main-content {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .input-button {
+            transition: background-color 0.15s ease;
+        }
+
+        /* 寃ъ쟻??酉?iframe */
+        #estimates-iframe {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            border-radius: 8px;
+            overflow: auto;
+        }
+
+        /* 寃ъ쟻??酉??ㅽ???*/
+        .estimates-view {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ERP 酉??ㅽ???*/
+        .erp-view {
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.3s ease;
+        }
+
+        .erp-view.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ERP 而⑦뀒?대꼫 ?덉씠?꾩썐 */
+        .erp-container {
+            display: flex;
+            height: 100vh;
+            background: #f8f9fa;
+        }
+
+        /* ERP ?ъ씠?쒕컮 */
+        .erp-sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 1px solid #e9ecef;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+            overflow-y: auto;
+        }
+
+        /* ?ㅽ겕濡ㅻ컮 ?④린湲?*/
+        .erp-sidebar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .erp-sidebar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .erp-header-top {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .erp-home-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        }
+
+        .erp-home-btn:hover {
+            background: linear-gradient(135deg, #0056b3, #004085);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+        }
+
+        .erp-logo {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .erp-logo h2 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .erp-subtitle {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        /* ERP 硫붾돱 ?뱀뀡 */
+        .erp-menu-section {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .erp-section-title {
+            padding: 12px 20px;
+            background: #f8f9fa;
+            font-weight: bold;
+            font-size: 14px;
+            color: #495057;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: background-color 0.2s ease;
+        }
+
+        .erp-section-title:hover {
+            background: #e9ecef;
+        }
+
+        .erp-section-title.active {
+            background: #007bff;
+            color: white;
+        }
+
+        /* ERP 硫붾돱 由ъ뒪??*/
+        .erp-menu-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .erp-menu-list li {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* ERP 硫붾돱 ?꾩씠??*/
+        .erp-menu-items {
+            display: none;
+        }
+
+        .erp-menu-items.active {
+            display: block;
+        }
+
+        .erp-menu-item {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 13px;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: block;
+        }
+
+        .erp-menu-item:hover {
+            background: #f8f9fa;
+            color: #495057;
+        }
+
+        .erp-menu-item.active {
+            background: #e3f2fd;
+            color: #1976d2;
+            font-weight: 500;
+        }
+
+        /* ERP 而⑦뀗痢??곸뿭 */
+        .erp-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* ERP 而⑦뀗痢??ㅽ겕濡ㅻ컮 ?④린湲?*/
+        .erp-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .erp-content {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .erp-tabs {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .erp-tab {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c757d;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .erp-tab:hover {
+            color: #495057;
+            background: #f8f9fa;
+        }
+
+        .erp-tab.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+        }
+
+        /* ERP ?뱀뀡 */
+        .erp-section {
+            display: none;
+        }
+
+        .erp-section.active {
+            display: block;
+            animation: fadeInSlide 0.3s ease;
+        }
+
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ERP 移대뱶 */
+        .erp-card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .erp-card h3 {
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        /* ERP 湲곕뒫 洹몃━??*/
+        .erp-feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .erp-feature-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .erp-feature-item:hover {
+            background: #e9ecef;
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .erp-feature-item h4 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .erp-feature-item p {
+            margin: 0 0 12px 0;
+            font-size: 12px;
+            color: #6c757d;
+            line-height: 1.4;
+        }
+
+        /* ERP 踰꾪듉 */
+        .erp-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .erp-btn:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0,123,255,0.3);
+        }
+
+        .erp-btn:active {
+            transform: translateY(0);
+        }
+
+        /* ?좏깮???ㅽ겕濡ㅻ컮 ?④린湲?- ?꾩슂??遺遺꾨쭔 */
+        .erp-sidebar::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        .erp-sidebar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* ERP??AI 梨꾪똿 踰꾪듉 */
+        .erp-ai-chat-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: none;
+        }
+
+        .erp-view.active .erp-ai-chat-button {
+            display: block;
+        }
+
+        .erp-ai-chat-button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        }
+
+        /* 寃ъ쟻?쒖슜 AI 梨꾪똿 踰꾪듉 */
+        .estimates-ai-chat-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: none;
+        }
+
+        .estimates-view.active .estimates-ai-chat-button {
+            display: block;
+        }
+
+        .estimates-ai-chat-button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        }
+
+        /* 諛섏쓳???붿옄??*/
+        @media (max-width: 768px) {
+            .erp-container {
+                flex-direction: column;
+            }
+
+            .erp-sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+            }
+
+            .erp-feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .erp-ai-chat-button,
+            .estimates-ai-chat-button {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout" id="appLayout">
+        <!-- ?ъ씠?쒕컮 -->
+        <aside class="sidebar-container">
+            <!-- ?ъ씠?쒕컮 ?ㅻ뜑 -->
+            <div class="sidebar-header">
+                <button onclick="toggleSidebar()" title="硫붾돱 ?좉?">
+                    ??
+                </button>
+                <div class="sidebar-title">KIS AI</div>
+            </div>
+
+            <!-- ?ㅽ겕濡??곸뿭 -->
+            <div class="sidebar-scroll">
+                <!-- 梨꾪똿 ?뱀뀡 -->
+                <div class="sidebar-section">
+                    <div class="sidebar-heading">梨꾪똿</div>
+                    <nav class="nav-list">
+                        <button class="nav-item" onclick="createNewChat()">
+                            <span class="icon">+</span>
+                            <span>New chat</span>
+                        </button>
+                        <div class="chat-item">AI ERP 寃ъ쟻?쒖뒪???ㅺ퀎</div>
+                        <div class="chat-item">吏????ぉ ?덈궡</div>
+                        <div class="chat-item">理쒖큹?꾨줈?앺듃 ?댁슜</div>
+                    </nav>
+                </div>
+
+                <!-- ?낅Т ?뱀뀡 -->
+                <div class="sidebar-section">
+                    <div class="sidebar-heading">?낅Т</div>
+                    <nav class="nav-list">
+                        <button class="nav-item is-active" onclick="switchToView('ai-manager')" data-view="ai-manager">
+                            <span class="icon icon-edit"></span>
+                            <span>AI 留ㅻ땲?</span>
+                        </button>
+                        <button class="nav-item" onclick="switchToView('estimates')" data-view="estimates">
+                            <span class="icon icon-search"></span>
+                            <span>寃ъ쟻??/span>
+                        </button>
+                        <button class="nav-item" onclick="switchToView('erp')" data-view="erp">
+                            <span class="icon icon-folder"></span>
+                            <span>ERP</span>
+                        </button>
+                        <button class="nav-item" onclick="switchToView('email')" data-view="email">
+                            <span class="icon icon-circle"></span>
+                            <span>?대찓??/span>
+                        </button>
+                        <button class="nav-item" onclick="switchToView('calendar')" data-view="calendar">
+                            <span class="icon icon-users"></span>
+                            <span>罹섎┛??/span>
+                        </button>
+                        <button class="nav-item" onclick="switchToView('drawings')" data-view="drawings">
+                            <span class="icon icon-cube"></span>
+                            <span>?꾨㈃</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- ?꾨줈?앺듃 ?뱀뀡 -->
+                <div class="sidebar-section">
+                    <div class="sidebar-heading">?꾨줈?앺듃</div>
+                    <nav class="nav-list">
+                        <button class="nav-item">
+                            <span class="icon icon-folder"></span>
+                            <span>???꾨줈?앺듃</span>
+                        </button>
+                        <button class="nav-item">
+                            <span class="icon icon-folder"></span>
+                            <span>泥쒖옱?곸궗怨?/span>
+                        </button>
+                        <button class="nav-item">
+                            <span class="icon icon-folder"></span>
+                            <span>?꾧뎅遺꾩쟾諛섏옄?숉솕</span>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- ?섎떒 怨좎젙 怨꾩젙 ?곸뿭 -->
+            <div class="account-section">
+                <button class="account-button" onclick="toggleAccountMenu()">
+                    <div class="account-avatar">?댁땐</div>
+                    <div class="account-info">
+                        <div class="account-name">?댁땐??/div>
+                        <div class="account-email">ceo@kis.com</div>
+                    </div>
+                    <span class="icon" id="accountChevron">??/span>
+                </button>
+
+                <!-- 怨꾩젙 硫붾돱 -->
+                <div class="account-menu" id="accountMenu">
+                    <div class="account-menu-header">
+                        <div class="account-avatar">?댁땐</div>
+                        <div class="account-info">
+                            <div class="account-name">?댁땐??/div>
+                            <div class="account-email">ceo@kis.com</div>
+                        </div>
+                    </div>
+                    <button class="account-menu-item" onclick="openTeamSettings()">
+                        <span class="icon">??/span>
+                        <span>???異붽?</span>
+                    </button>
+                    <button class="account-menu-item" onclick="openWorkspaceSettings()">
+                        <span class="icon">??/span>
+                        <span>?뚰겕?ㅽ럹?댁뒪 ?ㅼ젙</span>
+                    </button>
+                    <button class="account-menu-item" onclick="openPersonalSettings()">
+                        <span class="icon">??/span>
+                        <span>媛쒖씤 留욎땄 ?ㅼ젙</span>
+                    </button>
+                    <div class="account-menu-separator"></div>
+                    <button class="account-menu-item" onclick="openSettings()">
+                        <span class="icon">??/span>
+                        <span>?ㅼ젙</span>
+                    </button>
+                    <button class="account-menu-item" onclick="logout()">
+                        <span class="icon">??/span>
+                        <span>濡쒓렇?꾩썐</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 硫붿씤 ?곸뿭 -->
+        <main class="main-container">
+            <!-- 踰꾩쟾 ?뺣낫 ?ㅻ뜑 -->
+            <div class="version-header">
+                <span class="version-text">KIS CORE v2.0.0</span>
+                <span class="version-text">??/span>
+                <span class="version-model">ChatGPT-5 Thinking</span>
+            </div>
+
+            <div class="main-content">
+                <!-- AI 留ㅻ땲? ?붾㈃ (湲곕낯) -->
+                <div class="ai-manager-view view active" id="aiManagerView">
+                    <div id="welcomeScreen" class="welcome-screen">
+                        <div class="company-logo">?쒗븳援?궛??/div>
+                        <div class="welcome-text">臾댁뾿???꾩??쒕┫源뚯슂?</div>
+
+                        <div class="input-container">
+                            <div class="input-wrapper">
+                                <div class="input-box">
+                                    <button class="input-button" onclick="attachFile()" title="?뚯씪 泥⑤?">
+                                        +
+                                    </button>
+                                    <textarea class="chat-input" id="chatInput" placeholder="臾댁뾿?대뱺 臾쇱뼱蹂댁꽭?? rows="1"></textarea>
+                                    <button class="input-button send-button" id="sendButton" onclick="sendMessage()" title="?꾩넚">
+                                        <img src="./CHAT.png" alt="?꾩넚" style="width: 48px; height: 48px;">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="messages-container hidden" id="messagesContainer">
+                        <div class="messages-inner" id="messagesInner">
+                            <!-- 硫붿떆吏?ㅼ씠 ?ш린??異붽??⑸땲??-->
+                        </div>
+                    </div>
+
+                    <div class="input-container hidden" id="chatInputContainer">
+                        <div class="input-wrapper">
+                            <div class="input-box">
+                                <button class="input-button" onclick="attachFile()" title="?뚯씪 泥⑤?">
+                                    +
+                                </button>
+                                <textarea class="chat-input" id="chatInputBottom" placeholder="硫붿떆吏瑜??낅젰?섏꽭??.." rows="1"></textarea>
+                                <button class="input-button send-button" onclick="sendMessage()" title="?꾩넚">
+                                    <img src="./CHAT.png" alt="?꾩넚" style="width: 48px; height: 48px;">
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 寃ъ쟻???붾㈃ -->
+                <div class="estimates-view view" id="estimatesView">
+                    <iframe id="estimates-iframe" src="./estimate-simple.html" style="display: none;"></iframe>
+
+                    <!-- 寃ъ쟻?쒖슜 AI 梨꾪똿 踰꾪듉 -->
+                    <div class="estimates-ai-chat-button" onclick="switchToView('ai-manager')">
+                        ?뮠 AI 吏덈Ц?섍린
+                    </div>
+
+                    <div class="estimates-header" id="estimatesHeader">
+                        <h1 class="estimates-title">寃ъ쟻??愿由?/h1>
+                        <button class="new-estimate-btn" onclick="createNewEstimate()">
+                            <span>??/span>
+                            ??寃ъ쟻??
+                        </button>
+                    </div>
+
+                    <div class="estimates-controls">
+                        <input type="text" class="search-box" placeholder="寃ъ쟻??寃??.." id="estimateSearch">
+                        <select class="dropdown" id="statusFilter">
+                            <option value="all">?꾩껜</option>
+                            <option value="pending">?湲곗쨷</option>
+                            <option value="progress">吏꾪뻾以?/option>
+                            <option value="completed">?꾨즺</option>
+                        </select>
+                    </div>
+
+                    <table class="estimates-table">
+                        <thead>
+                            <tr>
+                                <th>寃ъ쟻踰덊샇</th>
+                                <th>怨좉컼紐?/th>
+                                <th>?묒꽦??/th>
+                                <th>湲덉븸</th>
+                                <th>?곹깭</th>
+                            </tr>
+                        </thead>
+                        <tbody id="estimatesTableBody">
+                            <tr>
+                                <td>EST-2025-001</td>
+                                <td>?쇱꽦?꾩옄</td>
+                                <td>2025-09-21</td>
+                                <td>5,240,000??/td>
+                                <td>吏꾪뻾以?/td>
+                            </tr>
+                            <tr>
+                                <td>EST-2025-002</td>
+                                <td>LG?꾩옄</td>
+                                <td>2025-09-20</td>
+                                <td>3,120,000??/td>
+                                <td>?꾨즺</td>
+                            </tr>
+                            <tr>
+                                <td>EST-2025-003</td>
+                                <td>SK?섏씠?됱뒪</td>
+                                <td>2025-09-19</td>
+                                <td>8,750,000??/td>
+                                <td>?湲곗쨷</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ERP ?쒖뒪???붾㈃ -->
+                <div class="erp-view view" id="erpView">
+                    <div class="erp-container">
+                        <!-- ERP 醫뚯륫 硫붾돱 -->
+                        <div class="erp-sidebar">
+                            <div class="erp-logo">
+                                <div class="erp-header-top">
+                                    <button class="erp-home-btn" onclick="switchToView('ai-manager')" title="?덉쑝濡?>
+                                        ?룧 ?덉쑝濡?
+                                    </button>
+                                </div>
+                                <h2>(二??쒓뎅?곗뾽ERP SYSTEM</h2>
+                                <span class="erp-subtitle">ERP V1.0</span>
+                            </div>
+
+                            <div class="erp-menu-section">
+                                <h3 class="erp-section-title">?꾪몴?묒꽦</h3>
+                                <ul class="erp-menu-list">
+                                    <li><button class="erp-menu-item" onclick="showERPModule('voucher-create')">留ㅼ엯/留ㅼ텧/?섍툑/吏湲??낆텧湲?議곗썡?꾪몴</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('voucher-edit')">?꾪몴瑜??섏젙/??젣?섎뒗 諛⑸쾿</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('deposit-withdraw')">?낆텧湲??뺣퉬)?깅줉 諛??먮맂 寃쎈젰</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('return-process')">諛섑뭹 泥섎━?섎뒗 諛⑸쾿</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('client-price')">嫄곕옒泥섎퀎 ?곹뭹?④???/button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('price-change')">?④?蹂??諛?理쒖쥌?④?</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('voucher-reset')">?꾪몴 李쎈젰 珥덇린??諛⑸쾿</button></li>
+                                </ul>
+                            </div>
+
+                            <div class="erp-menu-section">
+                                <h3 class="erp-section-title">蹂닿퀬??議고쉶</h3>
+                                <ul class="erp-menu-list">
+                                    <li><button class="erp-menu-item" onclick="showERPModule('sales-purchase-view')">留ㅼ텧蹂?留ㅼ엯蹂?議고쉶</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('client-product-view')">嫄곕옒泥섎퀎/?곹뭹蹂?留ㅼ텧?꾪솴 議고쉶</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('in-out-detail')">??異쒓퀬/?낃퀎 ?곸꽭 議고쉶</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('period-stats')">湲곌컙蹂??듦퀎遺꾩꽍</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('approval-status')">以묓빀?뱀씤?꾪솴</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('monthly-chart')">?붾퀎?꾪솴李⑦듃</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('profit-table')">嫄곕옒泥섎퀎?댁씡??/button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('price-table')">?곹뭹蹂??낆껜蹂??④???/button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('receivable-view')">誘몄닔湲?諛?誘몄?湲됯툑 議고쉶 諛⑸쾿</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('report-detail')">蹂닿퀬???곸꽭 議고쉶 ?깅줉湲?湲곕뒫</button></li>
+                                </ul>
+                            </div>
+
+                            <div class="erp-menu-section">
+                                <h3 class="erp-section-title">湲곗큹?먮즺 ?깅줉</h3>
+                                <ul class="erp-menu-list">
+                                    <li><button class="erp-menu-item" onclick="showERPModule('company-info')">?먯궗?뺣낫?깅줉</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('department-business')">遺?쒕퀎?ъ뾽?깅줉</button></li>
+                                    <li><button class="erp-menu-item" onclick="showProductRegistration()">?곹뭹?깅줉</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('client-register')">嫄곕옒泥섎벑濡?/button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('card-register')">?좎슜移대뱶?깅줉 諛?移대뱶留ㅼ엯寃??묒꽦</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('account-item')">?낆텧湲덊빆紐⑸벑濡?/button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('bank-account')">?먯궗??됯퀎醫뚮벑濡?/button></li>
+                                </ul>
+                            </div>
+
+                            <div class="erp-menu-section">
+                                <h3 class="erp-section-title">湲곗큹?댁썡</h3>
+                                <ul class="erp-menu-list">
+                                    <li><button class="erp-menu-item" onclick="showERPModule('product-carry')">?곹뭹?ш퀬?댁썡</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('receivable-carry')">誘몄닔?낆?湲됯툑?댁썡</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('bank-carry')">??됱옍怨좎씠??/button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('other-carry')">?댁썡?댁썡</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('inventory-finance')">?ш퀬?щТ?댁썡</button></li>
+                                    <li><button class="erp-menu-item" onclick="showERPModule('cash-carry')">?꾧툑?붽퀬?댁썡</button></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- ERP ?곗륫 而⑦뀗痢?-->
+                        <div class="erp-content">
+                            <div class="erp-content-header">
+                                <h2 id="erpContentTitle">ERP ?쒖뒪??/h2>
+                                <div class="erp-content-nav">
+                                    <button class="erp-nav-btn active" onclick="showERPSection('electronic')">?꾩옄?꾩넚</button>
+                                    <button class="erp-nav-btn" onclick="showERPSection('report')">蹂닿퀬??異쒕젰/???/button>
+                                    <button class="erp-nav-btn" onclick="showERPSection('inventory')">?ш퀬</button>
+                                    <button class="erp-nav-btn" onclick="showERPSection('settings')">?섍꼍?ㅼ젙</button>
+                                    <button class="erp-nav-btn" onclick="showERPSection('other')">湲고?</button>
+                                </div>
+                            </div>
+
+                            <!-- ?꾩옄?꾩넚 ?뱀뀡 -->
+                            <div id="electronic-section" class="erp-section active">
+                                <div class="erp-card">
+                                    <h3>?꾩옄?꾩넚</h3>
+                                    <div class="erp-feature-grid">
+                                        <div class="erp-feature-item">
+                                            <h4>?대찓?쇱쟾??/h4>
+                                            <p>嫄곕옒紐낆꽭?? ?꾩옄?? 諛쏆＜???대찓???꾩넚</p>
+                                            <button class="erp-btn">?ㅼ젙</button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>?꾩옄?멸툑怨꾩궛??/h4>
+                                            <p>?꾩옄?멸툑怨꾩궛??諛쒗뻾 諛?愿由?/p>
+                                            <button class="erp-btn">愿由?/button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>臾몄옄諛쒖넚</h4>
+                                            <p>SMS 臾몄옄 諛쒖넚 ?쒕퉬??/p>
+                                            <button class="erp-btn">諛쒖넚</button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>?⑹뒪?꾩넚</h4>
+                                            <p>?⑹뒪 ?꾩넚 ?쒕퉬??/p>
+                                            <button class="erp-btn">?꾩넚</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 蹂닿퀬??異쒕젰/????뱀뀡 -->
+                            <div id="report-section" class="erp-section">
+                                <div class="erp-card">
+                                    <h3>蹂닿퀬??異쒕젰/???/h3>
+                                    <div class="erp-feature-grid">
+                                        <div class="erp-feature-item">
+                                            <h4>嫄곕옒紐낆꽭??蹂닿퀬???꾨┛?고븯湲?/h4>
+                                            <p>媛곸쥌 蹂닿퀬???꾨┛??異쒕젰</p>
+                                            <button class="erp-btn">異쒕젰</button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>?묒?,IMG,PDF?뚯씪 ???/h4>
+                                            <p>?ㅼ뼇???뺤떇?쇰줈 ?뚯씪 ???/p>
+                                            <button class="erp-btn">???/button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>紐낆꽭???꾩튂 珥덇린??諛⑸쾿</h4>
+                                            <p>紐낆꽭???덉씠?꾩썐 珥덇린??/p>
+                                            <button class="erp-btn">珥덇린??/button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ?ш퀬 ?뱀뀡 -->
+                            <div id="inventory-section" class="erp-section">
+                                <div class="erp-card">
+                                    <h3>?ш퀬愿由?/h3>
+                                    <div class="erp-feature-grid">
+                                        <div class="erp-feature-item">
+                                            <h4>?ш퀬議고쉶</h4>
+                                            <p>?꾩옱 ?ш퀬 ?꾪솴 議고쉶</p>
+                                            <button class="erp-btn" onclick="showInventoryStatus()">議고쉶</button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>李쎄퀬?ш퀎??/h4>
+                                            <p>李쎄퀬蹂??ш퀬 ?ш퀎??/p>
+                                            <button class="erp-btn" onclick="recalculateWarehouse()">?ш퀎??/button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ?섍꼍?ㅼ젙 ?뱀뀡 -->
+                            <div id="settings-section" class="erp-section">
+                                <div class="erp-card">
+                                    <h3>?섍꼍?ㅼ젙</h3>
+                                    <div class="erp-feature-grid">
+                                        <div class="erp-feature-item">
+                                            <h4>湲곕낯?ㅼ젙</h4>
+                                            <p>?쒖뒪??湲곕낯 ?ㅼ젙</p>
+                                            <button class="erp-btn">?ㅼ젙</button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>?묒떇吏 ?ㅼ젙</h4>
+                                            <p>臾몄꽌 ?묒떇 ?ㅼ젙</p>
+                                            <button class="erp-btn">?ㅼ젙</button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>臾몄옄?꾩넚?ㅼ젙</h4>
+                                            <p>SMS 諛쒖넚 ?ㅼ젙</p>
+                                            <button class="erp-btn">?ㅼ젙</button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>?꾨┛???ㅼ젙</h4>
+                                            <p>?꾨┛??諛?異쒕젰 ?ㅼ젙</p>
+                                            <button class="erp-btn">?ㅼ젙</button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>湲고? ?ㅼ젙</h4>
+                                            <p>湲고? ?쒖뒪???ㅼ젙</p>
+                                            <button class="erp-btn">?ㅼ젙</button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>湲됱뿬 ?ㅼ젙</h4>
+                                            <p>湲됱뿬 愿???ㅼ젙</p>
+                                            <button class="erp-btn">?ㅼ젙</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 湲고? ?뱀뀡 -->
+                            <div id="other-section" class="erp-section">
+                                <div class="erp-card">
+                                    <h3>湲고? 湲곕뒫</h3>
+                                    <div class="erp-feature-grid">
+                                        <div class="erp-feature-item">
+                                            <h4>?ъ뾽??留덇컧</h4>
+                                            <p>?ъ뾽?λ퀎 留덇컧 泥섎━</p>
+                                            <button class="erp-btn">留덇컧</button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>?몄궗?낆옣 援ъ꽦(異붽?)諛⑸쾿</h4>
+                                            <p>?ㅼ쨷 ?ъ뾽??愿由?/p>
+                                            <button class="erp-btn">愿由?/button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>紐낆꽭???꾩튂 珥덇린??/h4>
+                                            <p>紐낆꽭???꾩튂 珥덇린??/p>
+                                            <button class="erp-btn">珥덇린??/button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>?먮즺??諛깆뾽怨?蹂듭썝諛⑸쾿</h4>
+                                            <p>?곗씠??諛깆뾽 諛?蹂듭썝</p>
+                                            <button class="erp-btn">諛깆뾽</button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>Data????κ꼍濡?蹂寃?/h4>
+                                            <p>?곗씠?????寃쎈줈 ?ㅼ젙</p>
+                                            <button class="erp-btn">蹂寃?/button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>?쇱젙愿由?湲곕뒫</h4>
+                                            <p>?쇱젙 諛??좎씪 愿由?/p>
+                                            <button class="erp-btn">愿由?/button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>踰덇굅 媛먯젙 湲곕뒫</h4>
+                                            <p>?몄쓽 湲곕뒫 ?ㅼ젙</p>
+                                            <button class="erp-btn">?ㅼ젙</button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>?꾨줈洹몃옩 ?⑥텞??/h4>
+                                            <p>?⑥텞???ㅼ젙 諛?愿由?/p>
+                                            <button class="erp-btn">?ㅼ젙</button>
+                                        </div>
+                                        <div class="erp-feature-item">
+                                            <h4>?쇱떆 蹂寃??곗씠???댁쟾) 諛⑸쾿</h4>
+                                            <p>PC 蹂寃쎌떆 ?곗씠???댁쟾</p>
+                                            <button class="erp-btn">?댁쟾</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ERP??AI 梨꾪똿 踰꾪듉 -->
+                    <div class="erp-ai-chat-button" onclick="switchToView('ai-manager')">
+                        ?뮠 AI 吏덈Ц?섍린
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <input type="file" id="fileInput" style="display: none;" multiple>
+
+    <script>
+        let messages = [];
+        let isLoading = false;
+        let currentView = 'ai-manager';
+
+        // ?ъ씠?쒕컮 ?좉?
+        function toggleSidebar() {
+            const appLayout = document.getElementById('appLayout');
+            const isCollapsed = appLayout.classList.contains('sidebar-collapsed');
+
+            if (isCollapsed) {
+                appLayout.classList.remove('sidebar-collapsed');
+            } else {
+                // 怨꾩젙 硫붾돱媛 ?대젮?덉쑝硫??リ린
+                if (isAccountMenuOpen) {
+                    toggleAccountMenu();
+                }
+                appLayout.classList.add('sidebar-collapsed');
+            }
+        }
+
+        // 酉??꾪솚 (?좊땲硫붿씠???곸슜)
+        function switchToView(viewName) {
+            // 媛숈? ??쓣 ?ㅼ떆 ?대┃??寃쎌슦 ?꾨Т寃껊룄 ?섏? ?딆쓬 (?붾㈃ ?붾뱾由?諛⑹?)
+            if (currentView === viewName) {
+                return;
+            }
+
+            // 紐⑤뱺 酉곗뿉??active ?대옒???쒓굅 (?좊땲硫붿씠???쒖옉)
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+            });
+
+            // 硫붾돱 ?꾩씠??鍮꾪솢?깊솕
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('is-active');
+            });
+
+            // 吏㏃? ?쒕젅??????酉??쒖꽦??(遺?쒕윭???꾪솚)
+            setTimeout(() => {
+                let targetView;
+                const appLayout = document.getElementById('appLayout');
+
+                if (viewName === 'ai-manager') {
+                    targetView = document.getElementById('aiManagerView');
+                    // ERP媛 ?꾨땶 ??쑝濡??대룞???ъ씠?쒕컮 蹂듭썝
+                    if (appLayout.classList.contains('sidebar-collapsed')) {
+                        appLayout.classList.remove('sidebar-collapsed');
+                    }
+                } else if (viewName === 'estimates') {
+                    targetView = document.getElementById('estimatesView');
+                    // ERP媛 ?꾨땶 ??쑝濡??대룞???ъ씠?쒕컮 蹂듭썝
+                    if (appLayout.classList.contains('sidebar-collapsed')) {
+                        appLayout.classList.remove('sidebar-collapsed');
+                    }
+                } else if (viewName === 'erp') {
+                    targetView = document.getElementById('erpView');
+                }
+
+                if (targetView) {
+                    targetView.classList.add('active');
+
+                    // 寃ъ쟻??酉곗씤 寃쎌슦 iframe 濡쒕뱶
+                    if (viewName === 'estimates') {
+                        loadEstimateInterface();
+                    }
+                    // ERP 酉곗씤 寃쎌슦 泥?踰덉㎏ ???쒖꽦??諛??ъ씠?쒕컮 ?먮룞 理쒖냼??
+                    else if (viewName === 'erp') {
+                        showERPTab('electronic');
+                        // ERP ??吏꾩엯 ??醫뚯륫 ?ъ씠?쒕컮 ?먮룞 理쒖냼??
+                        if (!appLayout.classList.contains('sidebar-collapsed')) {
+                            appLayout.classList.add('sidebar-collapsed');
+                            // 怨꾩젙 硫붾돱媛 ?대젮?덉쑝硫??リ린
+                            if (isAccountMenuOpen) {
+                                toggleAccountMenu();
+                            }
+                        }
+                    }
+                }
+
+                // ?대┃??硫붾돱 ?꾩씠???쒖꽦??
+                const clickedItem = document.querySelector(`[data-view="${viewName}"]`);
+                if (clickedItem) {
+                    clickedItem.classList.add('is-active');
+                }
+
+                currentView = viewName;
+            }, 50); // 50ms ?쒕젅?대줈 遺?쒕윭???꾪솚
+        }
+
+        // 寃ъ쟻 ?명꽣?섏씠??濡쒕뱶 (湲곗〈 寃ъ쟻 湲곕뒫 ?곕룞)
+        function loadEstimateInterface() {
+            const iframe = document.getElementById('estimates-iframe');
+            const header = document.getElementById('estimatesHeader');
+            const table = document.querySelector('.estimates-table');
+            const controls = document.querySelector('.estimates-controls');
+
+            // 湲곗〈 寃ъ쟻 ?뚯씠釉??④린怨?iframe ?쒖떆
+            if (header) header.style.display = 'none';
+            if (table) table.style.display = 'none';
+            if (controls) controls.style.display = 'none';
+
+            iframe.style.display = 'block';
+            iframe.src = './estimate-simple.html';
+
+            console.log('湲곗〈 寃ъ쟻 ?쒖뒪??濡쒕뱶??);
+        }
+
+        // 硫붿떆吏 ?꾩넚
+        function sendMessage() {
+            const input = document.getElementById('chatInput') || document.getElementById('chatInputBottom');
+            const message = input.value.trim();
+
+            if (!message || isLoading) return;
+
+            // 泥?硫붿떆吏??寃쎌슦 ?붾㈃ ?꾪솚
+            if (messages.length === 0) {
+                document.getElementById('welcomeScreen').classList.add('hidden');
+                document.getElementById('messagesContainer').classList.remove('hidden');
+                document.getElementById('chatInputContainer').classList.remove('hidden');
+            }
+
+            // ?ъ슜??硫붿떆吏 異붽?
+            addMessage(message, 'user');
+            input.value = '';
+            isLoading = true;
+
+            // AI ?묐떟 ?쒕??덉씠??
+            setTimeout(() => {
+                const aiResponse = generateAIResponse(message);
+                addMessage(aiResponse, 'ai');
+                isLoading = false;
+            }, 1000 + Math.random() * 2000);
+        }
+
+        // 硫붿떆吏 異붽?
+        function addMessage(content, sender) {
+            const messageId = messages.length + 1;
+            const message = {
+                id: messageId,
+                content: content,
+                sender: sender,
+                timestamp: new Date()
+            };
+
+            messages.push(message);
+
+            const messagesInner = document.getElementById('messagesInner');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${sender}`;
+            messageDiv.textContent = content;
+
+            messagesInner.appendChild(messageDiv);
+            messagesInner.scrollTop = messagesInner.scrollHeight;
+        }
+
+        // AI ?묐떟 ?앹꽦
+        function generateAIResponse(userMessage) {
+            const responses = [
+                "?? ?대떦 ?붿껌?????遺꾩꽍?대뱶由ш쿋?듬땲?? ?대뼡 遺遺꾩쓣 ???먯꽭???뚭퀬 ?띠쑝?좉???",
+                "寃ъ쟻 愿??臾몄쓽?댁떆援곗슂. 醫뚯륫 硫붾돱?먯꽌 '寃ъ쟻??瑜??대┃?섏떆硫??곸꽭??寃ъ쟻 愿由?湲곕뒫???댁슜?섏떎 ???덉뒿?덈떎.",
+                "諛곗쟾諛?愿??湲곗닠 ?곷떞???꾩??쒕━寃좎뒿?덈떎. 援ъ껜?곸씤 ?ъ뼇?대굹 ?붽뎄?ы빆???뚮젮二쇱꽭??",
+                "KIS CORE ?쒖뒪?쒖쓣 ?듯빐 ?⑥쑉?곸씤 寃ъ쟻 愿由ш? 媛?ν빀?덈떎. ?대뼡 湲곕뒫??沅곴툑?섏떊媛??",
+                "?뚯씪???낅줈?쒗븯?쒕㈃ ???뺥솗??遺꾩꽍怨?寃ъ쟻???쒓났?대뱶由????덉뒿?덈떎."
+            ];
+
+            if (userMessage.includes('寃ъ쟻')) {
+                return responses[1];
+            } else if (userMessage.includes('諛곗쟾諛?) || userMessage.includes('?꾧린')) {
+                return responses[2];
+            } else {
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+        }
+
+        // ?뚯씪 泥⑤?
+        function attachFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        // 理쒓렐 梨꾪똿 愿由?
+        let recentChats = [
+            'AI ERP 寃ъ쟻?쒖뒪???ㅺ퀎',
+            '吏????ぉ ?덈궡',
+            '理쒖큹?꾨줈?앺듃 ?댁슜'
+        ];
+
+        // ??梨꾪똿 ?앹꽦
+        function createNewChat() {
+            // ?꾩옱 梨꾪똿???덉쑝硫?理쒓렐 梨꾪똿 紐⑸줉??異붽?
+            if (messages.length > 0) {
+                const chatTitle = messages[0].content.slice(0, 20) + (messages[0].content.length > 20 ? '...' : '');
+
+                // 留??욎뿉 異붽??섍퀬 3媛쒕쭔 ?좎?
+                recentChats.unshift(chatTitle);
+                recentChats = recentChats.slice(0, 3);
+
+                // 梨꾪똿 紐⑸줉 UI ?낅뜲?댄듃
+                updateRecentChatsList();
+            }
+
+            // ??梨꾪똿 珥덇린??
+            messages = [];
+            document.getElementById('messagesInner').innerHTML = '';
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+            document.getElementById('messagesContainer').classList.add('hidden');
+            document.getElementById('chatInputContainer').classList.add('hidden');
+
+            // AI 留ㅻ땲? 酉곕줈 ?꾪솚
+            switchToView('ai-manager');
+        }
+
+        // 理쒓렐 梨꾪똿 紐⑸줉 ?낅뜲?댄듃
+        function updateRecentChatsList() {
+            const chatItems = document.querySelectorAll('.chat-item');
+            chatItems.forEach((item, index) => {
+                if (index < recentChats.length) {
+                    item.textContent = recentChats[index];
+                }
+            });
+        }
+
+        // ??寃ъ쟻???앹꽦
+        function createNewEstimate() {
+            alert('??寃ъ쟻???앹꽦 湲곕뒫???ㅽ뻾?⑸땲??');
+        }
+
+        // 怨꾩젙 硫붾돱 ?좉?
+        let isAccountMenuOpen = false;
+        function toggleAccountMenu() {
+            const accountMenu = document.getElementById('accountMenu');
+            const chevron = document.getElementById('accountChevron');
+
+            isAccountMenuOpen = !isAccountMenuOpen;
+
+            if (isAccountMenuOpen) {
+                accountMenu.classList.add('open');
+                chevron.textContent = '??;
+            } else {
+                accountMenu.classList.remove('open');
+                chevron.textContent = '??;
+            }
+        }
+
+        // 怨꾩젙 硫붾돱 ?몃? ?대┃ ???リ린
+        document.addEventListener('click', function(event) {
+            const accountSection = document.querySelector('.account-section');
+            if (!accountSection.contains(event.target) && isAccountMenuOpen) {
+                document.getElementById('accountMenu').classList.remove('open');
+                document.getElementById('accountChevron').textContent = '??;
+                isAccountMenuOpen = false;
+            }
+        });
+
+        // 怨꾩젙 硫붾돱 湲곕뒫??
+        function openTeamSettings() {
+            alert('???異붽? ?ㅼ젙???쎈땲??');
+            toggleAccountMenu();
+        }
+
+        function openWorkspaceSettings() {
+            alert('?뚰겕?ㅽ럹?댁뒪 ?ㅼ젙???쎈땲??');
+            toggleAccountMenu();
+        }
+
+        function openPersonalSettings() {
+            alert('媛쒖씤 留욎땄 ?ㅼ젙???쎈땲??');
+            toggleAccountMenu();
+        }
+
+        function openSettings() {
+            alert('?ㅼ젙???쎈땲??');
+            toggleAccountMenu();
+        }
+
+        function logout() {
+            if (confirm('濡쒓렇?꾩썐 ?섏떆寃좎뒿?덇퉴?')) {
+                alert('濡쒓렇?꾩썐?섏뿀?듬땲??');
+            }
+            toggleAccountMenu();
+        }
+
+        // AI 梨꾪똿 ?낅┰李??닿린
+        function openAIChat() {
+            // ??李??ш린 諛??꾩튂 ?ㅼ젙
+            const width = 400;
+            const height = 600;
+            const left = screen.width - width - 20;
+            const top = (screen.height - height) / 2;
+
+            // ??李??닿린
+            const chatWindow = window.open('', 'aiChatWindow',
+                `width=${width},height=${height},left=${left},top=${top},` +
+                'scrollbars=no,resizable=yes,status=no,toolbar=no,menubar=no'
+            );
+
+            // ??李쎌뿉 AI 梨꾪똿 ?명꽣?섏씠???앹꽦
+            chatWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="ko">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>AI 梨꾪똿</title>
+                    <style>
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            height: 100vh;
+                            display: flex;
+                            flex-direction: column;
+                        }
+
+                        .chat-header {
+                            background: rgba(255, 255, 255, 0.1);
+                            padding: 15px 20px;
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                        }
+
+                        .chat-title {
+                            color: white;
+                            font-size: 18px;
+                            font-weight: 600;
+                        }
+
+                        .close-btn {
+                            background: rgba(255, 255, 255, 0.2);
+                            border: none;
+                            color: white;
+                            padding: 8px 12px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            transition: background 0.3s;
+                        }
+
+                        .close-btn:hover {
+                            background: rgba(255, 255, 255, 0.3);
+                        }
+
+                        .chat-container {
+                            flex: 1;
+                            display: flex;
+                            flex-direction: column;
+                            overflow: hidden;
+                        }
+
+                        .chat-messages {
+                            flex: 1;
+                            padding: 20px;
+                            overflow-y: auto;
+                            background: rgba(255, 255, 255, 0.05);
+                        }
+
+                        .message {
+                            margin-bottom: 15px;
+                            padding: 12px 16px;
+                            border-radius: 15px;
+                            max-width: 85%;
+                            word-wrap: break-word;
+                        }
+
+                        .user-message {
+                            background: rgba(255, 255, 255, 0.9);
+                            color: #333;
+                            margin-left: auto;
+                            border-bottom-right-radius: 5px;
+                        }
+
+                        .ai-message {
+                            background: rgba(255, 255, 255, 0.15);
+                            color: white;
+                            border-bottom-left-radius: 5px;
+                        }
+
+                        .chat-input-container {
+                            padding: 20px;
+                            background: rgba(255, 255, 255, 0.1);
+                            border-top: 1px solid rgba(255, 255, 255, 0.2);
+                            display: flex;
+                            gap: 10px;
+                        }
+
+                        .chat-input {
+                            flex: 1;
+                            padding: 12px 16px;
+                            border: none;
+                            border-radius: 25px;
+                            background: rgba(255, 255, 255, 0.9);
+                            color: #333;
+                            font-size: 14px;
+                            outline: none;
+                            resize: none;
+                            min-height: 20px;
+                            max-height: 80px;
+                        }
+
+                        .send-btn {
+                            background: #4CAF50;
+                            border: none;
+                            color: white;
+                            padding: 12px 20px;
+                            border-radius: 25px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            font-weight: 600;
+                            transition: background 0.3s;
+                        }
+
+                        .send-btn:hover {
+                            background: #45a049;
+                        }
+
+                        .send-btn:disabled {
+                            background: #cccccc;
+                            cursor: not-allowed;
+                        }
+
+                        /* ?ㅽ겕濡ㅻ컮 ?ㅽ???*/
+                        .chat-messages::-webkit-scrollbar {
+                            width: 6px;
+                        }
+
+                        .chat-messages::-webkit-scrollbar-track {
+                            background: rgba(255, 255, 255, 0.1);
+                            border-radius: 3px;
+                        }
+
+                        .chat-messages::-webkit-scrollbar-thumb {
+                            background: rgba(255, 255, 255, 0.3);
+                            border-radius: 3px;
+                        }
+
+                        .chat-messages::-webkit-scrollbar-thumb:hover {
+                            background: rgba(255, 255, 255, 0.5);
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="chat-header">
+                        <div class="chat-title">?뮠 AI 梨꾪똿</div>
+                        <button class="close-btn" onclick="window.close()">??/button>
+                    </div>
+
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message ai-message">
+                                ?덈뀞?섏꽭?? AI ?댁떆?ㅽ꽩?몄엯?덈떎. 臾댁뾿???꾩??쒕┫源뚯슂?
+                            </div>
+                        </div>
+
+                        <div class="chat-input-container">
+                            <textarea class="chat-input" id="chatInput" placeholder="硫붿떆吏瑜??낅젰?섏꽭??.." rows="1"></textarea>
+                            <button class="send-btn" id="sendBtn" onclick="sendMessage()">?꾩넚</button>
+                        </div>
+                    </div>
+
+                    <script>
+                        const chatMessages = document.getElementById('chatMessages');
+                        const chatInput = document.getElementById('chatInput');
+                        const sendBtn = document.getElementById('sendBtn');
+
+                        // 硫붿떆吏 ?꾩넚
+                        function sendMessage() {
+                            const message = chatInput.value.trim();
+                            if (!message) return;
+
+                            // ?ъ슜??硫붿떆吏 異붽?
+                            addMessage(message, 'user');
+                            chatInput.value = '';
+                            resetInputHeight();
+
+                            // AI ?묐떟 ?쒕??덉씠??(?ㅼ젣濡쒕뒗 API ?몄텧)
+                            setTimeout(() => {
+                                const responses = [
+                                    '?? ?꾩??쒕━寃좎뒿?덈떎!',
+                                    '醫뗭? 吏덈Ц?대꽕?? ???먯꽭???ㅻ챸?댁＜?????덈굹??',
+                                    '?대윴 諛⑸쾿? ?대뼥源뚯슂?',
+                                    '異붽?濡?沅곴툑???먯씠 ?덉쑝?쒕㈃ ?몄젣??留먯??댁＜?몄슂.',
+                                    '媛먯궗?⑸땲?? ?ㅻⅨ ?꾩????꾩슂?섏떆硫??뚮젮二쇱꽭??'
+                                ];
+                                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                                addMessage(randomResponse, 'ai');
+                            }, 1000);
+                        }
+
+                        // 硫붿떆吏 異붽?
+                        function addMessage(text, sender) {
+                            const messageDiv = document.createElement('div');
+                            messageDiv.className = 'message ' + (sender === 'user' ? 'user-message' : 'ai-message');
+                            messageDiv.textContent = text;
+                            chatMessages.appendChild(messageDiv);
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                        }
+
+                        // ?낅젰李??믪씠 議곗젅
+                        function resetInputHeight() {
+                            chatInput.style.height = 'auto';
+                        }
+
+                        chatInput.addEventListener('input', function() {
+                            this.style.height = 'auto';
+                            this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+                        });
+
+                        // ?뷀꽣 ???대깽??
+                        chatInput.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                sendMessage();
+                            }
+                        });
+
+                        // ?ъ빱???ㅼ젙
+                        chatInput.focus();
+                    </script>
+                </body>
+                </html>
+            `);
+
+            chatWindow.document.close();
+        }
+
+        // ?뷀꽣???대깽??
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                const activeElement = document.activeElement;
+                if (activeElement.classList.contains('chat-input')) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            }
+        });
+
+        // ?띿뒪???먯뼱由ъ뼱 ?먮룞 ?믪씠 議곗젅
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('chat-input')) {
+                e.target.style.height = 'auto';
+                e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+            }
+        });
+
+        // ========== ERP ?쒖뒪???⑥닔??==========
+
+        // ERP ???꾪솚
+        function showERPTab(tabName) {
+            // 紐⑤뱺 ??鍮꾪솢?깊솕
+            document.querySelectorAll('.erp-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 紐⑤뱺 ?뱀뀡 ?④린湲?
+            document.querySelectorAll('.erp-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // ?좏깮?????쒖꽦??
+            const selectedTab = document.querySelector(`[onclick="showERPTab('${tabName}')"]`);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+
+            // ?대떦 ?뱀뀡 ?쒖떆
+            const selectedSection = document.getElementById(`${tabName}-section`);
+            if (selectedSection) {
+                selectedSection.classList.add('active');
+            }
+        }
+
+        // ERP 醫뚯륫 硫붾돱 ?뱀뀡 ?좉?
+        function toggleERPSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const title = section.previousElementSibling;
+
+            // ?뱀뀡 ?좉?
+            if (section.classList.contains('active')) {
+                section.classList.remove('active');
+                title.classList.remove('active');
+            } else {
+                // ?ㅻⅨ 紐⑤뱺 ?뱀뀡 ?リ린
+                document.querySelectorAll('.erp-menu-items').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelectorAll('.erp-section-title').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // ?좏깮???뱀뀡 ?닿린
+                section.classList.add('active');
+                title.classList.add('active');
+            }
+        }
+
+        // ERP 紐⑤뱢 ?쒖떆
+        function showERPModule(moduleName) {
+            // 紐⑤뱺 硫붾돱 ?꾩씠??鍮꾪솢?깊솕
+            document.querySelectorAll('.erp-menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // ?대┃??硫붾돱 ?꾩씠???쒖꽦??
+            event.target.classList.add('active');
+
+            console.log(`${moduleName} 紐⑤뱢???쒖떆?⑸땲??`);
+            // ?ш린??媛?紐⑤뱢蹂??곸꽭 湲곕뒫 援ы쁽
+        }
+
+        // ?ш퀬 議고쉶 湲곕뒫
+        function showInventoryStatus() {
+            alert('?ш퀬 ?꾪솴??議고쉶?⑸땲??\n\n?꾩옱 ?ш퀬:\n- ?곹뭹A: 100媛?n- ?곹뭹B: 50媛?n- ?곹뭹C: 25媛?);
+        }
+
+        // 李쎄퀬 ?ш퀎??湲곕뒫
+        function recalculateWarehouse() {
+            if (confirm('李쎄퀬 ?ш퀎?곗쓣 ?ㅽ뻾?섏떆寃좎뒿?덇퉴?\n?쒓컙???ㅻ옒 嫄몃┫ ???덉뒿?덈떎.')) {
+                alert('李쎄퀬 ?ш퀎?곗씠 ?꾨즺?섏뿀?듬땲??');
+            }
+        }
+
+        // ?ш퀬 議곗젙 湲곕뒫
+        function adjustInventory() {
+            const product = prompt('?곹뭹紐낆쓣 ?낅젰?섏꽭??');
+            if (product) {
+                const quantity = prompt('議곗젙???섎웾???낅젰?섏꽭??');
+                if (quantity && !isNaN(quantity)) {
+                    alert(`${product}???ш퀬瑜?${quantity}媛쒕줈 議곗젙?덉뒿?덈떎.`);
+                }
+            }
+        }
+
+        // 湲곗큹?먮즺 ?깅줉 愿???⑥닔??
+        function registerBasicData(type) {
+            switch(type) {
+                case 'product':
+                    alert('?곹뭹?깅줉 ?붾㈃???쎈땲??');
+                    break;
+                case 'customer':
+                    alert('嫄곕옒泥섎벑濡??붾㈃???쎈땲??');
+                    break;
+                case 'account':
+                    alert('怨꾩젙?깅줉 ?붾㈃???쎈땲??');
+                    break;
+                default:
+                    alert(`${type} ?깅줉 ?붾㈃???쎈땲??`);
+            }
+        }
+
+        // ?꾪몴 ?묒꽦 愿???⑥닔??
+        function createDocument(type) {
+            switch(type) {
+                case 'sales':
+                    alert('留ㅼ텧?꾪몴 ?묒꽦 ?붾㈃???쎈땲??');
+                    break;
+                case 'purchase':
+                    alert('留ㅼ엯?꾪몴 ?묒꽦 ?붾㈃???쎈땲??');
+                    break;
+                case 'journal':
+                    alert('遺꾧컻?꾪몴 ?묒꽦 ?붾㈃???쎈땲??');
+                    break;
+                default:
+                    alert(`${type} ?꾪몴 ?묒꽦 ?붾㈃???쎈땲??`);
+            }
+        }
+
+        // 蹂닿퀬??議고쉶 愿???⑥닔??
+        function viewReport(type) {
+            switch(type) {
+                case 'sales':
+                    alert('留ㅼ텧蹂닿퀬?쒕? 議고쉶?⑸땲??');
+                    break;
+                case 'inventory':
+                    alert('?ш퀬蹂닿퀬?쒕? 議고쉶?⑸땲??');
+                    break;
+                case 'financial':
+                    alert('?щТ蹂닿퀬?쒕? 議고쉶?⑸땲??');
+                    break;
+                default:
+                    alert(`${type} 蹂닿퀬?쒕? 議고쉶?⑸땲??`);
+            }
+        }
+
+        // 怨꾩궛 ?⑥닔??(?멸툑, ?좎씤 ??
+        function calculateTax(amount, taxRate = 0.1) {
+            return Math.round(amount * taxRate);
+        }
+
+        function calculateDiscount(amount, discountRate) {
+            return Math.round(amount * discountRate);
+        }
+
+        function calculateTotal(subtotal, tax, discount = 0) {
+            return subtotal + tax - discount;
+        }
+
+        // LocalStorage瑜??댁슜???곗씠?????遺덈윭?ㅺ린
+        function saveERPData(key, data) {
+            try {
+                localStorage.setItem(`erp_${key}`, JSON.stringify(data));
+                return true;
+            } catch (e) {
+                console.error('?곗씠??????ㅽ뙣:', e);
+                return false;
+            }
+        }
+
+        function loadERPData(key) {
+            try {
+                const data = localStorage.getItem(`erp_${key}`);
+                return data ? JSON.parse(data) : null;
+            } catch (e) {
+                console.error('?곗씠??遺덈윭?ㅺ린 ?ㅽ뙣:', e);
+                return null;
+            }
+        }
+
+        // ERP ?쒖뒪??珥덇린??
+        function initializeERP() {
+            console.log('ERP ?쒖뒪?쒖쓣 珥덇린?뷀빀?덈떎.');
+
+            // 湲곕낯 ?곗씠??濡쒕뱶
+            const savedProducts = loadERPData('products') || [];
+            const savedCustomers = loadERPData('customers') || [];
+
+            // 泥?踰덉㎏ ??쓣 湲곕낯?쇰줈 ?쒖꽦??
+            showERPTab('electronic');
+
+            console.log('ERP ?쒖뒪??珥덇린???꾨즺');
+        }
+
+        // ?뚯씪 ?낅젰 ?대깽??
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                console.log('?뚯씪 ?좏깮??', files);
+                // ?뚯씪 ?낅줈??泥섎━
+            }
+        });
+
+        // 珥덇린??
+        document.addEventListener('DOMContentLoaded', function() {
+            // 湲곕낯?곸쑝濡?AI 留ㅻ땲? 酉??쒖꽦??
+            switchToView('ai-manager');
+        });
+
+        // ?섏씠吏 濡쒕뱶 ??ERP ?쒖뒪??珥덇린??
+        document.addEventListener('DOMContentLoaded', function() {
+            // ERP ?쒖뒪??珥덇린??
+            initializeERP();
+
+            // 湲곕낯 AI 留ㅻ땲? 酉??쒖꽦??
+            const defaultView = document.getElementById('aiManagerView');
+            if (defaultView) {
+                defaultView.classList.add('active');
+            }
+
+            console.log('KIS AI ?쒖뒪?쒖씠 珥덇린?붾릺?덉뒿?덈떎.');
+        });
+    </script>
+
+<!-- CLICK RESTORE PATCH: begin -->
+<style id="click-restore">
+  /* 0) 猷⑦듃 ?덉쟾?μ튂: ?꾩뿭 ?대┃ 李⑤떒 媛?μ꽦 ?쒓굅 */
+  html, body {    transform: none !important;
+    filter: none !important;
+    perspective: none !important;
+  }
+
+  /* 1) ??쒖쟻 ?대깽??李⑤떒???꾨㈃ ?ㅻ쾭?덉씠/媛由쇰쭑) 臾대젰??*/
+  .overlay, .backdrop, .scrim, .mask, .veil, .modal-backdrop,
+  .drawer-overlay, .drawer__overlay, .dialog-backdrop, .dialog__backdrop,
+  .loading, .spinner, .spinner-overlay,
+  .page-cover, .fullscreen-cover, .screen-cover, .blocker, .click-blocker,
+  .scrollbar-hider, .scrollbar-cover, [data-scrollbar-cover],
+  #overlay, #modal-backdrop, [data-overlay], [data-dim],
+  html::before, html::after, body::before, body::after {
+    /* ?쒓컖 ?덉씠?대뒗 ?좎??섎릺 ?대┃留??듦낵?쒗궎湲?*/
+    pointer-events: none !important;
+    /* ?대뼡 踰꾪듉????? ?딅룄濡??꾨옒濡??대┝ */
+    z-index: -1 !important;
+  }
+
+  /* 2) ?ㅽ겕濡ㅻ컮 ?④???媛由쇰쭑?쇰줈 援ы쁽??寃쎌슦 諛⑹?(媛??width/height:100vh fixed 諛뺤뒪) */
+  .scrollbar-hider, .scrollbar-cover, [data-scrollbar-cover] {
+    position: fixed !important;
+    inset: 0 !important;
+    background: transparent !important;
+    /* 媛由쇰쭑?댁뿬???대┃? ?듦낵 */
+    pointer-events: none !important;
+  }
+
+  /* 3) ?명꽣?숉떚釉??붿냼????긽 ?대┃ 媛???곹깭 蹂댁옣 */
+  a, button, [role="button"],
+  input, select, textarea, label,
+  .clickable, .nav-item, .chat-item, .account-button, .input-button,
+  [onclick], [data-onclick], [data-action="click"] {    position: relative; /* stacking-context ?쇰? 理쒖냼??*/
+    z-index: 10;        /* 怨쇰룄???꾩뿭 z-index ?꾩웳 ????곸젙 ?덈꺼 */
+    cursor: pointer;
+  }
+
+  /* 4) 紐⑤떖/?쒕줈??蹂몄껜???명꽣?숉떚釉??좎?, ?ㅻ쾭?덉씠留?鍮꾪솢??*/
+  .modal, .dialog, .drawer, .sheet, .popover, .dropdown-menu {    position: relative;
+    z-index: 20;
+  }
+
+  /* 5) ?꾩뿭 ?ㅽ겕濡??뺤콉: ?④?? overflow濡쒕쭔, 媛由쇰쭑 湲덉? */
+  .no-scroll, .lock-scroll, [data-scroll-lock="true"] {
+    overflow: hidden !important;   /* ?ㅽ겕濡ㅻ쭔 ?쒗븳 */  }
+
+  /* 6) ?뷀븳 ?ㅼ닔 諛⑹?: ?덉씠?꾩썐 而⑦뀒?대꼫媛 ?붾㈃????퀬 ?대┃??癒밸뒗 寃쎌슦 */
+  .layout, .container, .app, #app, .app-root, #root {    position: relative;
+    z-index: 0;
+  }
+
+  /* 7) ?뱀젙 ?꾨젅??罹붾쾭?ㅺ? ?꾨㈃ ??컻濡??щ씪??寃쎌슦(誘몃━蹂닿린 iframe ?? */
+  iframe[aria-hidden="true"],
+  .preview, .glass, .glasspane, .backdrop-blur {
+    pointer-events: none !important;
+    z-index: -1 !important;
+  }
+
+  /* 8) 媛쒕컻 以??섎せ ?ㅼ뼱媛??꾩뿭 ?ъ씤??李⑤떒 ?덉쟾? */
+  *[style*="pointer-events: none"] {
+    /* ?명꽣?숉떚釉?怨꾩뿴?먮뒗 媛뺤젣濡?蹂듦뎄 */
+  }
+  a[style*="pointer-events: none"],
+  button[style*="pointer-events: none"],
+  [role="button"][style*="pointer-events: none"],
+  [onclick][style*="pointer-events: none"],
+  .nav-item[style*="pointer-events: none"],
+  .input-button[style*="pointer-events: none"],
+  .account-button[style*="pointer-events: none"],
+  .chat-item[style*="pointer-events: none"] {  }
+
+  /* 9) ?곗튂 ?섏씠?쇱씠???쒓굅(紐⑤컮???댁뒋 媛먯냼?? ?대┃???곹뼢 ?놁쓬) */
+  * { -webkit-tap-highlight-color: transparent; }
+</style>
+<!-- CLICK RESTORE PATCH: end -->
+
+</body>
+</html>
+
+

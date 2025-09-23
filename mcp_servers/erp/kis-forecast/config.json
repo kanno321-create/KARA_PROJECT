@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-forecast",
+    "code":  "MCP-5",
+    "description":  "수요 예측",
+    "priority":  "P2",
+    "endpoints":  {
+                      "execute":  "/kis-forecast/execute",
+                      "health":  "/kis-forecast/health"
+                  },
+    "status":  "INSTALLED"
+}

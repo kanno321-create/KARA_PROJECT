@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIS CORE V2 - AI 매니저 & 견적 시스템</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+            background-color: #f5f5f5;
+            color: #323130;
+            font-size: 14px;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Main Grid Layout */
+        .app-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100vh;
+        }
+
+        /* 좌측 사이드바 */
+        .sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+            background: white;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0066cc;
+            margin-bottom: 8px;
+        }
+
+        .user-info {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 0;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            padding: 12px 20px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .nav-item.active {
+            background: #3b82f6;
+            color: white;
+            font-weight: 500;
+        }
+
+        .nav-item-icon {
+            margin-right: 12px;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* 메인 컨텐츠 영역 */
+        .main-content {
+            background: white;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* View Content */
+        .view-content {
+            flex: 1;
+            overflow: hidden;
+            display: none;
+        }
+
+        .view-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* AI Manager View - 우측 사이드바 제거 */
+        #ai-manager-view {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-main {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            flex: 1;
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .chat-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .welcome-logo {
+            font-size: 48px;
+            font-weight: 700;
+            color: #0066cc;
+            margin-bottom: 16px;
+        }
+
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 32px;
+        }
+
+        .chat-input-area {
+            padding: 24px;
+            border-top: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        .chat-input-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            max-width: 100%;
+        }
+
+        .chat-input {
+            flex: 1;
+            min-height: 44px;
+            max-height: 120px;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+            background: white;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .send-button {
+            padding: 12px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .send-button:hover {
+            background: #2563eb;
+        }
+
+        .send-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* Estimates View - iframe으로 기존 견적 시스템 로드 */
+        #estimates-view {
+            width: 100%;
+            height: 100%;
+        }
+
+        #estimates-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 기타 뷰들 */
+        .placeholder-view {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #9ca3af;
+            font-size: 16px;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .app-grid {
+                grid-template-columns: 60px 1fr;
+            }
+
+            .sidebar .nav-item-text {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-grid">
+        <!-- 좌측 사이드바 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">㈜한국산업</div>
+                <div class="user-info">이충원 ceo@kis.com</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">WORK</div>
+                    <button class="nav-item active" onclick="showView('ai-manager')">
+                        <span class="nav-item-icon">🤖</span>
+                        <span class="nav-item-text">AI 매니저</span>
+                    </button>
+                    <button class="nav-item" onclick="showView('estimates')">
+                        <span class="nav-item-icon">📊</span>
+                        <span class="nav-item-text">견적서</span>
+                    </button>
+                    <button class="nav-item" onclick="showView('erp')">
+                        <span class="nav-item-icon">💼</span>
+                        <span class="nav-item-text">ERP</span>
+                    </button>
+                    <button class="nav-item" onclick="showView('email')">
+                        <span class="nav-item-icon">📧</span>
+                        <span class="nav-item-text">이메일</span>
+                    </button>
+                    <button class="nav-item" onclick="showView('calendar')">
+                        <span class="nav-item-icon">📅</span>
+                        <span class="nav-item-text">캘린더</span>
+                    </button>
+                    <button class="nav-item" onclick="showView('drawings')">
+                        <span class="nav-item-icon">📐</span>
+                        <span class="nav-item-text">도면</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+
+        <!-- 메인 컨텐츠 영역 -->
+        <div class="main-content">
+            <!-- AI 매니저 뷰 (우측 사이드바 제거) -->
+            <div id="ai-manager-view" class="view-content active">
+                <div class="chat-main">
+                    <div class="chat-header">
+                        <h1>AI 매니저</h1>
+                    </div>
+
+                    <div class="chat-messages">
+                        <div class="welcome-screen">
+                            <div class="welcome-logo">㈜한국산업</div>
+                            <div class="welcome-title">AI 매니저에 오신 것을 환영합니다</div>
+                            <div class="welcome-subtitle">무엇을 도와드릴까요?</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <div class="chat-input-container">
+                            <textarea
+                                class="chat-input"
+                                placeholder="메시지를 입력하세요..."
+                                rows="1"
+                                onkeydown="handleChatKeydown(event)"
+                            ></textarea>
+                            <button class="send-button" onclick="sendMessage()">전송</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 견적서 뷰 - iframe으로 기존 시스템 로드 -->
+            <div id="estimates-view" class="view-content">
+                <iframe id="estimates-iframe" src="./estimate-simple.html"></iframe>
+            </div>
+
+            <!-- 기타 뷰들 (placeholder) -->
+            <div id="erp-view" class="view-content">
+                <div class="placeholder-view">ERP 시스템 (준비중)</div>
+            </div>
+
+            <div id="email-view" class="view-content">
+                <div class="placeholder-view">이메일 시스템 (준비중)</div>
+            </div>
+
+            <div id="calendar-view" class="view-content">
+                <div class="placeholder-view">캘린더 시스템 (준비중)</div>
+            </div>
+
+            <div id="drawings-view" class="view-content">
+                <div class="placeholder-view">도면 관리 시스템 (준비중)</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 뷰 전환 함수
+        function showView(viewName) {
+            // 모든 뷰 숨기기
+            const views = document.querySelectorAll('.view-content');
+            views.forEach(view => {
+                view.classList.remove('active');
+            });
+
+            // 모든 네비게이션 아이템 비활성화
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // 선택된 뷰 표시
+            const targetView = document.getElementById(viewName + '-view');
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+
+            // 해당 네비게이션 아이템 활성화
+            const targetNav = document.querySelector(`[onclick="showView('${viewName}')"]`);
+            if (targetNav) {
+                targetNav.classList.add('active');
+            }
+        }
+
+        // AI 채팅 관련 함수들
+        function handleChatKeydown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.querySelector('.chat-input');
+            const message = input.value.trim();
+
+            if (message) {
+                // 메시지 처리 로직 (나중에 구현)
+                console.log('Message sent:', message);
+                input.value = '';
+
+                // 웰컴 스크린 숨기기
+                const welcomeScreen = document.querySelector('.welcome-screen');
+                if (welcomeScreen) {
+                    welcomeScreen.style.display = 'none';
+                }
+            }
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('KIS CORE V2 AI Manager & Estimate System initialized');
+
+            // 기본적으로 AI 매니저 뷰 표시
+            showView('ai-manager');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+test_case: "01"
+status: "skip"
+reason: "foundation-only mode"
+input:
+  # Empty - to be filled during implementation phase
+  project: null
+  panels: null
+expected:
+  # Empty - to be filled during implementation phase
+  result: null
+  evidence: null

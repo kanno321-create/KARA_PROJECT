@@ -1,0 +1,44 @@
+{
+  "action": "format",
+  "input_data": {
+    "estimate": {
+      "project_name": "Sample Electrical Panel Project",
+      "client": "ABC Manufacturing Co.",
+      "project_number": "PROJ-2025-001",
+      "date": "2025-09-19",
+      "subtotal": 125000.00,
+      "vat": 12500.00,
+      "total": 137500.00
+    },
+    "items": [
+      {
+        "description": "Main Distribution Panel",
+        "quantity": 1,
+        "unit_price": 45000.00,
+        "total": 45000.00
+      },
+      {
+        "description": "MCB Breakers (20A)",
+        "quantity": 12,
+        "unit_price": 2500.00,
+        "total": 30000.00
+      },
+      {
+        "description": "MCCB Breakers (100A)",
+        "quantity": 4,
+        "unit_price": 8000.00,
+        "total": 32000.00
+      },
+      {
+        "description": "Installation & Testing",
+        "quantity": 1,
+        "unit_price": 18000.00,
+        "total": 18000.00
+      }
+    ]
+  },
+  "options": {
+    "timeout": 30,
+    "validate_only": false
+  }
+}

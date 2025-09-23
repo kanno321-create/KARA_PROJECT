@@ -1,0 +1,162 @@
+[
+  {
+    "id": "CUST001",
+    "name": "삼성전자",
+    "code": "SEC001",
+    "type": "대기업",
+    "industry": "전자제품 제조",
+    "contact": {
+      "email": "procurement@samsung.com",
+      "phone": "02-2255-0114",
+      "address": "서울특별시 서초구 서초대로 74길 11",
+      "contact_person": "김구매",
+      "department": "구매팀"
+    },
+    "payment_terms": "NET30",
+    "credit_rating": "AAA",
+    "preferred_currency": "KRW",
+    "tax_id": "120-81-00998",
+    "created_at": "2024-01-15T09:00:00Z",
+    "status": "active"
+  },
+  {
+    "id": "CUST002",
+    "name": "LG전자",
+    "code": "LGE001",
+    "type": "대기업",
+    "industry": "가전제품 제조",
+    "contact": {
+      "email": "sourcing@lge.com",
+      "phone": "02-3777-1114",
+      "address": "서울특별시 영등포구 여의대로 128",
+      "contact_person": "이조달",
+      "department": "소싱팀"
+    },
+    "payment_terms": "NET45",
+    "credit_rating": "AA+",
+    "preferred_currency": "KRW",
+    "tax_id": "107-86-01126",
+    "created_at": "2024-01-20T10:30:00Z",
+    "status": "active"
+  },
+  {
+    "id": "CUST003",
+    "name": "현대자동차",
+    "code": "HMC001",
+    "type": "대기업",
+    "industry": "자동차 제조",
+    "contact": {
+      "email": "purchase@hyundai.com",
+      "phone": "02-3464-1114",
+      "address": "서울특별시 서초구 헌릉로 12",
+      "contact_person": "박부품",
+      "department": "부품구매팀"
+    },
+    "payment_terms": "NET60",
+    "credit_rating": "AA",
+    "preferred_currency": "KRW",
+    "tax_id": "204-81-32045",
+    "created_at": "2024-02-01T14:20:00Z",
+    "status": "active"
+  },
+  {
+    "id": "CUST004",
+    "name": "포스코",
+    "code": "PSC001",
+    "type": "대기업",
+    "industry": "철강 제조",
+    "contact": {
+      "email": "buying@posco.com",
+      "phone": "054-220-0114",
+      "address": "경상북도 포항시 남구 동해안로 6267",
+      "contact_person": "최철강",
+      "department": "자재구매팀"
+    },
+    "payment_terms": "NET30",
+    "credit_rating": "AA+",
+    "preferred_currency": "KRW",
+    "tax_id": "220-81-00148",
+    "created_at": "2024-02-10T11:15:00Z",
+    "status": "active"
+  },
+  {
+    "id": "CUST005",
+    "name": "SK텔레콤",
+    "code": "SKT001",
+    "type": "대기업",
+    "industry": "통신서비스",
+    "contact": {
+      "email": "procurement@sktelecom.com",
+      "phone": "02-6100-2114",
+      "address": "서울특별시 중구 을지로 65",
+      "contact_person": "정통신",
+      "department": "네트워크구매팀"
+    },
+    "payment_terms": "NET45",
+    "credit_rating": "AA",
+    "preferred_currency": "KRW",
+    "tax_id": "102-81-42945",
+    "created_at": "2024-02-15T16:45:00Z",
+    "status": "active"
+  },
+  {
+    "id": "CUST006",
+    "name": "중소기업A",
+    "code": "SME001",
+    "type": "중소기업",
+    "industry": "정밀기계 제조",
+    "contact": {
+      "email": "manager@sme-a.co.kr",
+      "phone": "031-123-4567",
+      "address": "경기도 성남시 분당구 정자일로 95",
+      "contact_person": "김중소",
+      "department": "생산팀"
+    },
+    "payment_terms": "NET15",
+    "credit_rating": "BBB",
+    "preferred_currency": "KRW",
+    "tax_id": "135-88-12345",
+    "created_at": "2024-03-01T09:30:00Z",
+    "status": "active"
+  },
+  {
+    "id": "CUST007",
+    "name": "벤처기업B",
+    "code": "VEN001",
+    "type": "벤처기업",
+    "industry": "소프트웨어 개발",
+    "contact": {
+      "email": "cto@venture-b.com",
+      "phone": "02-567-8901",
+      "address": "서울특별시 강남구 테헤란로 152",
+      "contact_person": "이벤처",
+      "department": "개발팀"
+    },
+    "payment_terms": "COD",
+    "credit_rating": "BB",
+    "preferred_currency": "KRW",
+    "tax_id": "142-87-67890",
+    "created_at": "2024-03-10T13:20:00Z",
+    "status": "active"
+  },
+  {
+    "id": "CUST008",
+    "name": "외국기업C",
+    "code": "FOR001",
+    "type": "외국기업",
+    "industry": "화학제품 제조",
+    "contact": {
+      "email": "korea@foreign-c.com",
+      "phone": "02-789-0123",
+      "address": "서울특별시 용산구 한강대로 40",
+      "contact_person": "Michael Chen",
+      "department": "Korea Office"
+    },
+    "payment_terms": "LC90",
+    "credit_rating": "A",
+    "preferred_currency": "USD",
+    "tax_id": "110-82-45678",
+    "created_at": "2024-03-15T15:10:00Z",
+    "status": "active"
+  }
+]

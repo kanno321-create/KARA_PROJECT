@@ -1,0 +1,187 @@
+ZIP: /mnt/data/KIS_CORE_V2.zip
+SHA256: dadb7ba4531140768addf5df288ab1a80bb6b10058104eead47e33261bde0438
+
+tests/  (files=586, bytes=744880)
+  - tests/regression/bundle.spec.ts [688B]
+  - tests/regression/cases/01/case.yaml [257B]
+  - tests/regression/cases/01/work/current/breakers.json [4932B]
+  - tests/regression/cases/01/work/current/cover/cover_tab.json [524B]
+  - tests/regression/cases/01/work/current/cover/cover_tab.svg [665B]
+  - tests/regression/cases/01/work/current/cover/cover_tab_evidence.json [342B]
+  - tests/regression/cases/01/work/current/enclosure/enclosure_plan.json [985B]
+  - tests/regression/cases/01/work/current/enclosure/enclosure_plan.svg [425B]
+  - tests/regression/cases/01/work/current/enclosure/enclosure_plan_evidence.json [205B]
+  - tests/regression/cases/01/work/current/estimate.json [545B]
+  - tests/regression/cases/01/work/current/format/estimate_format.json [2395B]
+  - tests/regression/cases/01/work/current/format/estimate_format.png [0B]
+  - tests/regression/cases/01/work/current/format/estimate_format.svg [1007B]
+  - tests/regression/cases/01/work/current/format/estimate_format_evidence.json [260B]
+  - tests/regression/cases/01/work/current/lint/doc_lint_result.json [1059B]
+
+out/  (files=149, bytes=48206)
+  - out/cards/card_instant_12.cards.json [288B]
+  - out/cards/card_instant_15.cards.json [289B]
+  - out/cards/card_instant_18.cards.json [289B]
+  - out/cards/card_instant_21.cards.json [289B]
+  - out/cards/card_instant_24.cards.json [288B]
+  - out/cards/card_instant_27.cards.json [289B]
+  - out/cards/card_instant_3.cards.json [288B]
+  - out/cards/card_instant_30.cards.json [288B]
+  - out/cards/card_instant_33.cards.json [288B]
+  - out/cards/card_instant_36.cards.json [289B]
+  - out/cards/card_instant_39.cards.json [288B]
+  - out/cards/card_instant_42.cards.json [289B]
+  - out/cards/card_instant_45.cards.json [289B]
+  - out/cards/card_instant_6.cards.json [288B]
+  - out/cards/card_instant_9.cards.json [288B]
+
+KIS/  (files=127, bytes=420790)
+  - KIS/Engine/__init__.py [43B]
+  - KIS/Engine/__pycache__/__init__.cpython-311.pyc [180B]
+  - KIS/Engine/kis_estimator_core/__init__.py [139B]
+  - KIS/Engine/kis_estimator_core/__pycache__/__init__.cpython-311.pyc [332B]
+  - KIS/Engine/kis_estimator_core/contracts/breaker_placement.json [615B]
+  - KIS/Engine/kis_estimator_core/contracts/change_impact.json [290B]
+  - KIS/Engine/kis_estimator_core/contracts/cover_tab.json [533B]
+  - KIS/Engine/kis_estimator_core/contracts/enclosure_plan.json [547B]
+  - KIS/Engine/kis_estimator_core/contracts/estimate_request.json [1000B]
+  - KIS/Engine/kis_estimator_core/contracts/estimate_response.json [671B]
+  - KIS/Engine/kis_estimator_core/contracts/format_lint.json [297B]
+  - KIS/Engine/kis_estimator_core/stubs/__init__.py [390B]
+  - KIS/Engine/kis_estimator_core/stubs/__pycache__/__init__.cpython-311.pyc [536B]
+  - KIS/Engine/kis_estimator_core/stubs/__pycache__/breaker_critic.cpython-311.pyc [1144B]
+  - KIS/Engine/kis_estimator_core/stubs/__pycache__/breaker_placer.cpython-311.pyc [1693B]
+
+.meta/  (files=44, bytes=165060)
+  - .meta/READ_ME_FIRST.md [2073B]
+  - .meta/audit_summary_20250919_000429.json [2091B]
+  - .meta/audit_summary_20250919_004840.json [1831B]
+  - .meta/audit_summary_20250919_010455.json [2186B]
+  - .meta/auto_fix_brief_20250919_000429.md [4325B]
+  - .meta/build_tools/extract_interfaces.py [3758B]
+  - .meta/cleanup_manifest_20250919_011805.md [1459B]
+  - .meta/code_contract_report_20250919_000429.md [3965B]
+  - .meta/code_contract_report_20250919_004230.md [5147B]
+  - .meta/code_contract_report_20250919_004840.md [1850B]
+  - .meta/code_contract_report_20250919_010455.md [2243B]
+  - .meta/codex_brief_ready.md [3734B]
+  - .meta/codex_patch_request.md [3274B]
+  - .meta/deployment_ready_20250919_003000.md [4308B]
+  - .meta/fastmcp_manifest_1758217591.md [2086B]
+
+.github/  (files=29, bytes=336723)
+  - .github/workflows/ci.yml [11357B]
+  - .github/workflows/claude_relay.yml [9372B]
+  - .github/workflows/core_guard.yml [21485B]
+  - .github/workflows/deploy_prod.yml.disabled [10468B]
+  - .github/workflows/estimation_canary.yml.disabled [18179B]
+  - .github/workflows/foundation_guard.yml [2473B]
+  - .github/workflows/m28-e2e-tests.yml.disabled [11427B]
+  - .github/workflows/m29-release.yml.disabled [2347B]
+  - .github/workflows/m29-synthetic.yml.disabled [1084B]
+  - .github/workflows/m30-step5-ci.yml.disabled [8175B]
+  - .github/workflows/m31_core_guard.yml.disabled [24769B]
+  - .github/workflows/m34-compliance.yml.disabled [17524B]
+  - .github/workflows/m35-scm-korean.yml.disabled [13779B]
+  - .github/workflows/m37-copilot-ci.yml.disabled [20830B]
+  - .github/workflows/m42-policy-gate.yml.disabled [12378B]
+
+engine/  (files=20, bytes=146972)
+  - engine/__pycache__/_util_io.cpython-311.pyc [7564B]
+  - engine/_util_io.py [3521B]
+  - engine/breaker_critic.py [8936B]
+  - engine/breaker_critic.py.bak_20250918_233019 [3858B]
+  - engine/breaker_placer.py [14546B]
+  - engine/breaker_placer.py.bak_20250918_233019 [4761B]
+  - engine/breaker_placer.py.bak_20250919_011805 [13178B]
+  - engine/cover_tab_writer.py [5769B]
+  - engine/cover_tab_writer.py.bak_20250919_014208 [8463B]
+  - engine/cover_tab_writer.py.bak_20250919_015441 [4212B]
+  - engine/doc_lint_guard.py [13024B]
+  - engine/doc_lint_guard.py.bak_20250918_233019 [5233B]
+  - engine/doc_lint_guard.py.bak_20250919_014208 [12824B]
+  - engine/enclosure_solver.py [4734B]
+  - engine/enclosure_solver.py.bak_20250919_011805 [3591B]
+
+scripts/  (files=16, bytes=45743)
+  - scripts/_self_heal_utils.mjs [2145B]
+  - scripts/_sh.mjs [2368B]
+  - scripts/erp_handoff.mjs [1761B]
+  - scripts/gates_quickcheck.mjs [2046B]
+  - scripts/merge_cards.mjs [2283B]
+  - scripts/preview_and_perf.mjs [1778B]
+  - scripts/rag_indexer_local.mjs [1680B]
+  - scripts/regression_200.mjs [1854B]
+  - scripts/run_fix4.sh [1189B]
+  - scripts/self_heal.mjs [10268B]
+  - scripts/self_heal_report.mjs [3998B]
+  - scripts/self_heal_runner.mjs [7560B]
+  - scripts/update_pins.mjs [1471B]
+  - scripts/v0_smoke50.mjs [1685B]
+  - scripts/v1_regen_cards.mjs [1494B]
+
+deploy/  (files=9, bytes=19719)
+  - deploy/fastmcp/README.md [149B]
+  - deploy/fastmcp/openapi_fastmcp.yaml [4602B]
+  - deploy/fastmcp/payload_samples/cover_request.json [538B]
+  - deploy/fastmcp/payload_samples/enclosure_request.json [803B]
+  - deploy/fastmcp/payload_samples/format_request.json [1027B]
+  - deploy/fastmcp/payload_samples/lint_request.json [935B]
+  - deploy/fastmcp/payload_samples/placement_request.json [1083B]
+  - deploy/fastmcp/server.mock.py [5302B]
+  - deploy/fastmcp/server.py [5280B]
+
+docs/  (files=7, bytes=4042)
+  - docs/KIS_AI_ERP_Guideline.md [245B]
+  - docs/KIS_v2_main_prompt.md [219B]
+  - docs/kis_mcp_master_playbook_ultra_detail_v_1.md [319B]
+  - docs/kis_╡≡└┌└╬_╕«║⌠╡σ_v_2.md [266B]
+  - docs/unlock/UNLOCK_CHECKLIST.md [1496B]
+  - docs/unlock/UNLOCK_POLICY.json [1244B]
+  - docs/v2.0┴ª└█╗τ╛≈░Φ╚╣╝¡.md [253B]
+
+evidence/  (files=4, bytes=268600)
+  - evidence/post_restore_bundle.sha256 [66B]
+  - evidence/post_restore_bundle.tar.gz [134283B]
+  - evidence/self_heal_bundle.sha256 [66B]
+  - evidence/self_heal_bundle.tar.gz [134185B]
+
+tools/  (files=3, bytes=8831)
+  - tools/evidence_dummy.py [2074B]
+  - tools/unlock_sign_template.json [519B]
+  - tools/verify_unlock.py [6238B]
+
+logs/  (files=3, bytes=1104)
+  - logs/gates_quickcheck.json [538B]
+  - logs/handoff_receipt.json [374B]
+  - logs/preview.json [192B]
+
+configs/  (files=3, bytes=1892)
+  - configs/a2a_roles.json [967B]
+  - configs/mcp_registry.json [661B]
+  - configs/security_policies.json [264B]
+
+dist/  (files=2, bytes=175792)
+  - dist/KIS_CORE_V2_RC1_1758217807.zip [170238B]
+  - dist/KIS_CORE_V2_RC1_1758217807_RELEASE_NOTES.md [5554B]
+
+rag/  (files=2, bytes=2)
+  - rag/index/sources.json [2B]
+  - rag/index/tokens.jsonl [0B]
+
+release/  (files=2, bytes=283)
+  - release/dashboard_pins.json [120B]
+  - release/v1_manifest.json [163B]
+
+.claude/  (files=1, bytes=143)
+  - .claude/settings.local.json [143B]
+
+generate_simple_templates.py/  (files=1, bytes=4394)
+  - generate_simple_templates.py [4394B]
+
+generate_templates.py/  (files=1, bytes=3504)
+  - generate_templates.py [3504B]
+
+ui/  (files=1, bytes=5796)
+  - ui/ReplacementRecommender.tsx [5796B]
+

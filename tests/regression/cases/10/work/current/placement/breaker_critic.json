@@ -1,0 +1,27 @@
+{
+  "ts": 1758217541,
+  "placement_file": "tests\\regression\\cases\\10\\work\\current\\placement\\breaker_placement.json",
+  "violations": [],
+  "warnings": [],
+  "violation_details": [],
+  "phase_imbalance_pct": 3.0,
+  "total_heat_w": 178.517362419137,
+  "passed": true,
+  "score": 100,
+  "thresholds": {
+    "phase_imbalance_pct": 4.0,
+    "clearances_violation": 0,
+    "thermal_violation": 0,
+    "row_heat_w": 650,
+    "panel_heat_w": 2500,
+    "min_clearance_mm": 50
+  },
+  "critic_pass": true,
+  "metrics": {
+    "phase_imbalance_pct": 3.0,
+    "clearance_violations": 0,
+    "thermal_violations": 0,
+    "total_heat_w": 178.517362419137,
+    "slot_count": 12
+  }
+}

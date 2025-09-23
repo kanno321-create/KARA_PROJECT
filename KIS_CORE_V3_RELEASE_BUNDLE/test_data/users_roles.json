@@ -1,0 +1,395 @@
+{
+  "roles": [
+    {
+      "id": "ROLE-001",
+      "name": "시스템 관리자",
+      "code": "SYSTEM_ADMIN",
+      "description": "시스템 전체 관리 및 설정 권한",
+      "permissions": [
+        "system.admin.all",
+        "user.manage.all",
+        "estimate.manage.all",
+        "product.manage.all",
+        "customer.manage.all",
+        "report.view.all",
+        "audit.view.all",
+        "config.modify.all"
+      ],
+      "level": 10,
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "ROLE-002",
+      "name": "견적 관리자",
+      "code": "ESTIMATE_MANAGER",
+      "description": "견적 생성, 수정, 승인 권한",
+      "permissions": [
+        "estimate.create",
+        "estimate.edit.all",
+        "estimate.approve",
+        "estimate.delete",
+        "customer.view.all",
+        "product.view.all",
+        "report.estimate.view",
+        "ai.estimation.use"
+      ],
+      "level": 7,
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "ROLE-003",
+      "name": "견적 담당자",
+      "code": "ESTIMATE_USER",
+      "description": "견적 생성 및 수정 권한",
+      "permissions": [
+        "estimate.create",
+        "estimate.edit.own",
+        "estimate.view.own",
+        "customer.view.assigned",
+        "product.view.all",
+        "report.own.view",
+        "ai.estimation.use"
+      ],
+      "level": 5,
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "ROLE-004",
+      "name": "영업 관리자",
+      "code": "SALES_MANAGER",
+      "description": "영업 활동 전반 관리 권한",
+      "permissions": [
+        "customer.manage.all",
+        "estimate.view.all",
+        "estimate.approve",
+        "report.sales.view",
+        "dashboard.sales.view",
+        "forecast.view"
+      ],
+      "level": 7,
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "ROLE-005",
+      "name": "제품 관리자",
+      "code": "PRODUCT_MANAGER",
+      "description": "제품 정보 관리 권한",
+      "permissions": [
+        "product.manage.all",
+        "catalog.manage",
+        "pricing.edit",
+        "inventory.view",
+        "supplier.manage",
+        "product.report.view"
+      ],
+      "level": 6,
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "ROLE-006",
+      "name": "조회 전용",
+      "code": "VIEWER",
+      "description": "데이터 조회 전용 권한",
+      "permissions": [
+        "estimate.view.public",
+        "customer.view.basic",
+        "product.view.basic",
+        "report.basic.view"
+      ],
+      "level": 2,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "USER-001",
+      "username": "admin",
+      "email": "admin@kis-core.com",
+      "name": "시스템 관리자",
+      "department": "IT팀",
+      "position": "시스템 관리자",
+      "role_id": "ROLE-001",
+      "status": "active",
+      "phone": "02-1234-5678",
+      "extension": "1001",
+      "hire_date": "2023-01-01",
+      "last_login": "2024-04-10T08:30:00Z",
+      "login_count": 1247,
+      "preferences": {
+        "language": "ko",
+        "timezone": "Asia/Seoul",
+        "date_format": "YYYY-MM-DD",
+        "number_format": "1,234.56",
+        "theme": "light"
+      },
+      "created_at": "2023-01-01T09:00:00Z",
+      "updated_at": "2024-04-10T08:30:00Z"
+    },
+    {
+      "id": "USER-002",
+      "username": "kim.estimate",
+      "email": "kim.estimate@kis-core.com",
+      "name": "김견적",
+      "department": "영업팀",
+      "position": "견적 관리자",
+      "role_id": "ROLE-002",
+      "status": "active",
+      "phone": "02-1234-5679",
+      "extension": "1002",
+      "hire_date": "2023-03-15",
+      "last_login": "2024-04-10T09:15:00Z",
+      "login_count": 892,
+      "preferences": {
+        "language": "ko",
+        "timezone": "Asia/Seoul",
+        "date_format": "YYYY-MM-DD",
+        "number_format": "1,234",
+        "theme": "light"
+      },
+      "created_at": "2023-03-15T09:00:00Z",
+      "updated_at": "2024-04-10T09:15:00Z"
+    },
+    {
+      "id": "USER-003",
+      "username": "lee.estimate",
+      "email": "lee.estimate@kis-core.com",
+      "name": "이견적",
+      "department": "영업팀",
+      "position": "견적 담당자",
+      "role_id": "ROLE-003",
+      "status": "active",
+      "phone": "02-1234-5680",
+      "extension": "1003",
+      "hire_date": "2023-06-01",
+      "last_login": "2024-04-10T08:45:00Z",
+      "login_count": 654,
+      "preferences": {
+        "language": "ko",
+        "timezone": "Asia/Seoul",
+        "date_format": "YYYY-MM-DD",
+        "number_format": "1,234",
+        "theme": "dark"
+      },
+      "created_at": "2023-06-01T09:00:00Z",
+      "updated_at": "2024-04-10T08:45:00Z"
+    },
+    {
+      "id": "USER-004",
+      "username": "park.estimate",
+      "email": "park.estimate@kis-core.com",
+      "name": "박견적",
+      "department": "영업팀",
+      "position": "견적 담당자",
+      "role_id": "ROLE-003",
+      "status": "active",
+      "phone": "02-1234-5681",
+      "extension": "1004",
+      "hire_date": "2023-09-01",
+      "last_login": "2024-04-09T17:30:00Z",
+      "login_count": 445,
+      "preferences": {
+        "language": "ko",
+        "timezone": "Asia/Seoul",
+        "date_format": "YYYY-MM-DD",
+        "number_format": "1,234.56",
+        "theme": "light"
+      },
+      "created_at": "2023-09-01T09:00:00Z",
+      "updated_at": "2024-04-09T17:30:00Z"
+    },
+    {
+      "id": "USER-005",
+      "username": "choi.estimate",
+      "email": "choi.estimate@kis-core.com",
+      "name": "최견적",
+      "department": "영업팀",
+      "position": "견적 담당자",
+      "role_id": "ROLE-003",
+      "status": "active",
+      "phone": "02-1234-5682",
+      "extension": "1005",
+      "hire_date": "2024-01-15",
+      "last_login": "2024-04-10T10:20:00Z",
+      "login_count": 187,
+      "preferences": {
+        "language": "ko",
+        "timezone": "Asia/Seoul",
+        "date_format": "YYYY-MM-DD",
+        "number_format": "1,234",
+        "theme": "light"
+      },
+      "created_at": "2024-01-15T09:00:00Z",
+      "updated_at": "2024-04-10T10:20:00Z"
+    },
+    {
+      "id": "USER-006",
+      "username": "jung.estimate",
+      "email": "jung.estimate@kis-core.com",
+      "name": "정견적",
+      "department": "영업팀",
+      "position": "견적 담당자",
+      "role_id": "ROLE-003",
+      "status": "active",
+      "phone": "02-1234-5683",
+      "extension": "1006",
+      "hire_date": "2024-02-01",
+      "last_login": "2024-04-10T11:00:00Z",
+      "login_count": 156,
+      "preferences": {
+        "language": "ko",
+        "timezone": "Asia/Seoul",
+        "date_format": "YYYY-MM-DD",
+        "number_format": "1,234",
+        "theme": "dark"
+      },
+      "created_at": "2024-02-01T09:00:00Z",
+      "updated_at": "2024-04-10T11:00:00Z"
+    },
+    {
+      "id": "USER-007",
+      "username": "kang.sales",
+      "email": "kang.sales@kis-core.com",
+      "name": "강영업",
+      "department": "영업팀",
+      "position": "영업 관리자",
+      "role_id": "ROLE-004",
+      "status": "active",
+      "phone": "02-1234-5684",
+      "extension": "1007",
+      "hire_date": "2022-05-01",
+      "last_login": "2024-04-10T07:45:00Z",
+      "login_count": 1523,
+      "preferences": {
+        "language": "ko",
+        "timezone": "Asia/Seoul",
+        "date_format": "YYYY-MM-DD",
+        "number_format": "1,234.56",
+        "theme": "light"
+      },
+      "created_at": "2022-05-01T09:00:00Z",
+      "updated_at": "2024-04-10T07:45:00Z"
+    },
+    {
+      "id": "USER-008",
+      "username": "shin.product",
+      "email": "shin.product@kis-core.com",
+      "name": "신제품",
+      "department": "상품팀",
+      "position": "제품 관리자",
+      "role_id": "ROLE-005",
+      "status": "active",
+      "phone": "02-1234-5685",
+      "extension": "1008",
+      "hire_date": "2022-08-15",
+      "last_login": "2024-04-09T18:20:00Z",
+      "login_count": 967,
+      "preferences": {
+        "language": "ko",
+        "timezone": "Asia/Seoul",
+        "date_format": "YYYY-MM-DD",
+        "number_format": "1,234",
+        "theme": "light"
+      },
+      "created_at": "2022-08-15T09:00:00Z",
+      "updated_at": "2024-04-09T18:20:00Z"
+    },
+    {
+      "id": "USER-009",
+      "username": "yoon.viewer",
+      "email": "yoon.viewer@kis-core.com",
+      "name": "윤조회",
+      "department": "경영팀",
+      "position": "경영 분석가",
+      "role_id": "ROLE-006",
+      "status": "active",
+      "phone": "02-1234-5686",
+      "extension": "1009",
+      "hire_date": "2023-11-01",
+      "last_login": "2024-04-10T06:30:00Z",
+      "login_count": 234,
+      "preferences": {
+        "language": "ko",
+        "timezone": "Asia/Seoul",
+        "date_format": "YYYY-MM-DD",
+        "number_format": "1,234.56",
+        "theme": "light"
+      },
+      "created_at": "2023-11-01T09:00:00Z",
+      "updated_at": "2024-04-10T06:30:00Z"
+    },
+    {
+      "id": "USER-010",
+      "username": "test.user",
+      "email": "test.user@kis-core.com",
+      "name": "테스트 사용자",
+      "department": "IT팀",
+      "position": "테스터",
+      "role_id": "ROLE-006",
+      "status": "inactive",
+      "phone": "02-1234-5687",
+      "extension": "1010",
+      "hire_date": "2024-03-01",
+      "last_login": "2024-03-15T14:30:00Z",
+      "login_count": 45,
+      "preferences": {
+        "language": "ko",
+        "timezone": "Asia/Seoul",
+        "date_format": "YYYY-MM-DD",
+        "number_format": "1,234",
+        "theme": "light"
+      },
+      "created_at": "2024-03-01T09:00:00Z",
+      "updated_at": "2024-03-15T14:30:00Z"
+    }
+  ],
+  "user_sessions": [
+    {
+      "session_id": "SESS-20240410-001",
+      "user_id": "USER-002",
+      "login_time": "2024-04-10T09:15:00Z",
+      "last_activity": "2024-04-10T11:45:00Z",
+      "ip_address": "192.168.1.10",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "status": "active",
+      "actions_count": 23,
+      "pages_visited": [
+        "/dashboard",
+        "/estimates",
+        "/estimates/new",
+        "/customers/SEC001",
+        "/products/search"
+      ]
+    },
+    {
+      "session_id": "SESS-20240410-002",
+      "user_id": "USER-003",
+      "login_time": "2024-04-10T08:45:00Z",
+      "last_activity": "2024-04-10T11:30:00Z",
+      "ip_address": "192.168.1.11",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "status": "active",
+      "actions_count": 18,
+      "pages_visited": [
+        "/dashboard",
+        "/estimates/EST-20240320-D4E5F6",
+        "/estimates/edit",
+        "/ai-manager"
+      ]
+    },
+    {
+      "session_id": "SESS-20240410-003",
+      "user_id": "USER-005",
+      "login_time": "2024-04-10T10:20:00Z",
+      "last_activity": "2024-04-10T11:50:00Z",
+      "ip_address": "192.168.1.12",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "status": "active",
+      "actions_count": 12,
+      "pages_visited": [
+        "/dashboard",
+        "/estimates/EST-20240330-J1K2L3",
+        "/customers/SKT001"
+      ]
+    }
+  ]
+}

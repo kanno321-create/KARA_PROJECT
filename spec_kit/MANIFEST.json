@@ -1,0 +1,24 @@
+﻿{
+    "author":  "KARA-PRIME",
+    "version":  "2.0.0",
+    "spec_kit":  {
+                     "compliance":  "100%",
+                     "standard":  "v3.0.0"
+                 },
+    "principles":  [
+                       "NO-EVIDENCE-NO-ACTION",
+                       "NO-SOLO",
+                       "POLICY-FIRST",
+                       "TWO-TRACKS"
+                   ],
+    "created":  "20250922_205609",
+    "mode":  "PRODUCTION",
+    "components":  {
+                       "gates":  5,
+                       "regression_tests":  20,
+                       "estimate_ai":  "ACTIVE",
+                       "mcp_servers":  34,
+                       "ui_tabs":  8,
+                       "erp_ai":  "ACTIVE"
+                   }
+}

@@ -1,0 +1,58 @@
+﻿{
+    "seed_id":  "batch-05",
+    "category":  "batch",
+    "request":  {
+                    "request_id":  "f4b20d61-05fc-493a-b79b-f9d0bd0f5450",
+                    "project_label":  "Batch Build Epsilon",
+                    "submitted_by":  "automation.tester@kis.local",
+                    "knowledge_snapshot_id":  "a6d2cca3-883a-4724-a454-1ca4b1cce690",
+                    "distribution_panels":  [
+                                                {
+                                                    "panel_id":  "BATCH-E5",
+                                                    "source_tab_index":  1,
+                                                    "subtotal":  154220,
+                                                    "line_items":  [
+                                                                       {
+                                                                           "category":  "magnet",
+                                                                           "sku":  "MAG-HLD-110",
+                                                                           "quantity":  1,
+                                                                           "unit_price":  61688,
+                                                                           "line_total":  61688
+                                                                       },
+                                                                       {
+                                                                           "category":  "accessory",
+                                                                           "sku":  "ACC-LUG-55",
+                                                                           "quantity":  2,
+                                                                           "unit_price":  30844,
+                                                                           "line_total":  61688
+                                                                       }
+                                                                   ],
+                                                    "evidence_ref":  {
+                                                                         "bundle_id":  "seed__",
+                                                                         "json_path":  "evidence/seed__.json",
+                                                                         "visual_path":  "evidence/seed__.svg",
+                                                                         "log_path":  "evidence/logs/seed__.json",
+                                                                         "sha256":  "0000000000000000000000000000000000000000000000000000000000000000"
+                                                                     }
+                                                }
+                                            ],
+                    "pricing_overrides":  [
+
+                                          ],
+                    "validation_flags":  {
+                                             "run_fix4":  true,
+                                             "run_regression_sample":  true
+                                         }
+                },
+    "expected_gate_scores":  {
+                                 "gate1":  "PASS",
+                                 "gate2":  "PASS",
+                                 "gate3":  "PASS",
+                                 "gate4":  "PASS"
+                             },
+    "expected_metrics":  {
+                             "p95_ms":  1800,
+                             "error_ratio":  0
+                         },
+    "_note":  "Ensures pricing overrides empty"
+}

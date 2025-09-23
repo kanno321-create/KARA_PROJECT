@@ -1,0 +1,10 @@
+﻿{
+    "artifact":  "phase2_breaker",
+    "summary":  "차단기 선택 증거",
+    "details":  {
+                    "subtotal":  125000,
+                    "model_display":  "Breaker 125A 3P",
+                    "sku":  "BRK-125A-3P"
+                },
+    "sha256_placeholder":  "0000000000000000000000000000000000000000000000000000000000000000"
+}

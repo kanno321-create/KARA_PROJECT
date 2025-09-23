@@ -1,0 +1,67 @@
+name: Foundation Guard
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+
+jobs:
+  foundation-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Check Foundation-Only Mode
+        run: |
+          echo "Checking foundation-only mode..."
+          
+          # Check FEATURE_PROD_ENABLED is 0
+          if grep -r "FEATURE_PROD_ENABLED=1" . --include="*.env*" --include="*.yml" --include="*.yaml"; then
+            echo "ERROR: Production mode detected! Foundation-only requires FEATURE_PROD_ENABLED=0"
+            exit 1
+          fi
+          
+      - name: Block Network Calls
+        run: |
+          # Check for network calls in Python
+          if grep -r "requests\.\(get\|post\|put\|delete\)" . --include="*.py" | grep -v "^#" | grep -v "mock"; then
+            echo "ERROR: Network calls detected! Not allowed in foundation-only mode"
+            exit 1
+          fi
+          
+          # Check for fetch in JavaScript
+          if grep -r "fetch(" . --include="*.js" --include="*.ts" | grep -v "^//" | grep -v "mock"; then
+            echo "ERROR: Fetch calls detected! Not allowed in foundation-only mode"
+            exit 1
+          fi
+          
+      - name: Block Docker Operations
+        run: |
+          # Block docker build/push
+          if grep -r "docker build\|docker push" . --include="*.yml" --include="*.yaml" --include="*.sh"; then
+            echo "ERROR: Docker operations detected! Deployment not allowed"
+            exit 1
+          fi
+          
+      - name: Verify Templates/Rules Protected
+        run: |
+          # Check if Templates/Rules are modified
+          if git diff --name-only HEAD^ HEAD | grep -E "^KIS/(Templates|Rules)/"; then
+            echo "ERROR: Templates/Rules modification detected! These are write-protected"
+            exit 1
+          fi
+          
+      - name: Scan for Secrets
+        run: |
+          # Basic secret pattern detection
+          if grep -r "sk-[A-Za-z0-9]\{20,\}\|AKIA[0-9A-Z]\{16\}" . --include="*.py" --include="*.js" --include="*.env*"; then
+            echo "ERROR: Potential secrets detected!"
+            exit 1
+          fi
+          
+      - name: Verify Mock Only
+        run: |
+          echo "✅ Foundation-only mode verified"
+          echo "📋 Contracts and mocks only - no implementation"
+          echo "🔒 Production deployment blocked"

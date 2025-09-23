@@ -1,0 +1,13 @@
+﻿{
+    "artifact":  "phase1_distribution",
+    "summary":  "분전반 블록 파싱 결과",
+    "details":  {
+                    "tabs":  2,
+                    "panels":  [
+                                   "ENC-XL-A",
+                                   "ENC-RX-E"
+                               ],
+                    "rule":  "blank-line separates blocks"
+                },
+    "sha256_placeholder":  "0000000000000000000000000000000000000000000000000000000000000000"
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KIS Change Impact",
+  "type": "object",
+  "required": ["risk_level", "notes"],
+  "properties": {
+    "risk_level": {"type": "string"},
+    "notes": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  }
+}

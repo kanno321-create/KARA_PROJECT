@@ -1,0 +1,20 @@
+import { test, expect } from '@playwright/test';
+import * as fs from 'fs';
+import * as path from 'path';
+test.describe('M2.8 Regression Guards', () => {
+  test('WhyTrace structure + Scorecard targets', async () => {
+    const zipPath = path.resolve(process.cwd(), 'artifacts', 'latest_estimate.zip');
+    expect(fs.existsSync(zipPath)).toBeTruthy();
+    const { readZipJSON } = require('../utils/zipUtils');
+    const estimate = readZipJSON(zipPath, 'estimate.json');
+    const whyTrace = readZipJSON(zipPath, 'why_trace.json');
+    expect(Array.isArray(whyTrace?.reasoning?.rules)).toBeTruthy();
+    expect(whyTrace?.reasoning?.rules?.[0]?.rule_id).toBeTruthy();
+    const score = estimate?.scorecard || estimate?.metrics?.scorecard;
+    if (score) {
+      expect(score.packability).toBeGreaterThanOrEqual(1.0);
+      expect(score.std_match).toBeGreaterThanOrEqual(1.0);
+      expect(score.whytrace_completeness).toBeGreaterThanOrEqual(1.0);
+    }
+  });
+});

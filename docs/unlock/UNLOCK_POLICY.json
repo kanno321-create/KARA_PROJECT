@@ -1,0 +1,41 @@
+{
+  "version": "2.0",
+  "requirements": {
+    "regression": {
+      "min_success_rate": 0.95,
+      "min_cases": 20,
+      "evidence_pattern": "tests/regression/summary_*.json"
+    },
+    "fix4_metrics": {
+      "fit_score": {"min": 0.93},
+      "phase_imbalance_pct": {"max": 4.0},
+      "clearances": {"equals": 0},
+      "thermal_issues": {"equals": 0},
+      "lint_errors": {"equals": 0}
+    },
+    "evidence_paths": {
+      "enclosure": "Work/*/enclosure_evidence.json",
+      "placement": "Work/*/placement_evidence.json",
+      "format": "Work/*/format_evidence.json",
+      "cover": "Work/*/cover_evidence.json",
+      "lint": "Work/*/lint_evidence.json"
+    },
+    "templates": {
+      "hash_file_pattern": ".meta/templates_sha256_*.md",
+      "required_files": [
+        "KIS/Templates/Estimate.xlsx",
+        "KIS/Templates/Cover.xlsx",
+        "KIS/Templates/NamedRanges.yaml"
+      ]
+    },
+    "signatures": {
+      "ceo_signature_file": "docs/unlock/CEO_SIGNED.json",
+      "required_fields": ["name", "date", "release_tag", "template_hash", "policy_hash"]
+    }
+  },
+  "network_restrictions": {
+    "allow_external": false,
+    "allow_deployment": false,
+    "foundation_only": true
+  }
+}

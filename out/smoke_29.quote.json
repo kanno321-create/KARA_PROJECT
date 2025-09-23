@@ -1,0 +1,17 @@
+{
+  "id": "smoke_29",
+  "items": [
+    {
+      "id": "smoke_29",
+      "category": "HW",
+      "quantity": 7,
+      "unitPrice": 553758,
+      "margin": 0.15,
+      "vat": 0.1
+    }
+  ],
+  "subtotal": 3876306,
+  "margin": 581445.9,
+  "vat": 445775.18999999994,
+  "total": 4903527.09
+}

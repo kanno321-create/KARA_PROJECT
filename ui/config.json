@@ -1,0 +1,66 @@
+﻿{
+    "layout":  {
+                   "result_ratio":  "65%",
+                   "chat_ratio":  "35%",
+                   "sidebar_width":  "260px"
+               },
+    "colors":  {
+                   "background":  "#FFFFFF",
+                   "accent":  "#10A37F",
+                   "border":  "#E5E5E7",
+                   "sidebar":  "#F7F7F8",
+                   "text":  "#202123"
+               },
+    "tabs":  [
+                 {
+                     "icon":  "chat",
+                     "name":  "AI 매니저",
+                     "id":  1,
+                     "active":  true
+                 },
+                 {
+                     "icon":  "document",
+                     "name":  "견적서",
+                     "id":  2,
+                     "active":  false
+                 },
+                 {
+                     "icon":  "chart",
+                     "name":  "매출/매입",
+                     "id":  3,
+                     "active":  false
+                 },
+                 {
+                     "icon":  "mail",
+                     "name":  "이메일",
+                     "id":  4,
+                     "active":  false
+                 },
+                 {
+                     "icon":  "box",
+                     "name":  "자재/재고",
+                     "id":  5,
+                     "active":  false
+                 },
+                 {
+                     "icon":  "users",
+                     "name":  "거래처",
+                     "id":  6,
+                     "active":  false
+                 },
+                 {
+                     "icon":  "id",
+                     "admin_only":  true,
+                     "name":  "직원",
+                     "id":  7,
+                     "active":  false
+                 },
+                 {
+                     "icon":  "settings",
+                     "name":  "설정",
+                     "id":  8,
+                     "active":  false
+                 }
+             ],
+    "theme":  "chatgpt"
+}

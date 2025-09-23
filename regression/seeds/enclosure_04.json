@@ -1,0 +1,58 @@
+﻿{
+    "seed_id":  "enclosure-04",
+    "category":  "enclosure",
+    "request":  {
+                    "request_id":  "fe355a46-f982-4f65-a429-2995eedfb75b",
+                    "project_label":  "Campus Microgrid",
+                    "submitted_by":  "automation.tester@kis.local",
+                    "knowledge_snapshot_id":  "835fb750-2921-4639-b04e-f35cce2acedb",
+                    "distribution_panels":  [
+                                                {
+                                                    "panel_id":  "ENC-MG-D",
+                                                    "source_tab_index":  3,
+                                                    "subtotal":  187650,
+                                                    "line_items":  [
+                                                                       {
+                                                                           "category":  "enclosure",
+                                                                           "sku":  "ENC-MG-500A",
+                                                                           "quantity":  1,
+                                                                           "unit_price":  75060,
+                                                                           "line_total":  75060
+                                                                       },
+                                                                       {
+                                                                           "category":  "breaker",
+                                                                           "sku":  "BRK-160A-3P",
+                                                                           "quantity":  2,
+                                                                           "unit_price":  37530,
+                                                                           "line_total":  75060
+                                                                       }
+                                                                   ],
+                                                    "evidence_ref":  {
+                                                                         "bundle_id":  "seed__",
+                                                                         "json_path":  "evidence/seed__.json",
+                                                                         "visual_path":  "evidence/seed__.svg",
+                                                                         "log_path":  "evidence/logs/seed__.json",
+                                                                         "sha256":  "0000000000000000000000000000000000000000000000000000000000000000"
+                                                                     }
+                                                }
+                                            ],
+                    "pricing_overrides":  [
+
+                                          ],
+                    "validation_flags":  {
+                                             "run_fix4":  true,
+                                             "run_regression_sample":  true
+                                         }
+                },
+    "expected_gate_scores":  {
+                                 "gate1":  "PASS",
+                                 "gate2":  "PASS",
+                                 "gate3":  "PASS",
+                                 "gate4":  "PASS"
+                             },
+    "expected_metrics":  {
+                             "p95_ms":  1800,
+                             "error_ratio":  0
+                         },
+    "_note":  "Tab3 parsing applies enclosure block"
+}

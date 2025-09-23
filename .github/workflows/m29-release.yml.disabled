@@ -1,0 +1,74 @@
+name: M2.9 Canary Release
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npm run m28:full -- --workers=1
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: artifacts
+
+  stage-deploy:
+    needs: build-test
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL_STAGING: ${{ secrets.BASE_URL_STAGING }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - name: Deploy to STAGING
+        run: ${{ secrets.DEPLOY_CMD_STAGING || 'echo "No staging deploy command configured"' }}
+      - name: Smoke test staging
+        run: npm run ops:health
+      - name: Notify staging ready
+        run: node scripts/notify_slack.js ":rocket: STAGING ready"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  canary:
+    needs: stage-deploy
+    runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      DEPLOY_CMD_PROD: ${{ secrets.DEPLOY_CMD_PROD }}
+      ROLLBACK_CMD_PROD: ${{ secrets.ROLLBACK_CMD_PROD }}
+      BASE_URL: ${{ secrets.BASE_URL_PROD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - name: Canary progression
+        run: |
+          set -e
+          node scripts/canary_controller.js || RC=$?
+          if [ "$RC" = "42" ]; then
+            echo "Rollback requested due to SLO breach"
+            node scripts/notify_slack.js ":warning: Canary rollback triggered - SLO breach detected"
+            exit 1
+          elif [ "$RC" != "0" ]; then
+            echo "Canary deployment failed"
+            node scripts/notify_slack.js ":x: Canary deployment failed"
+            exit 1
+          fi
+      - name: Success notification
+        if: success()
+        run: node scripts/notify_slack.js ":white_check_mark: Canary deployment complete → 100% traffic"

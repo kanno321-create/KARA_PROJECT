@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIS Core V2 - AI Business Management System</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/modules/sidebar.css">
+    <link rel="stylesheet" href="assets/css/modules/tabs.css">
+    <link rel="stylesheet" href="assets/css/modules/chat.css">
+    <link rel="stylesheet" href="assets/css/modules/estimate-complete.css">
+    <link rel="stylesheet" href="assets/css/modules/erp.css">
+</head>
+<body>
+    <!-- Main Container -->
+    <div id="app" class="app-container">
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <!-- Sidebar Toggle -->
+            <button id="sidebarToggle" class="sidebar-toggle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+
+            <!-- Logo Section -->
+            <div class="sidebar-header">
+                <h1 class="logo">KIS Core V2</h1>
+                <span class="version">v2.0.0</span>
+            </div>
+
+            <!-- Tab Navigation -->
+            <nav class="tab-nav">
+                <ul class="tab-list">
+                    <li class="tab-item active" data-tab="ai-manager">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <span>AI 매니저</span>
+                    </li>
+                    <li class="tab-item" data-tab="estimate">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+                        </svg>
+                        <span>견적</span>
+                    </li>
+                    <li class="tab-item" data-tab="erp">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+                        </svg>
+                        <span>ERP</span>
+                    </li>
+                    <li class="tab-item" data-tab="email">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                        <span>이메일</span>
+                    </li>
+                    <li class="tab-item" data-tab="calendar">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                        </svg>
+                        <span>캘린더</span>
+                    </li>
+                    <li class="tab-item" data-tab="drawing">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                        </svg>
+                        <span>도면</span>
+                    </li>
+                    <li class="tab-item" data-tab="settings">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        </svg>
+                        <span>설정</span>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Footer -->
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">KC</div>
+                    <span class="user-name">KARA-PRIME</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main id="mainContent" class="main-content">
+            <!-- Tab: AI Manager -->
+            <section id="ai-manager" class="tab-content active">
+                <div class="split-view">
+                    <!-- Chat Area (35%) -->
+                    <div class="chat-panel">
+                        <div class="chat-header">
+                            <h2>AI 매니저</h2>
+                            <button class="new-chat-btn">+ 새 대화</button>
+                        </div>
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message assistant">
+                                <div class="message-content">
+                                    안녕하세요! KIS Core V2 AI 매니저입니다.
+                                    견적 작성, ERP 업무, 도면 분석 등 모든 업무를 도와드리겠습니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input-area">
+                            <div class="file-drop-zone" id="dropZone">
+                                파일을 드래그하여 업로드하세요
+                            </div>
+                            <div class="chat-input-wrapper">
+                                <textarea id="chatInput"
+                                         class="chat-input"
+                                         placeholder="메시지를 입력하세요..."
+                                         rows="1"></textarea>
+                                <button id="sendBtn" class="send-btn">
+                                    <svg width="20" height="20" viewBox="0 0 20 20">
+                                        <path d="M2 10L17 2L13 18L11 11L2 10Z" fill="currentColor"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Result Area (65%) -->
+                    <div class="result-panel">
+                        <div class="result-header">
+                            <h3>결과</h3>
+                            <div class="result-actions">
+                                <button class="btn-evidence">증거 보기</button>
+                                <button class="btn-export">내보내기</button>
+                            </div>
+                        </div>
+                        <div class="result-content" id="resultContent">
+                            <div class="welcome-message">
+                                <h2>KIS Core V2에 오신 것을 환영합니다</h2>
+                                <p>AI 매니저와 대화를 시작하여 업무를 처리하세요.</p>
+                                <ul class="feature-list">
+                                    <li>✓ FIX-4 파이프라인 견적 자동화</li>
+                                    <li>✓ ERP 통합 관리</li>
+                                    <li>✓ CAD 도면 분석 및 생성</li>
+                                    <li>✓ 이메일 자동 발송</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Estimate - EXACT REPLICA FROM estimate-simple.html -->
+            <section id="estimate" class="tab-content">
+                <div class="content-container">
+                    <!-- 좌측 입력 패널 (확대됨) -->
+                    <div class="left-panel">
+
+                        <!-- 고객 정보 (2x2 그리드) -->
+                        <div class="section">
+                            <div class="section-header">
+                                고객 정보
+                            </div>
+                            <div class="section-content">
+                                <div class="grid-2x2">
+                                    <div class="form-row">
+                                        <label class="form-label">업체명</label>
+                                        <input type="text" class="form-input" placeholder="업체명을 입력하세요">
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label">연락처</label>
+                                        <input type="text" class="form-input" placeholder="연락처를 입력하세요">
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label">이메일</label>
+                                        <input type="email" class="form-input" placeholder="이메일을 입력하세요">
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label">주소</label>
+                                        <input type="text" class="form-input" placeholder="주소를 입력하세요">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 외함 정보 (1x2 그리드) -->
+                        <div class="section">
+                            <div class="section-header">
+                                외함
+                                <div class="header-toggle-container">
+                                    <div class="header-toggle">
+                                        <button class="header-toggle-option active" onclick="toggleEnclosureType(this)">옥내</button>
+                                        <button class="header-toggle-option" onclick="toggleEnclosureType(this)">옥외</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="section-content">
+                                <div class="grid-1x2">
+                                    <div class="form-row">
+                                        <label class="form-label">함종류</label>
+                                        <select class="form-select">
+                                            <option>기성함</option>
+                                            <option>주문제작함</option>
+                                            <option>계량기함</option>
+                                            <option>CT계량기함</option>
+                                            <option>FRP 박스</option>
+                                            <option>하이박스</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label">재질</label>
+                                        <select class="form-select">
+                                            <option>STEEL 1.6T</option>
+                                            <option>STEEL 1.0T</option>
+                                            <option>STEEL 2.0T</option>
+                                            <option>SUS201 1.0T</option>
+                                            <option>SUS201 1.2T</option>
+                                            <option>SUS201 1.5T</option>
+                                            <option>SUS304 1.2T</option>
+                                            <option>SUS304 1.5T</option>
+                                            <option>SUS304 2.0T</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row" style="margin-top: 12px;">
+                                    <label class="form-label">기타요청</label>
+                                    <input type="text" class="form-input" placeholder="기타 요청사항">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 메인 차단기 (디자인 개선) -->
+                        <div class="section">
+                            <div class="section-header">
+                                메인 차단기
+                                <button class="breaker-settings-btn" onclick="openBreakerSettings()">차단기 설정</button>
+                            </div>
+                            <div class="section-content">
+                                <!-- 세로 배치로 컴팩트하게 -->
+                                <div class="main-breaker-layout">
+                                    <!-- 종류 선택 (타원형 토글 버튼) -->
+                                    <div class="form-row">
+                                        <label class="form-label">종류</label>
+                                        <div class="oval-toggle-container vertical">
+                                            <button class="oval-toggle mccb active" onclick="toggleBreakerType(this, 'mccb')">MCCB</button>
+                                            <button class="oval-toggle elb" onclick="toggleBreakerType(this, 'elb')">ELB</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- 극수 -->
+                                    <div class="form-row">
+                                        <label class="form-label">극수</label>
+                                        <select class="form-select main-select">
+                                            <option>4P</option>
+                                            <option>3P</option>
+                                            <option>2P</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- 용량 -->
+                                    <div class="form-row">
+                                        <label class="form-label">용량</label>
+                                        <select class="form-select main-select">
+                                            <option>15A</option>
+                                            <option>20A</option>
+                                            <option>30A</option>
+                                            <option>40A</option>
+                                            <option>50A</option>
+                                            <option>60A</option>
+                                            <option>75A</option>
+                                            <option>100A</option>
+                                            <option>125A</option>
+                                            <option>150A</option>
+                                            <option>175A</option>
+                                            <option>200A</option>
+                                            <option>225A</option>
+                                            <option>250A</option>
+                                            <option>300A</option>
+                                            <option>350A</option>
+                                            <option>400A</option>
+                                            <option>500A</option>
+                                            <option>600A</option>
+                                            <option>700A</option>
+                                            <option>800A</option>
+                                            <option>1000A</option>
+                                            <option>1200A</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 분기 차단기 -->
+                        <div class="section">
+                            <div class="section-header">
+                                분기 차단기
+                            </div>
+                            <div class="section-content">
+                                <div class="form-row-horizontal branch-input-row">
+                                    <div style="width: 60px; position: relative;">
+                                        <label class="form-label">종류</label>
+                                        <select class="form-select branch-select" id="branchType">
+                                            <option value="">선택</option>
+                                            <option value="MCCB">MCCB</option>
+                                            <option value="ELB">ELB</option>
+                                        </select>
+                                    </div>
+                                    <div style="width: 60px; position: relative; margin-left: 8px;">
+                                        <label class="form-label">극수</label>
+                                        <select class="form-select branch-select" id="branchPoles">
+                                            <option value="">선택</option>
+                                            <option value="2P">2P</option>
+                                            <option value="3P">3P</option>
+                                            <option value="4P">4P</option>
+                                        </select>
+                                    </div>
+                                    <div style="width: 60px; position: relative; margin-left: 8px;">
+                                        <label class="form-label">용량</label>
+                                        <select class="form-select branch-select" id="branchCapacity">
+                                            <option value="">선택</option>
+                                            <option value="15A">15A</option>
+                                            <option value="20A">20A</option>
+                                            <option value="30A">30A</option>
+                                            <option value="40A">40A</option>
+                                            <option value="50A">50A</option>
+                                            <option value="60A">60A</option>
+                                            <option value="75A">75A</option>
+                                            <option value="100A">100A</option>
+                                            <option value="125A">125A</option>
+                                            <option value="150A">150A</option>
+                                            <option value="175A">175A</option>
+                                            <option value="200A">200A</option>
+                                            <option value="225A">225A</option>
+                                            <option value="250A">250A</option>
+                                            <option value="300A">300A</option>
+                                            <option value="350A">350A</option>
+                                            <option value="400A">400A</option>
+                                            <option value="500A">500A</option>
+                                            <option value="600A">600A</option>
+                                            <option value="700A">700A</option>
+                                            <option value="800A">800A</option>
+                                            <option value="1000A">1000A</option>
+                                            <option value="1200A">1200A</option>
+                                        </select>
+                                    </div>
+                                    <div style="width: 60px; margin-left: 8px;">
+                                        <label class="form-label">수량</label>
+                                        <input type="number" class="form-input branch-uniform" id="branchQuantity" value="1" min="1" max="10">
+                                    </div>
+                                    <div style="width: 80px; margin-left: 25px;">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button class="btn btn-primary" onclick="addBranchBreaker()">확인</button>
+                                    </div>
+                                </div>
+
+                                <div class="branch-list" id="branchList">
+                                    <div class="branch-list-empty">
+                                        분기 차단기를 추가하려면 위에서 설정 후 확인 버튼을 클릭하세요.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 부속자재 (마그네트 간소화) -->
+                        <div class="section">
+                            <div class="section-header">
+                                부속자재
+                            </div>
+                            <div class="section-content">
+                                <!-- 마그네트 라인 -->
+                                <div class="form-row-horizontal accessories-input-row" style="margin-bottom: 15px;">
+                                    <div style="width: 80px; position: relative;">
+                                        <label class="form-label">마그네트</label>
+                                        <select class="form-select accessories-select" id="magnetModel">
+                                            <option value="">선택</option>
+                                            <option value="MC-9">MC-9</option>
+                                            <option value="MC-12">MC-12</option>
+                                            <option value="MC-18">MC-18</option>
+                                            <option value="MC-22">MC-22</option>
+                                            <option value="MC-32">MC-32</option>
+                                            <option value="MC-40">MC-40</option>
+                                            <option value="MC-50">MC-50</option>
+                                            <option value="MC-65">MC-65</option>
+                                            <option value="MC-75">MC-75</option>
+                                            <option value="MC-85">MC-85</option>
+                                            <option value="MC-100">MC-100</option>
+                                            <option value="MC-130">MC-130</option>
+                                            <option value="MC-150">MC-150</option>
+                                        </select>
+                                    </div>
+                                    <div style="width: 60px; position: relative; margin-left: 8px;">
+                                        <label class="form-label">타이머</label>
+                                        <select class="form-select accessories-select" id="magnetTimer">
+                                            <option value="">선택</option>
+                                            <option value="YES">포함</option>
+                                            <option value="NO">제외</option>
+                                        </select>
+                                    </div>
+                                    <div style="width: 60px; position: relative; margin-left: 8px;">
+                                        <label class="form-label">PBL</label>
+                                        <select class="form-select accessories-select" id="magnetPBL">
+                                            <option value="">선택</option>
+                                            <option value="YES">포함</option>
+                                            <option value="NO">제외</option>
+                                        </select>
+                                    </div>
+                                    <div style="width: 60px; margin-left: 8px;">
+                                        <label class="form-label">수량</label>
+                                        <input type="number" class="form-input accessories-uniform" id="magnetQuantity" value="1" min="1" max="10">
+                                    </div>
+                                    <div style="width: 80px; margin-left: 25px;">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button class="btn btn-primary" onclick="addMagnetItem()">확인</button>
+                                    </div>
+                                </div>
+
+                                <!-- 기타 부속자재 라인 -->
+                                <div class="form-row-horizontal accessories-input-row">
+                                    <div style="width: 80px; position: relative;">
+                                        <label class="form-label">부속자재</label>
+                                        <select class="form-select accessories-select" id="accessoryCategory" onchange="updateAccessoryDetails()">
+                                            <option value="">선택</option>
+                                            <option value="meter">계량기</option>
+                                            <option value="3ct">3CT</option>
+                                            <option value="timer">타이머</option>
+                                            <option value="eocr">EOCR</option>
+                                            <option value="condenser">콘덴서</option>
+                                            <option value="etc">기타</option>
+                                        </select>
+                                    </div>
+                                    <div style="width: 80px; position: relative; margin-left: 8px;">
+                                        <label class="form-label">세부선택</label>
+                                        <select class="form-select accessories-select" id="accessoryDetail">
+                                            <option value="">선택</option>
+                                        </select>
+                                    </div>
+                                    <div style="width: 60px; position: relative; margin-left: 8px;">
+                                        <label class="form-label">규격</label>
+                                        <select class="form-select accessories-select" id="accessorySpec">
+                                            <option value="">선택</option>
+                                        </select>
+                                    </div>
+                                    <div style="width: 60px; margin-left: 8px;">
+                                        <label class="form-label">수량</label>
+                                        <input type="number" class="form-input accessories-uniform" id="accessoryQuantity" value="1" min="1" max="10">
+                                    </div>
+                                    <div style="width: 80px; margin-left: 25px;">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button class="btn btn-primary" onclick="addAccessoryItem()">확인</button>
+                                    </div>
+                                </div>
+
+                                <!-- 부속자재 리스트 -->
+                                <div class="accessories-list" id="accessoriesList" style="margin-top: 15px;">
+                                    <div class="accessories-list-empty">
+                                        부속자재를 추가하려면 위에서 설정 후 확인 버튼을 클릭하세요.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <!-- 우측 결과 패널 -->
+                    <div class="right-panel">
+                        <!-- 견적 결과 영역 -->
+                        <div class="estimate-section" id="estimateSection">
+
+
+                        <!-- 견적 제목 및 합계 -->
+                        <div class="estimate-header">
+                            <div class="estimate-title">배전반 견적 | 메인 MCCB 4P 100A | 분기 7개 | 부속자재 0개</div>
+                            <div class="estimate-total">합계: 485,000 원</div>
+                        </div>
+
+                        <!-- 견적 테이블 -->
+                        <div class="estimate-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 50px;">No</th>
+                                        <th style="width: 200px;">품명</th>
+                                        <th style="width: 250px;">규격</th>
+                                        <th class="text-center" style="width: 60px;">단위</th>
+                                        <th class="text-center" style="width: 70px;">수량</th>
+                                        <th class="text-right" style="width: 120px;">단가</th>
+                                        <th class="text-right" style="width: 120px;">금액</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="estimateTableBody">
+                                    <tr>
+                                        <td class="text-center">1</td>
+                                        <td>배전반함체</td>
+                                        <td>STEEL 1.6T 옥내용</td>
+                                        <td class="text-center">EA</td>
+                                        <td class="text-center">1</td>
+                                        <td class="text-right">150,000원</td>
+                                        <td class="text-right">150,000원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">2</td>
+                                        <td>메인 차단기 MCCB</td>
+                                        <td>4P 100A</td>
+                                        <td class="text-center">EA</td>
+                                        <td class="text-center">1</td>
+                                        <td class="text-right">80,000원</td>
+                                        <td class="text-right">80,000원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">3</td>
+                                        <td>분기 차단기 MCCB</td>
+                                        <td>2P 30A</td>
+                                        <td class="text-center">EA</td>
+                                        <td class="text-center">2</td>
+                                        <td class="text-right">25,000원</td>
+                                        <td class="text-right">50,000원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">4</td>
+                                        <td>분기 차단기 MCCB</td>
+                                        <td>2P 50A</td>
+                                        <td class="text-center">EA</td>
+                                        <td class="text-center">1</td>
+                                        <td class="text-right">25,000원</td>
+                                        <td class="text-right">25,000원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">5</td>
+                                        <td>분기 차단기 ELB</td>
+                                        <td>2P 20A</td>
+                                        <td class="text-center">EA</td>
+                                        <td class="text-center">4</td>
+                                        <td class="text-right">25,000원</td>
+                                        <td class="text-right">100,000원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">6</td>
+                                        <td>배선자재</td>
+                                        <td>VCTF 3.5sq x 3C</td>
+                                        <td class="text-center">M</td>
+                                        <td class="text-center">20</td>
+                                        <td class="text-right">2,000원</td>
+                                        <td class="text-right">40,000원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">7</td>
+                                        <td>조립공임</td>
+                                        <td>배전반 조립 및 시험</td>
+                                        <td class="text-center">식</td>
+                                        <td class="text-center">1</td>
+                                        <td class="text-right">40,000원</td>
+                                        <td class="text-right">40,000원</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 하단 버튼 -->
+                        <div class="bottom-buttons">
+                            <button class="btn">엑셀 저장(회사 양식)</button>
+                            <button class="btn">CSV 저장</button>
+                            <button class="btn">화면 지우기</button>
+                        </div>
+
+                        </div> <!-- estimate-section 끝 -->
+
+                        <!-- 견적 생성 버튼 (항상 표시) -->
+                        <div class="generate-estimate-section">
+                            <button class="btn btn-primary generate-estimate-btn" onclick="generateEstimate()">견적 생성</button>
+                        </div>
+
+                    </div> <!-- right-panel 끝 -->
+                </div>
+            </section>
+
+            <!-- Other tabs remain as before -->
+            <section id="erp" class="tab-content">
+                <div class="erp-container">
+                    <h2>ERP 시스템</h2>
+                </div>
+            </section>
+
+            <section id="email" class="tab-content">
+                <div class="email-container">
+                    <h2>이메일</h2>
+                </div>
+            </section>
+
+            <section id="calendar" class="tab-content">
+                <div class="calendar-container">
+                    <h2>캘린더</h2>
+                </div>
+            </section>
+
+            <section id="drawing" class="tab-content">
+                <div class="drawing-container">
+                    <h2>도면</h2>
+                </div>
+            </section>
+
+            <section id="settings" class="tab-content">
+                <div class="settings-container">
+                    <h2>설정</h2>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- AI Chat Button -->
+    <button class="ai-chat-button" onclick="openAIChat()">💬</button>
+
+    <!-- AI Chat Popup -->
+    <div class="ai-chat-popup" id="ai-chat-popup">
+        <div class="ai-chat-header" id="ai-chat-header">
+            <div class="ai-chat-title">AI 어시스턴트</div>
+            <button class="ai-chat-close" onclick="toggleAiChat()">×</button>
+        </div>
+        <div class="ai-chat-content">
+            <!-- 파일 업로드 영역 -->
+            <div class="ai-chat-file-area" onclick="document.getElementById('aiFileInput').click()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
+                <p>📁 도면/자료 파일 업로드</p>
+                <p style="font-size: 11px; color: #666; margin-top: 4px;">
+                    드래그하거나 클릭 (PDF, JPG, PNG, DWG, 엑셀)
+                </p>
+            </div>
+            <input type="file" id="aiFileInput" class="ai-file-input" multiple accept=".pdf,.jpg,.jpeg,.png,.dwg,.xls,.xlsx">
+
+            <!-- 업로드된 파일 목록 -->
+            <div class="ai-file-list" id="aiFileList"></div>
+
+            <!-- AI 분석 버튼 -->
+            <button class="analyze-btn" id="analyzeBtn" onclick="analyzeFilesAI()" style="display: none;">
+                📊 AI 견적 자동 생성
+            </button>
+
+            <!-- 채팅 메시지들 -->
+            <div class="ai-message">
+                안녕하세요! 도면이나 자료를 업로드하시면 자동으로 견적을 생성해드립니다. 견적 관련 궁금한 것이 있으시면 언제든 물어보세요.
+            </div>
+        </div>
+        <div class="ai-chat-input-container">
+            <textarea class="ai-chat-input" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+            <button class="ai-send-button" onclick="sendMessage()">전송</button>
+        </div>
+    </div>
+
+    <!-- Breaker Settings Popup -->
+    <div class="overlay" id="overlay"></div>
+    <div class="breaker-settings-popup" id="breaker-settings-popup">
+        <div class="popup-header">
+            <div class="popup-title">차단기 설정</div>
+            <button class="popup-close" onclick="closeBreakerSettings()">×</button>
+        </div>
+        <div class="popup-content">
+            <div class="form-row">
+                <label class="form-label">브랜드</label>
+                <select class="form-select">
+                    <option>LS산전</option>
+                    <option>슈나이더</option>
+                    <option>지멘스</option>
+                    <option>미쓰비시</option>
+                    <option>ABB</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label class="form-label">경제형/표준형</label>
+                <select class="form-select">
+                    <option>표준형</option>
+                    <option>경제형</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label class="form-label">메인 수량</label>
+                <select class="form-select">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                </select>
+            </div>
+        </div>
+        <div class="popup-buttons">
+            <button class="btn" onclick="closeBreakerSettings()">취소</button>
+            <button class="btn btn-primary" onclick="saveBreakerSettings()">적용</button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/estimate-functions.js"></script>
+</body>
+</html>

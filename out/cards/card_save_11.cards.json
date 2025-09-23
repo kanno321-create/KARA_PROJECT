@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_011",
+    "category": "SAVE",
+    "item": "Item_11",
+    "specs": {
+      "model": "MODEL_12NQ6",
+      "quantity": 14,
+      "unitPrice": 3603624
+    },
+    "priority": 2,
+    "leadTime": 14,
+    "reliability": 0.85,
+    "created": "2025-09-19T11:57:44.132Z"
+  }
+]

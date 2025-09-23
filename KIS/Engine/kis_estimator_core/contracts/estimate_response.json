@@ -1,0 +1,49 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KIS Estimate Response",
+  "type": "object",
+  "required": ["project_id", "export_ok", "totals", "evidence", "metrics"],
+  "properties": {
+    "project_id": {"type": "string"},
+    "export_ok": {"type": "boolean"},
+    "totals": {
+      "type": "object",
+      "properties": {
+        "materials": {"type": "number"},
+        "labor": {"type": "number"},
+        "subtotal": {"type": "number"},
+        "vat": {"type": "number"},
+        "grand_total": {"type": "number"}
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": {"type": "string"},
+          "artifacts": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "fit_score": {"type": "number"},
+        "phase_balance": {"type": "number"},
+        "lint_errors": {"type": "integer"}
+      }
+    },
+    "logs": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "next": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  }
+}

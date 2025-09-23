@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIS ERP - ChatGPT Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: #ffffff;
+            display: flex;
+        }
+
+        /* 좌측 사이드바 */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: #f7f7f8;
+            border-right: 1px solid #e5e5e7;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 새 채팅 버튼 */
+        .new-chat-btn {
+            margin: 12px;
+            padding: 12px 16px;
+            background: #ffffff;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #202123;
+            transition: all 0.2s;
+        }
+
+        .new-chat-btn:hover {
+            background: #f0f0f0;
+        }
+
+        /* 탭 메뉴 리스트 */
+        .menu-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 8px;
+        }
+
+        .menu-section {
+            margin-bottom: 16px;
+        }
+
+        .menu-title {
+            padding: 8px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #8e8ea0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .menu-item {
+            padding: 10px 12px;
+            margin: 2px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #202123;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background: #ececf1;
+        }
+
+        .menu-item.active {
+            background: #ececf1;
+            font-weight: 500;
+        }
+
+        .menu-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+        }
+
+        /* 하단 프로필 영역 */
+        .sidebar-footer {
+            border-top: 1px solid #e5e5e7;
+            padding: 12px;
+        }
+
+        .profile-section {
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .profile-section:hover {
+            background: #ececf1;
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #10a37f;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #202123;
+        }
+
+        .profile-role {
+            font-size: 12px;
+            color: #8e8ea0;
+        }
+
+        /* 메인 컨텐츠 영역 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        /* AI 채팅 영역 */
+        .chat-container {
+            flex: 1;
+            display: flex;
+        }
+
+        /* 좌측 채팅 영역 (35%) */
+        .chat-section {
+            width: 35%;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #e5e5e7;
+        }
+
+        .chat-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e5e7;
+            background: #ffffff;
+        }
+
+        .chat-header-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #202123;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .model-badge {
+            padding: 2px 6px;
+            background: #f7f7f8;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #8e8ea0;
+            font-weight: 500;
+        }
+
+        /* 채팅 메시지 영역 */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #ffffff;
+        }
+
+        .message {
+            margin-bottom: 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 14px;
+        }
+
+        .message.assistant .message-avatar {
+            background: #10a37f;
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #5436da;
+            color: white;
+        }
+
+        .message-content {
+            flex: 1;
+            color: #202123;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .message-author {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        /* 입력 영역 */
+        .input-section {
+            padding: 16px;
+            border-top: 1px solid #e5e5e7;
+            background: #ffffff;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            min-height: 44px;
+            max-height: 200px;
+            padding: 12px 48px 12px 16px;
+            border: 1px solid #e5e5e7;
+            border-radius: 12px;
+            resize: none;
+            outline: none;
+            font-size: 14px;
+            line-height: 1.5;
+            font-family: inherit;
+            background: #ffffff;
+            transition: all 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: #10a37f;
+            box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.1);
+        }
+
+        .chat-input::placeholder {
+            color: #8e8ea0;
+        }
+
+        .input-actions {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .input-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8e8ea0;
+            transition: all 0.2s;
+        }
+
+        .input-btn:hover {
+            background: #f7f7f8;
+            color: #202123;
+        }
+
+        .send-btn {
+            background: #10a37f;
+            color: white;
+        }
+
+        .send-btn:hover {
+            background: #0d8c6b;
+        }
+
+        /* 우측 결과 영역 (65%) */
+        .result-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        .result-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e5e7;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .result-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #202123;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            background: #ffffff;
+            border: 1px solid #e5e5e7;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #202123;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #f7f7f8;
+        }
+
+        .result-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* 견적서 스타일 */
+        .estimate-doc {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 32px;
+        }
+
+        .estimate-header {
+            text-align: center;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #e5e5e7;
+            margin-bottom: 24px;
+        }
+
+        .estimate-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #202123;
+            margin-bottom: 12px;
+        }
+
+        .estimate-info {
+            color: #8e8ea0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .estimate-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+        }
+
+        .estimate-table th {
+            background: #f7f7f8;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #202123;
+            border-bottom: 2px solid #e5e5e7;
+        }
+
+        .estimate-table td {
+            padding: 12px;
+            font-size: 14px;
+            color: #202123;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .estimate-table tr:hover {
+            background: #fafafa;
+        }
+
+        .estimate-total {
+            margin-top: 24px;
+            padding: 16px;
+            background: #f7f7f8;
+            border-radius: 6px;
+            text-align: right;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .total-label {
+            color: #8e8ea0;
+            margin-right: 16px;
+        }
+
+        .total-value {
+            color: #202123;
+            font-weight: 500;
+            min-width: 100px;
+        }
+
+        .final-total {
+            font-size: 18px;
+            font-weight: 600;
+            color: #10a37f;
+            padding-top: 8px;
+            border-top: 1px solid #e5e5e7;
+            margin-top: 8px;
+        }
+
+        /* 스크롤바 스타일 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d1d1d1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b1b1b1;
+        }
+
+        /* 파일 업로드 영역 */
+        .file-drop-zone {
+            margin: 12px 16px;
+            padding: 16px;
+            background: #f7f7f8;
+            border: 2px dashed #e5e5e7;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-drop-zone:hover {
+            background: #ececf1;
+            border-color: #10a37f;
+        }
+
+        .file-drop-text {
+            color: #8e8ea0;
+            font-size: 13px;
+        }
+
+        /* 빠른 명령 버튼 */
+        .quick-actions {
+            padding: 8px 16px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 6px 12px;
+            background: #f7f7f8;
+            border: 1px solid #e5e5e7;
+            border-radius: 16px;
+            font-size: 12px;
+            color: #202123;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: #10a37f;
+            color: white;
+            border-color: #10a37f;
+        }
+    </style>
+</head>
+<body>
+    <!-- 좌측 사이드바 -->
+    <div class="sidebar">
+        <!-- 새 채팅 버튼 -->
+        <button class="new-chat-btn">
+            <span>+</span>
+            <span>새 채팅</span>
+        </button>
+
+        <!-- 메뉴 리스트 -->
+        <div class="menu-list">
+            <div class="menu-section">
+                <div class="menu-title">채팅</div>
+                <div class="menu-item active">
+                    <span class="menu-icon">💬</span>
+                    <span>AI ERP 견적시스템 설계</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">📋</span>
+                    <span>지난 견적 안내</span>
+                </div>
+            </div>
+
+            <div class="menu-section">
+                <div class="menu-title">새 프로젝트</div>
+                <div class="menu-item">
+                    <span class="menu-icon">🤖</span>
+                    <span>AI 매니저</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">📄</span>
+                    <span>견적서 작성</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">💰</span>
+                    <span>매출/매입 관리</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">📧</span>
+                    <span>이메일 관리</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">📦</span>
+                    <span>재고 관리</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">🏢</span>
+                    <span>거래처 관리</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">👥</span>
+                    <span>직원 관리</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">⚙️</span>
+                    <span>설정</span>
+                </div>
+            </div>
+
+            <div class="menu-section">
+                <div class="menu-title">최근 작업</div>
+                <div class="menu-item">
+                    <span class="menu-icon">📝</span>
+                    <span>ABC회사 분전반 견적</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">📝</span>
+                    <span>XYZ공장 전기공사</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">📝</span>
+                    <span>신규 프로젝트 견적</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 프로필 영역 -->
+        <div class="sidebar-footer">
+            <div class="profile-section">
+                <div class="profile-avatar">이</div>
+                <div class="profile-info">
+                    <div class="profile-name">이충원</div>
+                    <div class="profile-role">대표이사</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="main-content">
+        <div class="chat-container">
+            <!-- 좌측 채팅 영역 (35%) -->
+            <div class="chat-section">
+                <div class="chat-header">
+                    <div class="chat-header-title">
+                        AI 매니저
+                        <span class="model-badge">GPT-4</span>
+                    </div>
+                </div>
+
+                <!-- 메시지 영역 -->
+                <div class="messages-area">
+                    <div class="message assistant">
+                        <div class="message-avatar">AI</div>
+                        <div class="message-content">
+                            <div class="message-author">AI 매니저</div>
+                            <div>안녕하세요! KIS ERP AI 매니저입니다. 무엇을 도와드릴까요?</div>
+                        </div>
+                    </div>
+
+                    <div class="message user">
+                        <div class="message-avatar">이</div>
+                        <div class="message-content">
+                            <div class="message-author">이충원</div>
+                            <div>ABC회사 분전반 견적 작성해줘</div>
+                        </div>
+                    </div>
+
+                    <div class="message assistant">
+                        <div class="message-avatar">AI</div>
+                        <div class="message-content">
+                            <div class="message-author">AI 매니저</div>
+                            <div>네, ABC회사 분전반 견적을 작성하겠습니다. 사양을 확인해 주세요.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 파일 업로드 영역 -->
+                <div class="file-drop-zone">
+                    <div class="file-drop-text">
+                        📎 파일을 드래그하거나 클릭하여 업로드<br>
+                        <small>Excel, PDF, 이미지, CAD 지원</small>
+                    </div>
+                </div>
+
+                <!-- 빠른 명령 -->
+                <div class="quick-actions">
+                    <button class="quick-btn">견적 작성</button>
+                    <button class="quick-btn">이메일 발송</button>
+                    <button class="quick-btn">재고 확인</button>
+                    <button class="quick-btn">세금계산서</button>
+                </div>
+
+                <!-- 입력 영역 -->
+                <div class="input-section">
+                    <div class="input-wrapper">
+                        <textarea class="chat-input" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+                        <div class="input-actions">
+                            <button class="input-btn">📎</button>
+                            <button class="input-btn send-btn">→</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 우측 결과 영역 (65%) -->
+            <div class="result-section">
+                <div class="result-header">
+                    <div class="result-title">견적서 #EST-2025-000123</div>
+                    <div class="result-actions">
+                        <button class="action-btn">💾 저장</button>
+                        <button class="action-btn">📧 이메일</button>
+                        <button class="action-btn">📑 PDF</button>
+                        <button class="action-btn">🖨️ 인쇄</button>
+                    </div>
+                </div>
+
+                <div class="result-content">
+                    <div class="estimate-doc">
+                        <div class="estimate-header">
+                            <h1 class="estimate-title">견 적 서</h1>
+                            <div class="estimate-info">
+                                견적번호: EST-2025-000123<br>
+                                거래처: ABC회사<br>
+                                작성일: 2025년 9월 21일
+                            </div>
+                        </div>
+
+                        <table class="estimate-table">
+                            <thead>
+                                <tr>
+                                    <th>품목</th>
+                                    <th>규격</th>
+                                    <th style="text-align: center;">수량</th>
+                                    <th style="text-align: right;">단가</th>
+                                    <th style="text-align: right;">금액</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>외함</td>
+                                    <td>STS 600x800x200</td>
+                                    <td style="text-align: center;">1</td>
+                                    <td style="text-align: right;">250,000</td>
+                                    <td style="text-align: right;">250,000</td>
+                                </tr>
+                                <tr>
+                                    <td>메인차단기</td>
+                                    <td>100A 3P</td>
+                                    <td style="text-align: center;">1</td>
+                                    <td style="text-align: right;">85,000</td>
+                                    <td style="text-align: right;">85,000</td>
+                                </tr>
+                                <tr>
+                                    <td>분기차단기</td>
+                                    <td>20A 2P</td>
+                                    <td style="text-align: center;">8</td>
+                                    <td style="text-align: right;">15,000</td>
+                                    <td style="text-align: right;">120,000</td>
+                                </tr>
+                                <tr>
+                                    <td>부스바</td>
+                                    <td>동바 20x5 3m</td>
+                                    <td style="text-align: center;">3</td>
+                                    <td style="text-align: right;">45,000</td>
+                                    <td style="text-align: right;">135,000</td>
+                                </tr>
+                                <tr>
+                                    <td>설치비</td>
+                                    <td>기본 설치 및 시운전</td>
+                                    <td style="text-align: center;">1</td>
+                                    <td style="text-align: right;">100,000</td>
+                                    <td style="text-align: right;">100,000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="estimate-total">
+                            <div class="total-row">
+                                <span class="total-label">공급가액:</span>
+                                <span class="total-value">690,000원</span>
+                            </div>
+                            <div class="total-row">
+                                <span class="total-label">부가세(10%):</span>
+                                <span class="total-value">69,000원</span>
+                            </div>
+                            <div class="total-row final-total">
+                                <span class="total-label">총 합계:</span>
+                                <span class="total-value">759,000원</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

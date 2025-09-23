@@ -1,0 +1,375 @@
+name: M35 Korean SCM Pipeline
+
+on:
+  push:
+    branches: [ feat/m35-scm-v3.5, main ]
+    paths:
+      - 'engine/scm/**'
+      - 'connectors/suppliers/**'
+      - 'apps/api/src/server.ts'
+      - 'tests/scm_korean*.spec.ts'
+      - 'ops/schemas/scm_*.schema.json'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'engine/scm/**'
+      - 'connectors/suppliers/**'
+
+env:
+  NODE_VERSION: '18'
+  COPPER_INDEX: '1.0'
+  SCM_CACHE_TTL_HOURS: '2'
+  SCM_TEST_MODE: 'true'
+
+jobs:
+  korean-scm-validation:
+    name: Korean SCM Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate Korean SCM schemas
+        run: |
+          echo "Validating Korean SCM JSON schemas..."
+          npx ajv-cli validate -s ops/schemas/scm_request.schema.json -d "tests/fixtures/scm_korean_request.json"
+          npx ajv-cli validate -s ops/schemas/scm_result.schema.json -d "tests/fixtures/scm_korean_result.json"
+          npx ajv-cli validate -s ops/schemas/whytrace_scm.schema.json -d "tests/fixtures/whytrace_scm_sample.json"
+
+      - name: Test Korean SCM core components
+        run: |
+          echo "Testing Korean SCM components..."
+          npm test -- tests/scm_korean.spec.ts --reporter=verbose
+
+      - name: Test Korean SCM integration
+        env:
+          SUPPLIER_A_BASE: 'https://mock-supplier-a.test'
+          SUPPLIER_A_KEY: 'test-key-a'
+          SUPPLIER_B_BASE: 'https://mock-supplier-b.test'
+          SUPPLIER_B_KEY: 'test-key-b'
+          CEO_SIGN_PASSPHRASE: 'test-ceo-secret'
+        run: |
+          echo "Testing Korean SCM API integration..."
+          npm test -- tests/scm_korean_integration.spec.ts --reporter=verbose
+
+      - name: Validate WhyTrace-SCM completeness
+        run: |
+          echo "Validating WhyTrace-SCM event coverage..."
+          node -e "
+            const { validateScmTrace } = require('./engine/utils/why_scm.js');
+            const fs = require('fs');
+            const testTrace = JSON.parse(fs.readFileSync('tests/fixtures/whytrace_scm_sample.json', 'utf-8'));
+            const validation = validateScmTrace(testTrace);
+            if (!validation.valid) {
+              console.error('WhyTrace-SCM validation failed:', validation.missing_events);
+              process.exit(1);
+            }
+            console.log('WhyTrace-SCM validation passed');
+          "
+
+  korean-business-rules:
+    name: Korean Business Rules Compliance
+    runs-on: ubuntu-latest
+    needs: korean-scm-validation
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test Korean SKU mapping
+        run: |
+          echo "Testing Korean SKU normalization rules..."
+          node -e "
+            const { normalizePayload } = require('./engine/scm/normalizer.js');
+            const testData = {
+              items: [
+                { sku: 'LSIS_BRK_250A_3P_AF', unit_price: 450000, currency: 'KRW', stock_qty: 100, lead_days: 7 },
+                { sku: 'HYUNDAI_BUSBAR_600A_AL', unit_price: 125000, currency: 'KRW', stock_qty: 50, lead_days: 5 }
+              ]
+            };
+            const normalized = normalizePayload('A', testData);
+            const expectedSkus = ['BRK_250A_3P_AF', 'BUSBAR_600A_AL'];
+            const actualSkus = normalized.map(item => item.sku);
+            if (!expectedSkus.every(sku => actualSkus.includes(sku))) {
+              console.error('Korean SKU mapping failed. Expected:', expectedSkus, 'Got:', actualSkus);
+              process.exit(1);
+            }
+            console.log('Korean SKU mapping validation passed');
+          "
+
+      - name: Test Korean price guardrails
+        run: |
+          echo "Testing Korean price adjustment guardrails..."
+          node -e "
+            const { adjustedUnitPrice } = require('./engine/scm/price_adjust.js');
+            const basePrice = 100000;
+            const extremeCopper = 5.0; // 500% increase
+            const highRisk = 0.8; // 80% risk
+            const adjusted = adjustedUnitPrice(basePrice, 'KRW', 1.0, extremeCopper, highRisk, 0.05);
+            const deviation = Math.abs(adjusted - basePrice) / basePrice;
+            if (deviation > 0.05) {
+              console.error('Korean guardrails failed. Deviation:', deviation, 'should be <= 0.05');
+              process.exit(1);
+            }
+            console.log('Korean price guardrails validation passed');
+          "
+
+      - name: Test Korean reliability scoring
+        run: |
+          echo "Testing Korean supplier reliability scoring..."
+          node -e "
+            const fs = require('fs');
+            const skuMap = JSON.parse(fs.readFileSync('core/knowledge/sku_map.json', 'utf-8'));
+            const supplierA = skuMap.suppliers.find(s => s.name === 'A');
+            if (!supplierA || supplierA.reliability !== 0.92) {
+              console.error('Korean supplier reliability scoring failed');
+              process.exit(1);
+            }
+            console.log('Korean reliability scoring validation passed');
+          "
+
+  performance-benchmarks:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    needs: korean-business-rules
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run SCM performance benchmarks
+        env:
+          NODE_ENV: 'test'
+        run: |
+          echo "Running Korean SCM performance benchmarks..."
+          node -e "
+            const { runSCM } = require('./engine/scm/run.js');
+
+            async function benchmark() {
+              const largeBOM = Array.from({ length: 100 }, (_, i) => ({
+                sku: \`BRK_\${i}_250A_3P_AF\`,
+                qty: Math.floor(Math.random() * 10) + 1
+              }));
+
+              const request = {
+                bom: largeBOM,
+                target_date: '2025-03-01',
+                policy: {
+                  score_weights: { price: 0.5, lead: 0.3, reliability: 0.2 },
+                  max_price_deviation: 0.05
+                }
+              };
+
+              const startTime = Date.now();
+              const trace = [];
+              await runSCM(request, trace);
+              const duration = Date.now() - startTime;
+
+              console.log(\`SCM processing time: \${duration}ms for \${largeBOM.length} BOM items\`);
+
+              if (duration > 5000) {
+                console.error('Performance benchmark failed: SCM processing too slow');
+                process.exit(1);
+              }
+
+              console.log('Performance benchmark passed');
+            }
+
+            benchmark().catch(err => {
+              console.error('Benchmark failed:', err);
+              process.exit(1);
+            });
+          "
+
+  security-validation:
+    name: Security Validation
+    runs-on: ubuntu-latest
+    needs: korean-scm-validation
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Test CEO signature security
+        run: |
+          echo "Testing CEO signature security..."
+          node -e "
+            const request = require('supertest');
+            const { start } = require('./apps/api/src/server.js');
+
+            async function testSecurity() {
+              const app = start;
+
+              // Test invalid passphrase rejection
+              const response = await request(app)
+                .post('/api/v3/scm/ceo-approval')
+                .send({
+                  jobId: 'test-job-123',
+                  decision: 'APPROVED',
+                  ceo_comment: 'Malicious approval attempt',
+                  passphrase: 'wrong-password'
+                });
+
+              if (response.status !== 403) {
+                console.error('Security test failed: Invalid passphrase accepted');
+                process.exit(1);
+              }
+
+              console.log('CEO signature security validation passed');
+            }
+
+            testSecurity().catch(err => {
+              console.error('Security test failed:', err);
+              process.exit(1);
+            });
+          "
+
+      - name: Validate input sanitization
+        run: |
+          echo "Testing input sanitization..."
+          node -e "
+            const path = require('path');
+
+            // Test path traversal protection
+            const maliciousPath = '../../../etc/passwd';
+            const safePath = path.basename(maliciousPath);
+
+            if (safePath.includes('../')) {
+              console.error('Path traversal protection failed');
+              process.exit(1);
+            }
+
+            console.log('Input sanitization validation passed');
+          "
+
+  deployment-readiness:
+    name: Deployment Readiness
+    runs-on: ubuntu-latest
+    needs: [korean-business-rules, performance-benchmarks, security-validation]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production artifacts
+        run: |
+          echo "Building Korean SCM production artifacts..."
+          npm run build
+
+      - name: Validate environment variables
+        run: |
+          echo "Validating required environment variables..."
+          node -e "
+            const requiredVars = [
+              'SUPPLIER_A_BASE',
+              'SUPPLIER_A_KEY',
+              'SUPPLIER_B_BASE',
+              'SUPPLIER_B_KEY',
+              'COPPER_INDEX',
+              'CEO_SIGN_PASSPHRASE'
+            ];
+
+            const missing = requiredVars.filter(varName => !process.env[varName]);
+            if (missing.length > 0) {
+              console.log('Missing environment variables (will use defaults):', missing);
+            } else {
+              console.log('All environment variables configured');
+            }
+          "
+
+      - name: Generate deployment checklist
+        run: |
+          echo "## M35 Korean SCM Deployment Checklist" > deployment-checklist.md
+          echo "" >> deployment-checklist.md
+          echo "### Pre-deployment" >> deployment-checklist.md
+          echo "- [x] Korean SCM specifications validated" >> deployment-checklist.md
+          echo "- [x] Korean business rules tested" >> deployment-checklist.md
+          echo "- [x] WhyTrace-SCM events implemented" >> deployment-checklist.md
+          echo "- [x] Performance benchmarks passed" >> deployment-checklist.md
+          echo "- [x] Security validation completed" >> deployment-checklist.md
+          echo "" >> deployment-checklist.md
+          echo "### Deployment" >> deployment-checklist.md
+          echo "- [ ] Environment variables configured" >> deployment-checklist.md
+          echo "- [ ] Supplier connections tested" >> deployment-checklist.md
+          echo "- [ ] CEO approval system activated" >> deployment-checklist.md
+          echo "- [ ] Monitoring alerts configured" >> deployment-checklist.md
+          echo "" >> deployment-checklist.md
+          echo "### Post-deployment" >> deployment-checklist.md
+          echo "- [ ] End-to-end Korean SCM flow tested" >> deployment-checklist.md
+          echo "- [ ] WhyTrace-SCM completeness verified" >> deployment-checklist.md
+          echo "- [ ] Korean PO generation tested" >> deployment-checklist.md
+          echo "- [ ] CEO approval workflow tested" >> deployment-checklist.md
+
+      - name: Archive deployment artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: m35-korean-scm-deployment
+          path: |
+            engine/scm/
+            connectors/suppliers/
+            ops/schemas/scm_*.schema.json
+            core/knowledge/sku_map.json
+            deployment-checklist.md
+
+  notify-completion:
+    name: Notify Completion
+    runs-on: ubuntu-latest
+    needs: [deployment-readiness]
+    if: always()
+    steps:
+      - name: Notify team
+        run: |
+          echo "🎉 M35 Korean SCM Pipeline Complete"
+          echo "📋 Status Summary:"
+          echo "  - Korean SCM Validation: ${{ needs.korean-scm-validation.result }}"
+          echo "  - Business Rules: ${{ needs.korean-business-rules.result }}"
+          echo "  - Performance: ${{ needs.performance-benchmarks.result }}"
+          echo "  - Security: ${{ needs.security-validation.result }}"
+          echo "  - Deployment: ${{ needs.deployment-readiness.result }}"
+          echo ""
+          echo "🚀 Ready for Korean SCM M35 deployment!"

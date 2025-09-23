@@ -1,0 +1,17 @@
+{
+  "id": "smoke_38",
+  "items": [
+    {
+      "id": "smoke_38",
+      "category": "SW",
+      "quantity": 9,
+      "unitPrice": 922241,
+      "margin": 0.15,
+      "vat": 0.1
+    }
+  ],
+  "subtotal": 8300169,
+  "margin": 1245025.3499999999,
+  "vat": 954519.435,
+  "total": 10499713.785
+}

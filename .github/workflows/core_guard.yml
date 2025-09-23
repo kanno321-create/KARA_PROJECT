@@ -1,0 +1,607 @@
+# M30 Spec-Driven Core v3.0 - Core Protection Guards
+# 
+# Continuous validation of core system integrity
+# WhyTrace completeness monitoring
+# Performance degradation detection
+# Automatic blocking criteria enforcement
+
+name: Core Protection Guards
+
+on:
+  push:
+    branches: [ feat/m30-spec-core-v3, main, master ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    # Run every 30 minutes during business hours
+    - cron: '*/30 9-18 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      force_validation:
+        description: 'Force full validation suite'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  NODE_VERSION: '18.x'
+  WHYTRACE_COMPLETENESS_THRESHOLD: 1.0
+  COST_DELTA_THRESHOLD: 0.02
+  PERFORMANCE_TIME_LIMIT_MS: 5000
+  PERFORMANCE_MEMORY_LIMIT_MB: 512
+
+jobs:
+  # ==================== CORE INTEGRITY MONITORING ====================
+  
+  core_integrity_check:
+    name: Core System Integrity Check
+    runs-on: ubuntu-latest
+    
+    outputs:
+      sot_integrity: ${{ steps.sot_check.outputs.valid }}
+      schema_compliance: ${{ steps.schema_check.outputs.valid }}
+      whytrace_health: ${{ steps.whytrace_check.outputs.healthy }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm ci
+        npm install --save-dev jest @types/jest ts-jest typescript
+    
+    - name: SOT Cryptographic Integrity Check
+      id: sot_check
+      run: |
+        echo "🔐 Verifying SOT cryptographic integrity..."
+        
+        # Run SOT integrity verification
+        npm run test:sot-integrity -- --strict --all-sections
+        sot_result=$?
+        
+        if [ $sot_result -eq 0 ]; then
+          echo "✅ SOT integrity verified"
+          echo "valid=true" >> $GITHUB_OUTPUT
+        else
+          echo "❌ SOT integrity check FAILED"
+          echo "valid=false" >> $GITHUB_OUTPUT
+          
+          # Generate detailed integrity report
+          npm run sot:integrity-report -- --output=sot_integrity_failure.json
+          
+          # Upload failure report as artifact
+          echo "Uploading SOT integrity failure report..."
+        fi
+        
+        # Extract SOT metrics
+        checksum_failures=$(npm run sot:metrics -- --metric=checksum_failures)
+        corruption_detected=$(npm run sot:metrics -- --metric=corruption_detected)
+        
+        echo "Checksum failures: $checksum_failures"
+        echo "Corruption detected: $corruption_detected"
+        
+        # Alert on any integrity issues
+        if [ "$checksum_failures" -gt "0" ] || [ "$corruption_detected" = "true" ]; then
+          echo "🚨 SOT INTEGRITY COMPROMISE DETECTED"
+          exit 1
+        fi
+    
+    - name: Schema Compliance Validation
+      id: schema_check
+      run: |
+        echo "📋 Validating schema compliance..."
+        
+        # Validate all schemas
+        npm run validate:schemas -- --strict --all
+        schema_result=$?
+        
+        if [ $schema_result -eq 0 ]; then
+          echo "✅ Schema compliance verified"
+          echo "valid=true" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Schema compliance FAILED"
+          echo "valid=false" >> $GITHUB_OUTPUT
+          
+          # Generate schema compliance report
+          npm run schema:compliance-report -- --output=schema_failure.json
+        fi
+        
+        # Check schema version compatibility
+        npm run schema:version-check -- --target-version=3.0.0
+        version_result=$?
+        
+        if [ $version_result -ne 0 ]; then
+          echo "⚠️ Schema version compatibility warning"
+        fi
+    
+    - name: WhyTrace System Health Check
+      id: whytrace_check
+      run: |
+        echo "🔍 Checking WhyTrace system health..."
+        
+        # Test WhyTrace logging functionality
+        npm run test:whytrace-health -- --comprehensive
+        whytrace_result=$?
+        
+        if [ $whytrace_result -eq 0 ]; then
+          echo "✅ WhyTrace system healthy"
+          echo "healthy=true" >> $GITHUB_OUTPUT
+        else
+          echo "❌ WhyTrace system health check FAILED"
+          echo "healthy=false" >> $GITHUB_OUTPUT
+        fi
+        
+        # Check event completeness capability
+        completeness_test=$(npm run whytrace:test-completeness)
+        if [ "$completeness_test" != "1.0" ]; then
+          echo "⚠️ WhyTrace completeness test failed: $completeness_test"
+          echo "healthy=false" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Upload Integrity Reports
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: integrity-failure-reports
+        path: |
+          sot_integrity_failure.json
+          schema_failure.json
+        retention-days: 30
+
+  # ==================== BLOCKING CRITERIA ENFORCEMENT ====================
+  
+  blocking_criteria_validation:
+    name: Blocking Criteria Validation
+    runs-on: ubuntu-latest
+    needs: core_integrity_check
+    if: needs.core_integrity_check.outputs.sot_integrity == 'true'
+    
+    strategy:
+      matrix:
+        test_scenario:
+          - standard_configuration
+          - mixed_brand_complex
+          - custom_enclosure_large
+          - performance_stress
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Execute Blocking Criteria Test - ${{ matrix.test_scenario }}
+      run: |
+        echo "🚦 Testing blocking criteria for: ${{ matrix.test_scenario }}"
+        
+        # Run specific blocking criteria test
+        npm run test:blocking-criteria -- \
+          --scenario="${{ matrix.test_scenario }}" \
+          --strict \
+          --exit-on-fail
+        
+        exit_code=$?
+        
+        echo "Exit code: $exit_code"
+        
+        if [ $exit_code -eq 42 ]; then
+          echo "❌ BLOCKING CRITERIA FAILED - Exit Code 42"
+          echo "Scenario: ${{ matrix.test_scenario }}"
+          
+          # Generate detailed failure report
+          npm run blocking:failure-report -- \
+            --scenario="${{ matrix.test_scenario }}" \
+            --output="blocking_failure_${{ matrix.test_scenario }}.json"
+          
+          # Trigger immediate alert
+          npm run alert:blocking-criteria-failure -- \
+            --scenario="${{ matrix.test_scenario }}" \
+            --severity="critical"
+          
+          exit 42
+        elif [ $exit_code -eq 0 ]; then
+          echo "✅ BLOCKING CRITERIA PASSED"
+        else
+          echo "⚠️ UNEXPECTED EXIT CODE: $exit_code"
+          exit $exit_code
+        fi
+    
+    - name: WhyTrace Completeness Validation - ${{ matrix.test_scenario }}
+      run: |
+        echo "🔍 Validating WhyTrace completeness for: ${{ matrix.test_scenario }}"
+        
+        # Extract WhyTrace completeness score
+        completeness=$(npm run test:whytrace-completeness -- \
+          --scenario="${{ matrix.test_scenario }}" \
+          --extract-score)
+        
+        echo "WhyTrace completeness: $completeness"
+        
+        # BLOCKING CRITERIA: Must be exactly 1.0
+        if [ "$completeness" != "1.0" ]; then
+          echo "❌ WHYTRACE COMPLETENESS FAILED: $completeness (required: 1.0)"
+          
+          # Generate completeness failure report
+          npm run whytrace:completeness-failure-report -- \
+            --scenario="${{ matrix.test_scenario }}" \
+            --score="$completeness" \
+            --output="whytrace_failure_${{ matrix.test_scenario }}.json"
+          
+          exit 42
+        fi
+        
+        echo "✅ WHYTRACE COMPLETENESS VALIDATED: $completeness"
+    
+    - name: Regression Parity Validation - ${{ matrix.test_scenario }}
+      run: |
+        echo "🔄 Validating regression parity for: ${{ matrix.test_scenario }}"
+        
+        # Extract cost delta from baseline
+        cost_delta=$(npm run test:regression-delta -- \
+          --scenario="${{ matrix.test_scenario }}" \
+          --extract-delta)
+        
+        echo "Cost delta vs baseline: ${cost_delta}%"
+        
+        # BLOCKING CRITERIA: Must be ≤ 2%
+        if [ $(echo "$cost_delta > ${{ env.COST_DELTA_THRESHOLD }}" | bc) -eq 1 ]; then
+          echo "❌ REGRESSION PARITY FAILED: ${cost_delta}% (limit: ${{ env.COST_DELTA_THRESHOLD }})"
+          
+          # Generate regression failure report
+          npm run regression:failure-report -- \
+            --scenario="${{ matrix.test_scenario }}" \
+            --delta="$cost_delta" \
+            --threshold="${{ env.COST_DELTA_THRESHOLD }}" \
+            --output="regression_failure_${{ matrix.test_scenario }}.json"
+          
+          exit 42
+        fi
+        
+        echo "✅ REGRESSION PARITY VALIDATED: ${cost_delta}%"
+    
+    - name: Upload Failure Reports
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: blocking-criteria-failures-${{ matrix.test_scenario }}
+        path: |
+          blocking_failure_${{ matrix.test_scenario }}.json
+          whytrace_failure_${{ matrix.test_scenario }}.json
+          regression_failure_${{ matrix.test_scenario }}.json
+        retention-days: 30
+
+  # ==================== PERFORMANCE DEGRADATION DETECTION ====================
+  
+  performance_monitoring:
+    name: Performance Degradation Detection
+    runs-on: ubuntu-latest
+    needs: core_integrity_check
+    if: needs.core_integrity_check.outputs.sot_integrity == 'true'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Performance Baseline Measurement
+      run: |
+        echo "📊 Measuring performance baseline..."
+        
+        # Run performance benchmark suite
+        npm run test:performance -- --comprehensive --iterations=10
+        
+        # Extract performance metrics
+        avg_processing_time=$(npm run perf:extract -- --metric=avg_processing_time)
+        p95_processing_time=$(npm run perf:extract -- --metric=p95_processing_time)
+        max_memory_usage=$(npm run perf:extract -- --metric=max_memory_usage)
+        avg_memory_usage=$(npm run perf:extract -- --metric=avg_memory_usage)
+        
+        echo "Average processing time: ${avg_processing_time}ms"
+        echo "P95 processing time: ${p95_processing_time}ms"
+        echo "Max memory usage: ${max_memory_usage}MB"
+        echo "Average memory usage: ${avg_memory_usage}MB"
+        
+        # BLOCKING CRITERIA: Processing time < 5000ms
+        if [ "$p95_processing_time" -gt "${{ env.PERFORMANCE_TIME_LIMIT_MS }}" ]; then
+          echo "❌ PERFORMANCE DEGRADATION: P95 processing time exceeded"
+          echo "P95: ${p95_processing_time}ms (limit: ${{ env.PERFORMANCE_TIME_LIMIT_MS }}ms)"
+          
+          npm run alert:performance-degradation -- \
+            --metric="processing_time" \
+            --value="$p95_processing_time" \
+            --limit="${{ env.PERFORMANCE_TIME_LIMIT_MS }}"
+          
+          exit 42
+        fi
+        
+        # BLOCKING CRITERIA: Memory usage < 512MB
+        if [ "$max_memory_usage" -gt "${{ env.PERFORMANCE_MEMORY_LIMIT_MB }}" ]; then
+          echo "❌ PERFORMANCE DEGRADATION: Memory usage exceeded"
+          echo "Max: ${max_memory_usage}MB (limit: ${{ env.PERFORMANCE_MEMORY_LIMIT_MB }}MB)"
+          
+          npm run alert:performance-degradation -- \
+            --metric="memory_usage" \
+            --value="$max_memory_usage" \
+            --limit="${{ env.PERFORMANCE_MEMORY_LIMIT_MB }}"
+          
+          exit 42
+        fi
+        
+        echo "✅ PERFORMANCE WITHIN LIMITS"
+    
+    - name: Performance Trend Analysis
+      run: |
+        echo "📈 Analyzing performance trends..."
+        
+        # Compare with historical data
+        npm run perf:trend-analysis -- --days=7
+        
+        # Check for performance regressions
+        trend_result=$(npm run perf:check-regression -- --threshold=10)
+        
+        if [ "$trend_result" = "regression_detected" ]; then
+          echo "⚠️ PERFORMANCE REGRESSION TREND DETECTED"
+          npm run alert:performance-trend -- --severity="warning"
+        fi
+    
+    - name: Load Test Validation
+      run: |
+        echo "🏋️ Running load test validation..."
+        
+        # Simulate production load
+        npm run test:load -- \
+          --concurrent-requests=50 \
+          --duration=300 \
+          --ramp-up=60
+        
+        # Validate load test results
+        load_success_rate=$(npm run load:extract -- --metric=success_rate)
+        load_avg_response=$(npm run load:extract -- --metric=avg_response_time)
+        
+        echo "Load test success rate: ${load_success_rate}%"
+        echo "Load test avg response: ${load_avg_response}ms"
+        
+        if [ $(echo "$load_success_rate < 99.0" | bc) -eq 1 ]; then
+          echo "❌ LOAD TEST FAILURE: Success rate too low"
+          exit 42
+        fi
+        
+        if [ "$load_avg_response" -gt "3000" ]; then
+          echo "❌ LOAD TEST FAILURE: Response time too high"
+          exit 42
+        fi
+        
+        echo "✅ LOAD TEST VALIDATION PASSED"
+
+  # ==================== CONTINUOUS QUALITY MONITORING ====================
+  
+  quality_metrics_monitoring:
+    name: Quality Metrics Monitoring
+    runs-on: ubuntu-latest
+    needs: [core_integrity_check, blocking_criteria_validation]
+    if: always() && needs.core_integrity_check.outputs.sot_integrity == 'true'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: SOT Compliance Rate Monitoring
+      run: |
+        echo "📊 Monitoring SOT compliance rate..."
+        
+        # Measure SOT compliance across test scenarios
+        compliance_rate=$(npm run test:sot-compliance -- --extract-rate)
+        
+        echo "SOT compliance rate: ${compliance_rate}%"
+        
+        if [ $(echo "$compliance_rate < 80.0" | bc) -eq 1 ]; then
+          echo "⚠️ SOT COMPLIANCE RATE LOW: ${compliance_rate}%"
+          npm run alert:quality-degradation -- \
+            --metric="sot_compliance" \
+            --value="$compliance_rate" \
+            --threshold="80.0"
+        fi
+    
+    - name: Rule Coverage Analysis
+      run: |
+        echo "📋 Analyzing rule coverage..."
+        
+        # Measure rule coverage across scenarios
+        rule_coverage=$(npm run test:rule-coverage -- --extract-percentage)
+        
+        echo "Rule coverage: ${rule_coverage}%"
+        
+        if [ $(echo "$rule_coverage < 70.0" | bc) -eq 1 ]; then
+          echo "⚠️ RULE COVERAGE LOW: ${rule_coverage}%"
+          npm run alert:quality-degradation -- \
+            --metric="rule_coverage" \
+            --value="$rule_coverage" \
+            --threshold="70.0"
+        fi
+    
+    - name: Data Quality Score Monitoring
+      run: |
+        echo "🎯 Monitoring data quality scores..."
+        
+        # Calculate overall data quality score
+        data_quality=$(npm run test:data-quality -- --extract-score)
+        
+        echo "Data quality score: ${data_quality}"
+        
+        if [ $(echo "$data_quality < 0.9" | bc) -eq 1 ]; then
+          echo "⚠️ DATA QUALITY SCORE LOW: ${data_quality}"
+          npm run alert:quality-degradation -- \
+            --metric="data_quality" \
+            --value="$data_quality" \
+            --threshold="0.9"
+        fi
+    
+    - name: Generate Quality Dashboard
+      run: |
+        echo "📊 Generating quality metrics dashboard..."
+        
+        npm run dashboard:generate -- \
+          --type="quality" \
+          --output="quality_dashboard.html" \
+          --include-trends \
+          --include-alerts
+    
+    - name: Upload Quality Dashboard
+      uses: actions/upload-artifact@v4
+      with:
+        name: quality-dashboard
+        path: quality_dashboard.html
+        retention-days: 7
+
+  # ==================== EMERGENCY RESPONSE ====================
+  
+  emergency_response:
+    name: Emergency Response Handler
+    runs-on: ubuntu-latest
+    needs: [core_integrity_check, blocking_criteria_validation, performance_monitoring]
+    if: failure()
+    
+    steps:
+    - name: Emergency Alert Dispatch
+      run: |
+        echo "🚨 EMERGENCY RESPONSE ACTIVATED"
+        
+        # Determine failure type
+        if [ "${{ needs.core_integrity_check.result }}" = "failure" ]; then
+          failure_type="core_integrity"
+        elif [ "${{ needs.blocking_criteria_validation.result }}" = "failure" ]; then
+          failure_type="blocking_criteria"
+        elif [ "${{ needs.performance_monitoring.result }}" = "failure" ]; then
+          failure_type="performance_degradation"
+        else
+          failure_type="unknown"
+        fi
+        
+        echo "Failure type: $failure_type"
+        
+        # Send emergency notifications
+        npm run emergency:notify -- \
+          --type="$failure_type" \
+          --severity="critical" \
+          --commit="${{ github.sha }}" \
+          --branch="${{ github.ref_name }}" \
+          --workflow="${{ github.workflow }}"
+    
+    - name: Automatic Mitigation Actions
+      run: |
+        echo "🔧 Executing automatic mitigation actions..."
+        
+        # Based on failure type, execute appropriate mitigation
+        case "$failure_type" in
+          "core_integrity")
+            echo "SOT integrity compromise detected - initiating data refresh"
+            npm run emergency:sot-refresh
+            ;;
+          "blocking_criteria")
+            echo "Blocking criteria failure - initiating service degradation mode"
+            npm run emergency:degrade-service
+            ;;
+          "performance_degradation")
+            echo "Performance degradation - scaling resources"
+            npm run emergency:scale-resources
+            ;;
+          *)
+            echo "Unknown failure - executing general mitigation"
+            npm run emergency:general-mitigation
+            ;;
+        esac
+    
+    - name: Generate Incident Report
+      run: |
+        echo "📝 Generating incident report..."
+        
+        npm run incident:generate -- \
+          --type="$failure_type" \
+          --severity="critical" \
+          --timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+          --commit="${{ github.sha }}" \
+          --branch="${{ github.ref_name }}" \
+          --logs-included \
+          --output="incident_report_$(date +%s).json"
+
+  # ==================== STATUS REPORTING ====================
+  
+  status_report:
+    name: Core Status Report
+    runs-on: ubuntu-latest
+    needs: [core_integrity_check, blocking_criteria_validation, performance_monitoring, quality_metrics_monitoring]
+    if: always()
+    
+    steps:
+    - name: Generate Status Summary
+      run: |
+        echo "📊 Generating core status summary..."
+        
+        # Collect all job statuses
+        integrity_status="${{ needs.core_integrity_check.result }}"
+        blocking_status="${{ needs.blocking_criteria_validation.result }}"
+        performance_status="${{ needs.performance_monitoring.result }}"
+        quality_status="${{ needs.quality_metrics_monitoring.result }}"
+        
+        echo "Core Integrity: $integrity_status"
+        echo "Blocking Criteria: $blocking_status"
+        echo "Performance: $performance_status"
+        echo "Quality Metrics: $quality_status"
+        
+        # Determine overall system health
+        if [ "$integrity_status" = "success" ] && \
+           [ "$blocking_status" = "success" ] && \
+           [ "$performance_status" = "success" ] && \
+           [ "$quality_status" = "success" ]; then
+          overall_status="healthy"
+        elif [ "$integrity_status" = "failure" ] || \
+             [ "$blocking_status" = "failure" ] || \
+             [ "$performance_status" = "failure" ]; then
+          overall_status="critical"
+        else
+          overall_status="degraded"
+        fi
+        
+        echo "Overall System Status: $overall_status"
+        
+        # Update status dashboard
+        npm run status:update -- \
+          --overall="$overall_status" \
+          --integrity="$integrity_status" \
+          --blocking="$blocking_status" \
+          --performance="$performance_status" \
+          --quality="$quality_status" \
+          --timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"

@@ -1,0 +1,441 @@
+{
+  "breakers": [
+    {
+      "id": "L1_01",
+      "phase": "L1",
+      "rating": 30,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L1_02",
+      "phase": "L1",
+      "rating": 30,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L1_03",
+      "phase": "L1",
+      "rating": 15,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L1_04",
+      "phase": "L1",
+      "rating": 20,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L1_05",
+      "phase": "L1",
+      "rating": 15,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L1_06",
+      "phase": "L1",
+      "rating": 20,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L1_07",
+      "phase": "L1",
+      "rating": 20,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L1_08",
+      "phase": "L1",
+      "rating": 15,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L1_09",
+      "phase": "L1",
+      "rating": 15,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L1_10",
+      "phase": "L1",
+      "rating": 30,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L1_11",
+      "phase": "L1",
+      "rating": 15,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L1_12",
+      "phase": "L1",
+      "rating": 15,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L1_13",
+      "phase": "L1",
+      "rating": 30,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L1_14",
+      "phase": "L1",
+      "rating": 15,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L1_15",
+      "phase": "L1",
+      "rating": 15,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L1_16",
+      "phase": "L1",
+      "rating": 30,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L1_17",
+      "phase": "L1",
+      "rating": 25,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L1_18",
+      "phase": "L1",
+      "rating": 15,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L2_01",
+      "phase": "L2",
+      "rating": 15,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L2_02",
+      "phase": "L2",
+      "rating": 25,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L2_03",
+      "phase": "L2",
+      "rating": 15,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L2_04",
+      "phase": "L2",
+      "rating": 30,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L2_05",
+      "phase": "L2",
+      "rating": 15,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L2_06",
+      "phase": "L2",
+      "rating": 25,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L2_07",
+      "phase": "L2",
+      "rating": 20,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L2_08",
+      "phase": "L2",
+      "rating": 15,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L2_09",
+      "phase": "L2",
+      "rating": 15,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L2_10",
+      "phase": "L2",
+      "rating": 30,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L2_11",
+      "phase": "L2",
+      "rating": 25,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L2_12",
+      "phase": "L2",
+      "rating": 20,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L2_13",
+      "phase": "L2",
+      "rating": 25,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L2_14",
+      "phase": "L2",
+      "rating": 20,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L2_15",
+      "phase": "L2",
+      "rating": 20,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L2_16",
+      "phase": "L2",
+      "rating": 25,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L2_17",
+      "phase": "L2",
+      "rating": 30,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L2_18",
+      "phase": "L2",
+      "rating": 30,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L2_19",
+      "phase": "L2",
+      "rating": 25,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L2_20",
+      "phase": "L2",
+      "rating": 15,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L3_01",
+      "phase": "L3",
+      "rating": 25,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L3_02",
+      "phase": "L3",
+      "rating": 30,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L3_03",
+      "phase": "L3",
+      "rating": 20,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L3_04",
+      "phase": "L3",
+      "rating": 15,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L3_05",
+      "phase": "L3",
+      "rating": 20,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L3_06",
+      "phase": "L3",
+      "rating": 25,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L3_07",
+      "phase": "L3",
+      "rating": 20,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L3_08",
+      "phase": "L3",
+      "rating": 25,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L3_09",
+      "phase": "L3",
+      "rating": 25,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L3_10",
+      "phase": "L3",
+      "rating": 15,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L3_11",
+      "phase": "L3",
+      "rating": 20,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L3_12",
+      "phase": "L3",
+      "rating": 30,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L3_13",
+      "phase": "L3",
+      "rating": 15,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L3_14",
+      "phase": "L3",
+      "rating": 15,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L3_15",
+      "phase": "L3",
+      "rating": 30,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L3_16",
+      "phase": "L3",
+      "rating": 20,
+      "type": "MCCB",
+      "width_units": 1
+    },
+    {
+      "id": "L3_17",
+      "phase": "L3",
+      "rating": 15,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L3_18",
+      "phase": "L3",
+      "rating": 30,
+      "type": "MCB",
+      "width_units": 1
+    },
+    {
+      "id": "L3_19",
+      "phase": "L3",
+      "rating": 20,
+      "type": "MCB",
+      "width_units": 2
+    },
+    {
+      "id": "L3_20",
+      "phase": "L3",
+      "rating": 30,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L3_21",
+      "phase": "L3",
+      "rating": 30,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L3_22",
+      "phase": "L3",
+      "rating": 15,
+      "type": "MCCB",
+      "width_units": 2
+    },
+    {
+      "id": "L3_23",
+      "phase": "L3",
+      "rating": 30,
+      "type": "MCCB",
+      "width_units": 1
+    }
+  ],
+  "constraints": {
+    "max_phase_imbalance_pct": 4.0,
+    "thermal_derating": 0.858275022434831,
+    "clearance_mm": 7
+  },
+  "panel_specs": {
+    "width_units": 36,
+    "height_units": 24,
+    "pitch_mm": 18.0
+  }
+}

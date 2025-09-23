@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "target": "doc_lint_result",
+  "timestamp": "2025-09-19T02:45:44.776233",
+  "summary": {
+    "errors": 0,
+    "warnings": 0,
+    "documents_ok": 6,
+    "documents_total": 6,
+    "quality_score": 100,
+    "status": "PASS"
+  }
+}

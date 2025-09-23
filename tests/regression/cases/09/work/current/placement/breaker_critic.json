@@ -1,0 +1,29 @@
+{
+  "ts": 1758217540,
+  "placement_file": "tests\\regression\\cases\\09\\work\\current\\placement\\breaker_placement.json",
+  "violations": [],
+  "warnings": [
+    "Phase imbalance 3.90% approaching limit"
+  ],
+  "violation_details": [],
+  "phase_imbalance_pct": 3.9,
+  "total_heat_w": 175.23884406884125,
+  "passed": true,
+  "score": 95,
+  "thresholds": {
+    "phase_imbalance_pct": 4.0,
+    "clearances_violation": 0,
+    "thermal_violation": 0,
+    "row_heat_w": 650,
+    "panel_heat_w": 2500,
+    "min_clearance_mm": 50
+  },
+  "critic_pass": true,
+  "metrics": {
+    "phase_imbalance_pct": 3.9,
+    "clearance_violations": 0,
+    "thermal_violations": 0,
+    "total_heat_w": 175.23884406884125,
+    "slot_count": 12
+  }
+}

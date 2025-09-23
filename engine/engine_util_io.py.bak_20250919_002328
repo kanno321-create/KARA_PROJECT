@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+import json, time
+from pathlib import Path
+
+def ensure_dir(p: Path): p.mkdir(parents=True, exist_ok=True)
+def write_json(p: Path, obj: dict):
+    ensure_dir(p.parent); p.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
+def write_text(p: Path, text: str): ensure_dir(p.parent); p.write_text(text, encoding="utf-8")
+def make_evidence(base: Path):
+    svg = f"<svg xmlns='http://www.w3.org/2000/svg' width='320' height='160'><rect width='100%' height='100%' fill='#eef'/><text x='10' y='80' font-size='14'>evidence for {base.name}</text></svg>"
+    write_text(base.with_suffix('.svg'), svg)
+    write_json(base.parent / (base.stem + '_evidence.json'), {'ok': True, 'ts': int(time.time()), 'target': base.name})

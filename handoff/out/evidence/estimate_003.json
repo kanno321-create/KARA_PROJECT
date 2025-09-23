@@ -1,0 +1,35 @@
+{
+  "estimate_id": "EST-2025-000003",
+  "request_id": "REQ-2025-003",
+  "customer_details": {
+    "name": "***REDACTED***",
+    "company": "***REDACTED***",
+    "contact": "***REDACTED***"
+  },
+  "products": [
+    {
+      "sku": "HW-500",
+      "name": "Hardware Bundle",
+      "qty": 20,
+      "purchase_price": "***REDACTED***",
+      "selling_price": 500,
+      "margin": "***REDACTED***"
+    }
+  ],
+  "summary": {
+    "items_total": 10000,
+    "tax": 1000,
+    "shipping": 200,
+    "grand_total": 11200
+  },
+  "internal_notes": {
+    "cost_analysis": "***REDACTED***",
+    "supplier_info": "***REDACTED***",
+    "profit_margin": "***REDACTED***"
+  },
+  "audit": {
+    "created": "2025-09-20T12:00:00Z",
+    "masked": true,
+    "evidence_version": "1.0"
+  }
+}

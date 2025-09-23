@@ -1,0 +1,181 @@
+﻿{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "KIS Estimate API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/v1/estimate": {
+      "post": {
+        "summary": "Create estimate for distribution panels",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstimateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estimate generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstimateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EstimateRequest": {
+        "type": "object",
+        "required": [
+          "request_id",
+          "project_label",
+          "submitted_by",
+          "knowledge_snapshot_id",
+          "distribution_panels",
+          "validation_flags"
+        ],
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "project_label": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "submitted_by": {
+            "type": "string"
+          },
+          "knowledge_snapshot_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "distribution_panels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DistributionPanelBlock"
+            },
+            "minItems": 1
+          },
+          "pricing_overrides": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "validation_flags": {
+            "type": "object",
+            "required": ["run_fix4", "run_regression_sample"],
+            "properties": {
+              "run_fix4": { "type": "boolean" },
+              "run_regression_sample": { "type": "boolean" }
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "DistributionPanelBlock": {
+        "type": "object",
+        "required": ["panel_id", "source_tab_index", "subtotal", "line_items", "evidence_ref"],
+        "properties": {
+          "panel_id": { "type": "string" },
+          "source_tab_index": { "type": "integer", "minimum": 1 },
+          "subtotal": { "type": "number", "format": "currency" },
+          "line_items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/MaterialSelection" },
+            "minItems": 1
+          },
+          "evidence_ref": { "$ref": "#/components/schemas/EvidenceReference" }
+        },
+        "additionalProperties": false
+      },
+      "MaterialSelection": {
+        "type": "object",
+        "required": ["category", "sku", "quantity", "unit_price", "line_total"],
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": ["breaker", "enclosure", "accessory", "magnet"]
+          },
+          "sku": { "type": "string" },
+          "quantity": { "type": "integer", "minimum": 1 },
+          "unit_price": { "type": "number", "format": "currency" },
+          "line_total": { "type": "number", "format": "currency" }
+        },
+        "additionalProperties": false
+      },
+      "EvidenceReference": {
+        "type": "object",
+        "required": ["bundle_id", "json_path", "visual_path", "log_path"],
+        "properties": {
+          "bundle_id": { "type": "string", "pattern": "^[a-z0-9_-]+$" },
+          "json_path": { "type": "string", "format": "uri" },
+          "visual_path": { "type": "string", "format": "uri" },
+          "log_path": { "type": "string", "format": "uri" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        },
+        "additionalProperties": false
+      },
+      "EstimateResponse": {
+        "type": "object",
+        "required": ["request_id", "knowledge_snapshot_id", "panels", "totals", "evidence", "preview_tokens"],
+        "properties": {
+          "request_id": { "type": "string", "format": "uuid" },
+          "knowledge_snapshot_id": { "type": "string", "format": "uuid" },
+          "panels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["panel_id", "line_items", "subtotal", "evidence_ref"],
+              "properties": {
+                "panel_id": { "type": "string" },
+                "line_items": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/MaterialSelection" }
+                },
+                "subtotal": { "type": "number", "format": "currency" },
+                "evidence_ref": { "$ref": "#/components/schemas/EvidenceReference" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "totals": {
+            "type": "object",
+            "required": ["grand_total", "currency"],
+            "properties": {
+              "grand_total": { "type": "number", "format": "currency" },
+              "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/EvidenceReference" },
+            "minItems": 1
+          },
+          "preview_tokens": {
+            "type": "object",
+            "required": ["cover", "form", "replacement"],
+            "properties": {
+              "cover": { "type": "string" },
+              "form": { "type": "string" },
+              "replacement": { "type": "object" }
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

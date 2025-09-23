@@ -1,0 +1,16 @@
+[
+  {
+    "id": "CARD_033",
+    "category": "INSTANT",
+    "item": "Item_33",
+    "specs": {
+      "model": "MODEL_VLZOU",
+      "quantity": 1,
+      "unitPrice": 1050429
+    },
+    "priority": 3,
+    "leadTime": 3,
+    "reliability": 0.75,
+    "created": "2025-09-19T11:57:44.137Z"
+  }
+]

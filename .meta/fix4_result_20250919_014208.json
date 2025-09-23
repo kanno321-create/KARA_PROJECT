@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-09-19T01:42:08",
+  "pipeline": "FIX-4_GATE_LOCK_ATTEMPT",
+  "patch_results": {
+    "cover_tab_writer": {
+      "status": "PASS",
+      "compliance_enhanced": true,
+      "validation_logic": "added",
+      "svg_generation": "enhanced"
+    },
+    "doc_lint_guard": {
+      "status": "FAIL",
+      "pass": false,
+      "validation_pass": false,
+      "status_field": "FAIL",
+      "quality_score": 90,
+      "errors": 1,
+      "error_details": [
+        "Incomplete required fields: totals, date, project_number"
+      ]
+    }
+  },
+  "evidence_compliance": {
+    "total_files": 21,
+    "json_files": 7,
+    "svg_files": 7,
+    "evidence_json_files": 7,
+    "missing_pairs": 0,
+    "pattern_compliance": "100%"
+  },
+  "gate_analysis": {
+    "target_criteria": {
+      "doc_lint_pass": true,
+      "doc_lint_validation_pass": true,
+      "quality_score_gte_90": true
+    },
+    "actual_results": {
+      "doc_lint_pass": false,
+      "doc_lint_validation_pass": false,
+      "quality_score_gte_90": true
+    },
+    "gate_status": "FAIL",
+    "blocking_issue": "Missing required fields in document validation"
+  },
+  "required_fields_analysis": {
+    "issue": "Field validation logic expects fields that don't exist in current data structure",
+    "recommendation": "Adjust field validation to match actual generated document structure"
+  },
+  "network_calls": 0,
+  "foundation_only": true
+}

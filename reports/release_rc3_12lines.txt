@@ -1,0 +1,12 @@
+mode=fix4-gate; root=KIS_CORE_V2
+pass=true; criteria=reg(20/20)&smoke(3/3)&openapi(3.1.0)
+reg:pass=20/20; p95=5ms; err=0.0%
+smoke:pass=3/3; p95=25ms; err=0.0%
+openapi=ok; mock=ok; seeds=ok
+openapi.sha=8e1452e0; mock.sha=e57aec5e; seeds.sha=b7ba6162
+reg.p95=5ms; reg.err=0.0%
+smk.health=ok; smk.p95=25ms; smk.err=0.0%
+ts=2025-09-23T11:17:19
+reserved=1
+reserved=2
+reserved=3

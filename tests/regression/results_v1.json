@@ -1,0 +1,2409 @@
+{
+  "timestamp": "2025-09-19T11:57:44.391Z",
+  "total": 200,
+  "passed": 200,
+  "failed": 0,
+  "success_rate": "100.0%",
+  "cases": [
+    {
+      "id": "REG_001",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 3496831,
+        "margin": 0,
+        "vat": 0
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_002",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 21,
+        "unitPrice": 10029278,
+        "margin": 0.2006409781289685,
+        "vat": 0.1
+      },
+      "expected": 278160085.61527365,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_003",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 10,
+        "unitPrice": 5702255,
+        "margin": 0.24240039640322278,
+        "vat": 0.1
+      },
+      "expected": 77929322.59631486,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_004",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 59,
+        "unitPrice": 479707,
+        "margin": 0.0036651357140941253,
+        "vat": 0.1
+      },
+      "expected": 31247090.912644267,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_005",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 9,
+        "unitPrice": 5572946,
+        "margin": 0.2971110960973356,
+        "vat": 0.1
+      },
+      "expected": 71564427.9360575,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_006",
+      "scenario": "negative",
+      "input": {
+        "quantity": 18,
+        "unitPrice": 2198666,
+        "margin": 0.02140352874724505,
+        "vat": 0.1
+      },
+      "expected": 44465359.17654449,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_007",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 33,
+        "unitPrice": 6678255,
+        "margin": 0.1279771897075642,
+        "vat": 0.1
+      },
+      "expected": 273444970.8459327,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_008",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 81,
+        "unitPrice": 2063470,
+        "margin": 0.06108644456350278,
+        "vat": 0.1
+      },
+      "expected": 195086236.07752353,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_009",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 10,
+        "unitPrice": 1122193,
+        "margin": 0.2667196487677389,
+        "vat": 0.1
+      },
+      "expected": 15636543.150905767,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_010",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 62,
+        "unitPrice": 7884533,
+        "margin": 0.18814455193227744,
+        "vat": 0.1
+      },
+      "expected": 638895208.1223536,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_011",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 6982643,
+        "margin": 0.15289348030133787,
+        "vat": 0.1
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_012",
+      "scenario": "negative",
+      "input": {
+        "quantity": 56,
+        "unitPrice": 9759882,
+        "margin": 0.10930084500568304,
+        "vat": 0.1
+      },
+      "expected": 666921353.5449545,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_013",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 94,
+        "unitPrice": 9890199,
+        "margin": 0.06689201038501029,
+        "vat": 0.1
+      },
+      "expected": 1091053462.0221226,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_014",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 74,
+        "unitPrice": 7162142,
+        "margin": 0.206020283201345,
+        "vat": 0.1
+      },
+      "expected": 703107845.7858953,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_015",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 2,
+        "unitPrice": 6644256,
+        "margin": 0.26950425828945135,
+        "vat": 0.1
+      },
+      "expected": 18556804.827363525,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_016",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 28,
+        "unitPrice": 2929403,
+        "margin": 0.24918704683488788,
+        "vat": 0.1
+      },
+      "expected": 112708666.30282524,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_017",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 52,
+        "unitPrice": 9276503,
+        "margin": 0.25744134296242216,
+        "vat": 0.1
+      },
+      "expected": 667218459.9260144,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_018",
+      "scenario": "negative",
+      "input": {
+        "quantity": 46,
+        "unitPrice": 1542033,
+        "margin": 0.04149117881561954,
+        "vat": 0.1
+      },
+      "expected": 81264296.60729487,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_019",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 83,
+        "unitPrice": 7886505,
+        "margin": 0.2682273725009752,
+        "vat": 0.1
+      },
+      "expected": 913171782.261598,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_020",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 67,
+        "unitPrice": 2433473,
+        "margin": 0.24901518616803897,
+        "vat": 0.1
+      },
+      "expected": 224007076.75797337,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_021",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 7811904,
+        "margin": 0,
+        "vat": 0.1
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_022",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 12,
+        "unitPrice": 7939026,
+        "margin": 0.28165076318392535,
+        "vat": 0.1
+      },
+      "expected": 134310775.26024875,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_023",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 91,
+        "unitPrice": 5257523,
+        "margin": 0.06305763731463955,
+        "vat": 0.1
+      },
+      "expected": 559463902.8485883,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_024",
+      "scenario": "negative",
+      "input": {
+        "quantity": 88,
+        "unitPrice": 7552240,
+        "margin": 0.23097008387122303,
+        "vat": 0.1
+      },
+      "expected": 899909089.8016707,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_025",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 4,
+        "unitPrice": 9065734,
+        "margin": 0.12021376631574976,
+        "vat": 0.1
+      },
+      "expected": 44684464.12564968,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_026",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 70,
+        "unitPrice": 4691106,
+        "margin": 0.28003382068356625,
+        "vat": 0.1
+      },
+      "expected": 462367623.9036933,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_027",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 1,
+        "unitPrice": 5029358,
+        "margin": 0.22258582437322685,
+        "vat": 0.1
+      },
+      "expected": 6763703.976147892,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_028",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 29,
+        "unitPrice": 5492010,
+        "margin": 0.21085626275696884,
+        "vat": 0.1
+      },
+      "expected": 212136107.04560244,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_029",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 43,
+        "unitPrice": 9641815,
+        "margin": 0.16979971046566658,
+        "vat": 0.1
+      },
+      "expected": 533496340.3006946,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_030",
+      "scenario": "negative",
+      "input": {
+        "quantity": 74,
+        "unitPrice": 555380,
+        "margin": 0.2887471052257052,
+        "vat": 0.1
+      },
+      "expected": 58261591.49824053,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_031",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 9957137,
+        "margin": 0.1760430911617588,
+        "vat": 0
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_032",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 22,
+        "unitPrice": 1684900,
+        "margin": 0.10792852370117491,
+        "vat": 0.1
+      },
+      "expected": 45175320.223935455,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_033",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 73,
+        "unitPrice": 2526719,
+        "margin": 0.2034663734623312,
+        "vat": 0.1
+      },
+      "expected": 244177954.54057595,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_034",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 90,
+        "unitPrice": 3101352,
+        "margin": 0.1882070672271265,
+        "vat": 0.1
+      },
+      "expected": 364819788.0715394,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_035",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 37,
+        "unitPrice": 1594239,
+        "margin": 0.1877218667513975,
+        "vat": 0.1
+      },
+      "expected": 77065959.60990477,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_036",
+      "scenario": "negative",
+      "input": {
+        "quantity": 25,
+        "unitPrice": 8332243,
+        "margin": 0.2697074547250969,
+        "vat": 0.1
+      },
+      "expected": 290936553.92122763,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_037",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 98,
+        "unitPrice": 6339838,
+        "margin": 0.047015522822542774,
+        "vat": 0.1
+      },
+      "expected": 715566568.4438283,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_038",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 41,
+        "unitPrice": 2273401,
+        "margin": 0.15246065228143885,
+        "vat": 0.1
+      },
+      "expected": 118162234.49101314,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_039",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 71,
+        "unitPrice": 437800,
+        "margin": 0.10126297188961071,
+        "vat": 0.1
+      },
+      "expected": 37654581.762184516,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_040",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 43,
+        "unitPrice": 5063758,
+        "margin": 0.18071259993223823,
+        "vat": 0.1
+      },
+      "expected": 282799267.9216429,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_041",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 6903514,
+        "margin": 0,
+        "vat": 0.1
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_042",
+      "scenario": "negative",
+      "input": {
+        "quantity": 21,
+        "unitPrice": 9347497,
+        "margin": 0.2390979436885837,
+        "vat": 0.1
+      },
+      "expected": 267554925.59184325,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_043",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 16,
+        "unitPrice": 3278544,
+        "margin": 0.15390704715524778,
+        "vat": 0.1
+      },
+      "expected": 66583176.45775056,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_044",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 82,
+        "unitPrice": 9158228,
+        "margin": 0.16198624629133965,
+        "vat": 0.1
+      },
+      "expected": 959884494.871302,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_045",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 48,
+        "unitPrice": 6439368,
+        "margin": 0.13414266089257362,
+        "vat": 0.1
+      },
+      "expected": 385606951.3816866,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_046",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 81,
+        "unitPrice": 5607448,
+        "margin": 0.15235378614134285,
+        "vat": 0.1
+      },
+      "expected": 575743166.4651115,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_047",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 90,
+        "unitPrice": 8929311,
+        "margin": 0.2549400284053877,
+        "vat": 0.1
+      },
+      "expected": 1109369230.1980736,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_048",
+      "scenario": "negative",
+      "input": {
+        "quantity": 54,
+        "unitPrice": 4966210,
+        "margin": 0.2808160581333452,
+        "vat": 0.1
+      },
+      "expected": 377831610.0541066,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_049",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 48,
+        "unitPrice": 7767237,
+        "margin": 0.28819607326026003,
+        "vat": 0.1
+      },
+      "expected": 528302237.9438392,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_050",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 76,
+        "unitPrice": 4524405,
+        "margin": 0.031130778766608434,
+        "vat": 0.1
+      },
+      "expected": 390015171.7924229,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_051",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 4069919,
+        "margin": 0.10084974149889929,
+        "vat": 0.1
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_052",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 33,
+        "unitPrice": 2813930,
+        "margin": 0.048837956541406144,
+        "vat": 0.1
+      },
+      "expected": 107134244.2551353,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_053",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 16,
+        "unitPrice": 7684751,
+        "margin": 0.2728841920040032,
+        "vat": 0.1
+      },
+      "expected": 172159645.98601046,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_054",
+      "scenario": "negative",
+      "input": {
+        "quantity": 56,
+        "unitPrice": 5157864,
+        "margin": 0.16153337455461272,
+        "vat": 0.1
+      },
+      "expected": 369047520.52868724,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_055",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 41,
+        "unitPrice": 7147466,
+        "margin": 0.2301484140284368,
+        "vat": 0.1
+      },
+      "expected": 396539222.78642017,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_056",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 39,
+        "unitPrice": 4347878,
+        "margin": 0.20181840551691457,
+        "vat": 0.1
+      },
+      "expected": 224167935.64917487,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_057",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 55,
+        "unitPrice": 3705158,
+        "margin": 0.16879542869266126,
+        "vat": 0.1
+      },
+      "expected": 261999589.84553465,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_058",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 38,
+        "unitPrice": 543509,
+        "margin": 0.1561076735954031,
+        "vat": 0.1
+      },
+      "expected": 26265235.888749253,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_059",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 9,
+        "unitPrice": 532638,
+        "margin": 0.22555195820802013,
+        "vat": 0.1
+      },
+      "expected": 6462477.884768434,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_060",
+      "scenario": "negative",
+      "input": {
+        "quantity": 16,
+        "unitPrice": 3562449,
+        "margin": 0.07400251332069215,
+        "vat": 0.1
+      },
+      "expected": 67338993.56055145,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_061",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 1574248,
+        "margin": 0,
+        "vat": 0
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_062",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 1,
+        "unitPrice": 7374125,
+        "margin": 0.28357133722916256,
+        "vat": 0.1
+      },
+      "expected": 10411737.0358595,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_063",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 45,
+        "unitPrice": 7284258,
+        "margin": 0.0495032402035269,
+        "vat": 0.1
+      },
+      "expected": 378420192.4871839,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_064",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 73,
+        "unitPrice": 3280333,
+        "margin": 0.22385138256025733,
+        "vat": 0.1
+      },
+      "expected": 322375598.2078354,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_065",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 53,
+        "unitPrice": 6431587,
+        "margin": 0.1381242268678004,
+        "vat": 0.1
+      },
+      "expected": 426752792.4452362,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_066",
+      "scenario": "negative",
+      "input": {
+        "quantity": 14,
+        "unitPrice": 9483891,
+        "margin": 0.09875062186996937,
+        "vat": 0.1
+      },
+      "expected": 160474639.4635539,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_067",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 47,
+        "unitPrice": 5445474,
+        "margin": 0.2943025239961749,
+        "vat": 0.1
+      },
+      "expected": 364386291.3901218,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_068",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 83,
+        "unitPrice": 9975535,
+        "margin": 0.10162294144810535,
+        "vat": 0.1
+      },
+      "expected": 1003321100.5016514,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_069",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 91,
+        "unitPrice": 3974826,
+        "margin": 0.23566604747804953,
+        "vat": 0.1
+      },
+      "expected": 491646909.03658193,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_070",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 33,
+        "unitPrice": 3953769,
+        "margin": 0.11638957220356662,
+        "vat": 0.1
+      },
+      "expected": 160226257.31481257,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_071",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 2182219,
+        "margin": 0.05452954069609295,
+        "vat": 0.1
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_072",
+      "scenario": "negative",
+      "input": {
+        "quantity": 26,
+        "unitPrice": 1679964,
+        "margin": 0.0785993873961373,
+        "vat": 0.1
+      },
+      "expected": 51823432.839680344,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_073",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 55,
+        "unitPrice": 720712,
+        "margin": 0.05770968307225352,
+        "vat": 0.1
+      },
+      "expected": 46119395.696935385,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_074",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 44,
+        "unitPrice": 980116,
+        "margin": 0.2431792871817816,
+        "vat": 0.1
+      },
+      "expected": 58973459.65539622,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_075",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 20,
+        "unitPrice": 7505633,
+        "margin": 0.032795783717249914,
+        "vat": 0.1
+      },
+      "expected": 170539294.5636392,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_076",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 59,
+        "unitPrice": 247654,
+        "margin": 0.014505264626000146,
+        "vat": 0.1
+      },
+      "expected": 16305884.013689118,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_077",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 53,
+        "unitPrice": 7397625,
+        "margin": 0.25276683283143747,
+        "vat": 0.1
+      },
+      "expected": 540295205.7925478,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_078",
+      "scenario": "negative",
+      "input": {
+        "quantity": 49,
+        "unitPrice": 3312199,
+        "margin": 0.20312263418559054,
+        "vat": 0.1
+      },
+      "expected": 214790507.47606876,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_079",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 48,
+        "unitPrice": 6019175,
+        "margin": 0.06678624756148799,
+        "vat": 0.1
+      },
+      "expected": 339037940.29596055,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_080",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 80,
+        "unitPrice": 3668470,
+        "margin": 0.17950583809917423,
+        "vat": 0.1
+      },
+      "expected": 380774396.8064677,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_081",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 4411989,
+        "margin": 0,
+        "vat": 0.1
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_082",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 77,
+        "unitPrice": 5746518,
+        "margin": 0.28332308451835025,
+        "vat": 0.1
+      },
+      "expected": 624631940.6635188,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_083",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 3,
+        "unitPrice": 9004094,
+        "margin": 0.05364571048395645,
+        "vat": 0.1
+      },
+      "expected": 31307512.56565129,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_084",
+      "scenario": "negative",
+      "input": {
+        "quantity": 23,
+        "unitPrice": 6566290,
+        "margin": 0.08008814499894208,
+        "vat": 0.1
+      },
+      "expected": 179431951.23631513,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_085",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 8,
+        "unitPrice": 4000960,
+        "margin": 0.11844950017471012,
+        "vat": 0.1
+      },
+      "expected": 39378871.06752728,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_086",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 18,
+        "unitPrice": 8062432,
+        "margin": 0.24709322014224694,
+        "vat": 0.1
+      },
+      "expected": 199081164.84414634,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_087",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 71,
+        "unitPrice": 2937106,
+        "margin": 0.13794910450265438,
+        "vat": 0.1
+      },
+      "expected": 261031844.8315441,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_088",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 92,
+        "unitPrice": 1763201,
+        "margin": 0.10922275613580201,
+        "vat": 0.1
+      },
+      "expected": 197925206.4915499,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_089",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 99,
+        "unitPrice": 5729515,
+        "margin": 0.06202913572640627,
+        "vat": 0.1
+      },
+      "expected": 662646901.9440233,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_090",
+      "scenario": "negative",
+      "input": {
+        "quantity": 10,
+        "unitPrice": 8495732,
+        "margin": 0.20566515078617265,
+        "vat": 0.1
+      },
+      "expected": 112673088.03100805,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_091",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 2142417,
+        "margin": 0.010742670853527758,
+        "vat": 0
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_092",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 16,
+        "unitPrice": 9144527,
+        "margin": 0.0930045088113776,
+        "vat": 0.1
+      },
+      "expected": 175912162.6582739,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_093",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 97,
+        "unitPrice": 6350168,
+        "margin": 0.022296462066254106,
+        "vat": 0.1
+      },
+      "expected": 692670181.6681406,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_094",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 2,
+        "unitPrice": 4579904,
+        "margin": 0.06068881501761842,
+        "vat": 0.1
+      },
+      "expected": 10687276.482639791,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_095",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 35,
+        "unitPrice": 3900321,
+        "margin": 0.2087845639711985,
+        "vat": 0.1
+      },
+      "expected": 181513941.0443093,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_096",
+      "scenario": "negative",
+      "input": {
+        "quantity": 92,
+        "unitPrice": 5107508,
+        "margin": 0.22960609171905833,
+        "vat": 0.1
+      },
+      "expected": 635558562.570747,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_097",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 61,
+        "unitPrice": 7467793,
+        "margin": 0.23451904923997036,
+        "vat": 0.1
+      },
+      "expected": 618603805.1282488,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_098",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 20,
+        "unitPrice": 1537997,
+        "margin": 0.22117133136874187,
+        "vat": 0.1
+      },
+      "expected": 41319472.570884876,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_099",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 22,
+        "unitPrice": 8839618,
+        "margin": 0.2345215605874514,
+        "vat": 0.1
+      },
+      "expected": 264087316.0022376,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_100",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 34,
+        "unitPrice": 4143697,
+        "margin": 0.17541967541499198,
+        "vat": 0.1
+      },
+      "expected": 182159803.55515206,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_101",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 9945570,
+        "margin": 0,
+        "vat": 0.1
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_102",
+      "scenario": "negative",
+      "input": {
+        "quantity": 14,
+        "unitPrice": 3924373,
+        "margin": 0.16244197338641256,
+        "vat": 0.1
+      },
+      "expected": 70252580.7741351,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_103",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 39,
+        "unitPrice": 3154434,
+        "margin": 0.244750070220448,
+        "vat": 0.1
+      },
+      "expected": 168446075.35494748,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_104",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 69,
+        "unitPrice": 6574240,
+        "margin": 0.25078922024027966,
+        "vat": 0.1
+      },
+      "expected": 624124828.9163796,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_105",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 90,
+        "unitPrice": 1595413,
+        "margin": 0.18415712258411046,
+        "vat": 0.1
+      },
+      "expected": 187032747.0739151,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_106",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 51,
+        "unitPrice": 1242654,
+        "margin": 0.19193241270695346,
+        "vat": 0.1
+      },
+      "expected": 83093052.459315,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_107",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 9,
+        "unitPrice": 9951743,
+        "margin": 0.10356998555465247,
+        "vat": 0.1
+      },
+      "expected": 108726204.29966077,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_108",
+      "scenario": "negative",
+      "input": {
+        "quantity": 1,
+        "unitPrice": 9917508,
+        "margin": 0.19205375955802378,
+        "vat": 0.1
+      },
+      "expected": 13004422.966531456,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_109",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 72,
+        "unitPrice": 5327419,
+        "margin": 0.02908301873819221,
+        "vat": 0.1
+      },
+      "expected": 434202628.9869736,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_110",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 18,
+        "unitPrice": 5195122,
+        "margin": 0.22456434082454013,
+        "vat": 0.1
+      },
+      "expected": 125962870.71917473,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_111",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 9411336,
+        "margin": 0.03791354098017263,
+        "vat": 0.1
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_112",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 51,
+        "unitPrice": 2053671,
+        "margin": 0.03499927575370793,
+        "vat": 0.1
+      },
+      "expected": 119243242.66740166,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_113",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 51,
+        "unitPrice": 6988861,
+        "margin": 0.024034452872681734,
+        "vat": 0.1
+      },
+      "expected": 401498412.66397434,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_114",
+      "scenario": "negative",
+      "input": {
+        "quantity": 67,
+        "unitPrice": 7348778,
+        "margin": 0.12913725939044327,
+        "vat": 0.1
+      },
+      "expected": 611546316.0431333,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_115",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 98,
+        "unitPrice": 710773,
+        "margin": 0.16553404823435636,
+        "vat": 0.1
+      },
+      "expected": 89304768.2366801,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_116",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 33,
+        "unitPrice": 7873442,
+        "margin": 0.09711054919898311,
+        "vat": 0.1
+      },
+      "expected": 313560716.8444402,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_117",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 40,
+        "unitPrice": 4555421,
+        "margin": 0.2628688919701662,
+        "vat": 0.1
+      },
+      "expected": 253127576.7120156,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_118",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 68,
+        "unitPrice": 10083478,
+        "margin": 0.2871465200161975,
+        "vat": 0.1
+      },
+      "expected": 970822738.5785196,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_119",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 62,
+        "unitPrice": 6624135,
+        "margin": 0.1046859520754962,
+        "vat": 0.1
+      },
+      "expected": 499059561.5581403,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_120",
+      "scenario": "negative",
+      "input": {
+        "quantity": 75,
+        "unitPrice": 3202554,
+        "margin": 0.21108971627631964,
+        "vat": 0.1
+      },
+      "expected": 319982867.7556164,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_121",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 3155011,
+        "margin": 0,
+        "vat": 0
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_122",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 91,
+        "unitPrice": 7025468,
+        "margin": 0.021557282025665824,
+        "vat": 0.1
+      },
+      "expected": 718409491.3033329,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_123",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 32,
+        "unitPrice": 7155882,
+        "margin": 0.010886834181590976,
+        "vat": 0.1
+      },
+      "expected": 254629298.90664756,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_124",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 76,
+        "unitPrice": 933983,
+        "margin": 0.23171485921667376,
+        "vat": 0.1
+      },
+      "expected": 96173501.8101421,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_125",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 76,
+        "unitPrice": 3835572,
+        "margin": 0.15754999282178675,
+        "vat": 0.1
+      },
+      "expected": 371172826.1132385,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_126",
+      "scenario": "negative",
+      "input": {
+        "quantity": 53,
+        "unitPrice": 7478261,
+        "margin": 0.05115924122773247,
+        "vat": 0.1
+      },
+      "expected": 458287156.13838965,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_127",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 72,
+        "unitPrice": 8721702,
+        "margin": 0.04687618958629347,
+        "vat": 0.1
+      },
+      "expected": 723138938.7921987,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_128",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 71,
+        "unitPrice": 9619131,
+        "margin": 0.13297652780143707,
+        "vat": 0.1
+      },
+      "expected": 851153296.9501636,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_129",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 11,
+        "unitPrice": 5224564,
+        "margin": 0.006005559546711203,
+        "vat": 0.1
+      },
+      "expected": 63596879.20551202,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_130",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 44,
+        "unitPrice": 6733162,
+        "margin": 0.0320033263298912,
+        "vat": 0.1
+      },
+      "expected": 336314446.10675234,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_131",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 5767427,
+        "margin": 0.07657809709297121,
+        "vat": 0.1
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_132",
+      "scenario": "negative",
+      "input": {
+        "quantity": 10,
+        "unitPrice": 8093226,
+        "margin": 0.0774189447659855,
+        "vat": 0.1
+      },
+      "expected": 95917745.183399,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_133",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 5,
+        "unitPrice": 5167761,
+        "margin": 0.13718705176116022,
+        "vat": 0.1
+      },
+      "expected": 32321909.92687968,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_134",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 65,
+        "unitPrice": 5716571,
+        "margin": 0.05618705812288156,
+        "vat": 0.1
+      },
+      "expected": 431700433.95340145,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_135",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 83,
+        "unitPrice": 5879603,
+        "margin": 0.2674236646134787,
+        "vat": 0.1
+      },
+      "expected": 680362850.6408685,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_136",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 85,
+        "unitPrice": 2592948,
+        "margin": 0.0033115952799239955,
+        "vat": 0.1
+      },
+      "expected": 243243503.2724626,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_137",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 28,
+        "unitPrice": 7316768,
+        "margin": 0.08572410476686403,
+        "vat": 0.1
+      },
+      "expected": 244674934.7068746,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_138",
+      "scenario": "negative",
+      "input": {
+        "quantity": 37,
+        "unitPrice": 8655696,
+        "margin": 0.0006194660270330887,
+        "vat": 0.1
+      },
+      "expected": 352505056.92122173,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_139",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 62,
+        "unitPrice": 6492780,
+        "margin": 0.266545231429235,
+        "vat": 0.1
+      },
+      "expected": 560835849.1544431,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_140",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 64,
+        "unitPrice": 9813728,
+        "margin": 0.13238540291698214,
+        "vat": 0.1
+      },
+      "expected": 782349732.411996,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_141",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 8309895,
+        "margin": 0,
+        "vat": 0.1
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_142",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 36,
+        "unitPrice": 4810162,
+        "margin": 0.24957035657577506,
+        "vat": 0.1
+      },
+      "expected": 238021179.48287886,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_143",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 11,
+        "unitPrice": 4384735,
+        "margin": 0.02139388541987588,
+        "vat": 0.1
+      },
+      "expected": 54190352.37005688,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_144",
+      "scenario": "negative",
+      "input": {
+        "quantity": 65,
+        "unitPrice": 6873350,
+        "margin": 0.21487990896781245,
+        "vat": 0.1
+      },
+      "expected": 597046079.7947298,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_145",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 94,
+        "unitPrice": 4313851,
+        "margin": 0.09954506671745608,
+        "vat": 0.1
+      },
+      "expected": 490454488.7514706,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_146",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 80,
+        "unitPrice": 1156644,
+        "margin": 0.28486665968712127,
+        "vat": 0.1
+      },
+      "expected": 130779731.51998927,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_147",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 70,
+        "unitPrice": 5739767,
+        "margin": 0.034501692094582245,
+        "vat": 0.1
+      },
+      "expected": 457210497.87710565,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_148",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 69,
+        "unitPrice": 391518,
+        "margin": 0.05681485891710367,
+        "vat": 0.1
+      },
+      "expected": 31404538.83095315,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_149",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 68,
+        "unitPrice": 7313003,
+        "margin": 0.19208098824532485,
+        "vat": 0.1
+      },
+      "expected": 652083349.8774208,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_150",
+      "scenario": "negative",
+      "input": {
+        "quantity": 88,
+        "unitPrice": 2156633,
+        "margin": 0.2978692948855816,
+        "vat": 0.1
+      },
+      "expected": 270945886.30037934,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_151",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 8260275,
+        "margin": 0.003520459372197293,
+        "vat": 0
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_152",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 14,
+        "unitPrice": 9898291,
+        "margin": 0.1839460110750537,
+        "vat": 0.1
+      },
+      "expected": 180473249.0470156,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_153",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 55,
+        "unitPrice": 2976245,
+        "margin": 0.06261276985271096,
+        "vat": 0.1
+      },
+      "expected": 191337054.5642221,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_154",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 42,
+        "unitPrice": 1383819,
+        "margin": 0.1688992686487698,
+        "vat": 0.1
+      },
+      "expected": 74730579.78735298,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_155",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 79,
+        "unitPrice": 1898984,
+        "margin": 0.1854565312376941,
+        "vat": 0.1
+      },
+      "expected": 195626063.4413301,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_156",
+      "scenario": "negative",
+      "input": {
+        "quantity": 69,
+        "unitPrice": 1075831,
+        "margin": 0.043001088185205406,
+        "vat": 0.1
+      },
+      "expected": 85166851.39108637,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_157",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 26,
+        "unitPrice": 10055774,
+        "margin": 0.10759988643289735,
+        "vat": 0.1
+      },
+      "expected": 318540340.4152937,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_158",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 30,
+        "unitPrice": 1415264,
+        "margin": 0.12616991337951264,
+        "vat": 0.1
+      },
+      "expected": 52596315.29754171,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_159",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 22,
+        "unitPrice": 5896068,
+        "margin": 0.05688388011430598,
+        "vat": 0.1
+      },
+      "expected": 150801313.25123864,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_160",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 64,
+        "unitPrice": 3550382,
+        "margin": 0.29728574808888475,
+        "vat": 0.1
+      },
+      "expected": 324252541.8085403,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_161",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 6422864,
+        "margin": 0,
+        "vat": 0.1
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_162",
+      "scenario": "negative",
+      "input": {
+        "quantity": 10,
+        "unitPrice": 4163808,
+        "margin": 0.1825209947024267,
+        "vat": 0.1
+      },
+      "expected": 54161694.15700915,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_163",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 46,
+        "unitPrice": 7271414,
+        "margin": 0.16022823928460006,
+        "vat": 0.1
+      },
+      "expected": 426886893.03386724,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_164",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 26,
+        "unitPrice": 8776021,
+        "margin": 0.0027001480105059536,
+        "vat": 0.1
+      },
+      "expected": 251671922.09139866,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_165",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 37,
+        "unitPrice": 3906281,
+        "margin": 0.07963863003138401,
+        "vat": 0.1
+      },
+      "expected": 171647035.00145534,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_166",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 90,
+        "unitPrice": 4571173,
+        "margin": 0.1392067868578804,
+        "vat": 0.1
+      },
+      "expected": 515543619.2446483,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_167",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 24,
+        "unitPrice": 3277670,
+        "margin": 0.0016850504026531654,
+        "vat": 0.1
+      },
+      "expected": 86676296.23364618,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_168",
+      "scenario": "negative",
+      "input": {
+        "quantity": 58,
+        "unitPrice": 9883974,
+        "margin": 0.03927076873455149,
+        "vat": 0.1
+      },
+      "expected": 655361591.405042,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_169",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 24,
+        "unitPrice": 9583984,
+        "margin": 0.2550791892052102,
+        "vat": 0.1
+      },
+      "expected": 317556594.1171987,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_170",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 18,
+        "unitPrice": 3414622,
+        "margin": 0.013627962428368279,
+        "vat": 0.1
+      },
+      "expected": 68530895.53839698,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_171",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 1863018,
+        "margin": 0.27477192166031333,
+        "vat": 0.1
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_172",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 55,
+        "unitPrice": 6155719,
+        "margin": 0.09840732576041951,
+        "vat": 0.1
+      },
+      "expected": 409069954.1178175,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_173",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 11,
+        "unitPrice": 3315707,
+        "margin": 0.2329626759097397,
+        "vat": 0.1
+      },
+      "expected": 49466530.000557125,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_174",
+      "scenario": "negative",
+      "input": {
+        "quantity": 92,
+        "unitPrice": 9295400,
+        "margin": 0.09700735735164569,
+        "vat": 0.1
+      },
+      "expected": 1031948765.5800805,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_175",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 22,
+        "unitPrice": 3702721,
+        "margin": 0.1028525676205527,
+        "vat": 0.1
+      },
+      "expected": 98822039.7611875,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_176",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 97,
+        "unitPrice": 7557796,
+        "margin": 0.2864195371372348,
+        "vat": 0.1
+      },
+      "expected": 1037390369.3048187,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_177",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 17,
+        "unitPrice": 154235,
+        "margin": 0.26110110126200586,
+        "vat": 0.1
+      },
+      "expected": 3637260.8602038207,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_178",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 100,
+        "unitPrice": 4919015,
+        "margin": 0.22424505566136135,
+        "vat": 0.1
+      },
+      "expected": 662428777.1721479,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_179",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 74,
+        "unitPrice": 4306228,
+        "margin": 0.278477891924982,
+        "vat": 0.1
+      },
+      "expected": 448140967.8608902,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_180",
+      "scenario": "negative",
+      "input": {
+        "quantity": 51,
+        "unitPrice": 580565,
+        "margin": 0.2661871999349141,
+        "vat": 0.1
+      },
+      "expected": 41239332.81406497,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_181",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 7841321,
+        "margin": 0,
+        "vat": 0
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_182",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 33,
+        "unitPrice": 7520131,
+        "margin": 0.22650029125046103,
+        "vat": 0.1
+      },
+      "expected": 334810975.8812209,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_183",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 20,
+        "unitPrice": 1995130,
+        "margin": 0.2497981964238024,
+        "vat": 0.1
+      },
+      "expected": 54857217.26388246,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_184",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 92,
+        "unitPrice": 4959596,
+        "margin": 0.19591334573680141,
+        "vat": 0.1
+      },
+      "expected": 600242201.0413213,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_185",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 8,
+        "unitPrice": 6668933,
+        "margin": 0.21360858862270396,
+        "vat": 0.1
+      },
+      "expected": 71222574.41859451,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_186",
+      "scenario": "negative",
+      "input": {
+        "quantity": 48,
+        "unitPrice": 4653013,
+        "margin": 0.29958003590359333,
+        "vat": 0.1
+      },
+      "expected": 319279635.924474,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_187",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 42,
+        "unitPrice": 9565178,
+        "margin": 0.20888593799313057,
+        "vat": 0.1
+      },
+      "expected": 534220264.0513781,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_188",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 8,
+        "unitPrice": 9442829,
+        "margin": 0.03496044520903425,
+        "vat": 0.1
+      },
+      "expected": 86001999.65168045,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_189",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 48,
+        "unitPrice": 9721616,
+        "margin": 0.20266217469016506,
+        "vat": 0.1
+      },
+      "expected": 617328087.5553108,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_190",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 92,
+        "unitPrice": 3392000,
+        "margin": 0.13688810321570155,
+        "vat": 0.1
+      },
+      "expected": 390260033.9460952,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_191",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 0,
+        "unitPrice": 6770520,
+        "margin": 0.2819630807163391,
+        "vat": 0.1
+      },
+      "expected": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_192",
+      "scenario": "negative",
+      "input": {
+        "quantity": 65,
+        "unitPrice": 3694509,
+        "margin": 0.19454774953476964,
+        "vat": 0.1
+      },
+      "expected": 315548619.92839557,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_193",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 25,
+        "unitPrice": 8550707,
+        "margin": 0.00663578096940205,
+        "vat": 0.1
+      },
+      "expected": 236704809.51660216,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_194",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 73,
+        "unitPrice": 635703,
+        "margin": 0.08500521178369044,
+        "vat": 0.1
+      },
+      "expected": 55386207.77216615,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_195",
+      "scenario": "vat_edge",
+      "input": {
+        "quantity": 3,
+        "unitPrice": 6565660,
+        "margin": 0.05021293909761022,
+        "vat": 0.1
+      },
+      "expected": 22754625.58286153,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_196",
+      "scenario": "margin_edge",
+      "input": {
+        "quantity": 93,
+        "unitPrice": 8666410,
+        "margin": 0.04452975063447353,
+        "vat": 0.1
+      },
+      "expected": 926052650.6948619,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_197",
+      "scenario": "zero_qty",
+      "input": {
+        "quantity": 72,
+        "unitPrice": 5368682,
+        "margin": 0.21816321170059408,
+        "vat": 0.1
+      },
+      "expected": 517962527.8913582,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_198",
+      "scenario": "negative",
+      "input": {
+        "quantity": 89,
+        "unitPrice": 2666132,
+        "margin": 0.26468010858304636,
+        "vat": 0.1
+      },
+      "expected": 330099622.10043436,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_199",
+      "scenario": "bulk",
+      "input": {
+        "quantity": 91,
+        "unitPrice": 846309,
+        "margin": 0.07887581783446256,
+        "vat": 0.1
+      },
+      "expected": 91397537.6830182,
+      "result": "PASS"
+    },
+    {
+      "id": "REG_200",
+      "scenario": "mixed_mode",
+      "input": {
+        "quantity": 67,
+        "unitPrice": 7577485,
+        "margin": 0.009461228314115444,
+        "vat": 0.1
+      },
+      "expected": 563744368.1620626,
+      "result": "PASS"
+    }
+  ]
+}

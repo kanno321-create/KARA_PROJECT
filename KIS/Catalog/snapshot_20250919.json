@@ -1,0 +1,484 @@
+[
+  {
+    "sku": "BRK-125A-001",
+    "name": "BRK 125A Model 1",
+    "unit": "EA",
+    "unit_price": 811565,
+    "alt": [
+      "BRK-125A-PRO",
+      "BRK-125A-STD"
+    ],
+    "safety": "KGS",
+    "lead_days": 2,
+    "vat": 0.1,
+    "margin": 0.12
+  },
+  {
+    "sku": "SW-250A-002",
+    "name": "SW 250A Model 2",
+    "unit": "SET",
+    "unit_price": 770516,
+    "alt": [],
+    "safety": "KC",
+    "lead_days": 3,
+    "vat": 0.1,
+    "margin": 0.13
+  },
+  {
+    "sku": "NET-500A-003",
+    "name": "NET 500A Model 3",
+    "unit": "M",
+    "unit_price": 487140,
+    "alt": [],
+    "safety": "CE",
+    "lead_days": 5,
+    "vat": 0.1,
+    "margin": 0.13999999999999999
+  },
+  {
+    "sku": "UPS-1KVA-004",
+    "name": "UPS 1KVA Model 4",
+    "unit": "UNIT",
+    "unit_price": 912526,
+    "alt": [
+      "UPS-1KVA-PRO",
+      "UPS-1KVA-STD"
+    ],
+    "safety": "UL",
+    "lead_days": 7,
+    "vat": 0.1,
+    "margin": 0.15
+  },
+  {
+    "sku": "CAB-3KVA-005",
+    "name": "CAB 3KVA Model 5",
+    "unit": "EA",
+    "unit_price": 183251,
+    "alt": [],
+    "safety": "KGS",
+    "lead_days": 14,
+    "vat": 0.1,
+    "margin": 0.16
+  },
+  {
+    "sku": "PDU-5M-006",
+    "name": "PDU 5M Model 6",
+    "unit": "SET",
+    "unit_price": 144014,
+    "alt": [],
+    "safety": "KC",
+    "lead_days": 2,
+    "vat": 0.1,
+    "margin": 0.12
+  },
+  {
+    "sku": "FAN-10M-007",
+    "name": "FAN 10M Model 7",
+    "unit": "M",
+    "unit_price": 133323,
+    "alt": [
+      "FAN-10M-PRO",
+      "FAN-10M-STD"
+    ],
+    "safety": "CE",
+    "lead_days": 3,
+    "vat": 0.1,
+    "margin": 0.13
+  },
+  {
+    "sku": "RAID-24P-008",
+    "name": "RAID 24P Model 8",
+    "unit": "UNIT",
+    "unit_price": 430328,
+    "alt": [],
+    "safety": "UL",
+    "lead_days": 5,
+    "vat": 0.1,
+    "margin": 0.13999999999999999
+  },
+  {
+    "sku": "BRK-48P-009",
+    "name": "BRK 48P Model 9",
+    "unit": "EA",
+    "unit_price": 892670,
+    "alt": [],
+    "safety": "KGS",
+    "lead_days": 7,
+    "vat": 0.1,
+    "margin": 0.15
+  },
+  {
+    "sku": "SW-125A-010",
+    "name": "SW 125A Model 10",
+    "unit": "SET",
+    "unit_price": 672546,
+    "alt": [
+      "SW-125A-PRO",
+      "SW-125A-STD"
+    ],
+    "safety": "KC",
+    "lead_days": 14,
+    "vat": 0.1,
+    "margin": 0.16
+  },
+  {
+    "sku": "NET-250A-011",
+    "name": "NET 250A Model 11",
+    "unit": "M",
+    "unit_price": 325817,
+    "alt": [],
+    "safety": "CE",
+    "lead_days": 2,
+    "vat": 0.1,
+    "margin": 0.12
+  },
+  {
+    "sku": "UPS-500A-012",
+    "name": "UPS 500A Model 12",
+    "unit": "UNIT",
+    "unit_price": 108035,
+    "alt": [],
+    "safety": "UL",
+    "lead_days": 3,
+    "vat": 0.1,
+    "margin": 0.13
+  },
+  {
+    "sku": "CAB-1KVA-013",
+    "name": "CAB 1KVA Model 13",
+    "unit": "EA",
+    "unit_price": 939621,
+    "alt": [
+      "CAB-1KVA-PRO",
+      "CAB-1KVA-STD"
+    ],
+    "safety": "KGS",
+    "lead_days": 5,
+    "vat": 0.1,
+    "margin": 0.13999999999999999
+  },
+  {
+    "sku": "PDU-3KVA-014",
+    "name": "PDU 3KVA Model 14",
+    "unit": "SET",
+    "unit_price": 689932,
+    "alt": [],
+    "safety": "KC",
+    "lead_days": 7,
+    "vat": 0.1,
+    "margin": 0.15
+  },
+  {
+    "sku": "FAN-5M-015",
+    "name": "FAN 5M Model 15",
+    "unit": "M",
+    "unit_price": 626752,
+    "alt": [],
+    "safety": "CE",
+    "lead_days": 14,
+    "vat": 0.1,
+    "margin": 0.16
+  },
+  {
+    "sku": "RAID-10M-016",
+    "name": "RAID 10M Model 16",
+    "unit": "UNIT",
+    "unit_price": 775084,
+    "alt": [
+      "RAID-10M-PRO",
+      "RAID-10M-STD"
+    ],
+    "safety": "UL",
+    "lead_days": 2,
+    "vat": 0.1,
+    "margin": 0.12
+  },
+  {
+    "sku": "BRK-24P-017",
+    "name": "BRK 24P Model 17",
+    "unit": "EA",
+    "unit_price": 812060,
+    "alt": [],
+    "safety": "KGS",
+    "lead_days": 3,
+    "vat": 0.1,
+    "margin": 0.13
+  },
+  {
+    "sku": "SW-48P-018",
+    "name": "SW 48P Model 18",
+    "unit": "SET",
+    "unit_price": 153324,
+    "alt": [],
+    "safety": "KC",
+    "lead_days": 5,
+    "vat": 0.1,
+    "margin": 0.13999999999999999
+  },
+  {
+    "sku": "NET-125A-019",
+    "name": "NET 125A Model 19",
+    "unit": "M",
+    "unit_price": 200243,
+    "alt": [
+      "NET-125A-PRO",
+      "NET-125A-STD"
+    ],
+    "safety": "CE",
+    "lead_days": 7,
+    "vat": 0.1,
+    "margin": 0.15
+  },
+  {
+    "sku": "UPS-250A-020",
+    "name": "UPS 250A Model 20",
+    "unit": "UNIT",
+    "unit_price": 523846,
+    "alt": [],
+    "safety": "UL",
+    "lead_days": 14,
+    "vat": 0.1,
+    "margin": 0.16
+  },
+  {
+    "sku": "CAB-500A-021",
+    "name": "CAB 500A Model 21",
+    "unit": "EA",
+    "unit_price": 698767,
+    "alt": [],
+    "safety": "KGS",
+    "lead_days": 2,
+    "vat": 0.1,
+    "margin": 0.12
+  },
+  {
+    "sku": "PDU-1KVA-022",
+    "name": "PDU 1KVA Model 22",
+    "unit": "SET",
+    "unit_price": 769324,
+    "alt": [
+      "PDU-1KVA-PRO",
+      "PDU-1KVA-STD"
+    ],
+    "safety": "KC",
+    "lead_days": 3,
+    "vat": 0.1,
+    "margin": 0.13
+  },
+  {
+    "sku": "FAN-3KVA-023",
+    "name": "FAN 3KVA Model 23",
+    "unit": "M",
+    "unit_price": 514587,
+    "alt": [],
+    "safety": "CE",
+    "lead_days": 5,
+    "vat": 0.1,
+    "margin": 0.13999999999999999
+  },
+  {
+    "sku": "RAID-5M-024",
+    "name": "RAID 5M Model 24",
+    "unit": "UNIT",
+    "unit_price": 530597,
+    "alt": [],
+    "safety": "UL",
+    "lead_days": 7,
+    "vat": 0.1,
+    "margin": 0.15
+  },
+  {
+    "sku": "BRK-10M-025",
+    "name": "BRK 10M Model 25",
+    "unit": "EA",
+    "unit_price": 850733,
+    "alt": [
+      "BRK-10M-PRO",
+      "BRK-10M-STD"
+    ],
+    "safety": "KGS",
+    "lead_days": 14,
+    "vat": 0.1,
+    "margin": 0.16
+  },
+  {
+    "sku": "SW-24P-026",
+    "name": "SW 24P Model 26",
+    "unit": "SET",
+    "unit_price": 557157,
+    "alt": [],
+    "safety": "KC",
+    "lead_days": 2,
+    "vat": 0.1,
+    "margin": 0.12
+  },
+  {
+    "sku": "NET-48P-027",
+    "name": "NET 48P Model 27",
+    "unit": "M",
+    "unit_price": 911283,
+    "alt": [],
+    "safety": "CE",
+    "lead_days": 3,
+    "vat": 0.1,
+    "margin": 0.13
+  },
+  {
+    "sku": "UPS-125A-028",
+    "name": "UPS 125A Model 28",
+    "unit": "UNIT",
+    "unit_price": 214305,
+    "alt": [
+      "UPS-125A-PRO",
+      "UPS-125A-STD"
+    ],
+    "safety": "UL",
+    "lead_days": 5,
+    "vat": 0.1,
+    "margin": 0.13999999999999999
+  },
+  {
+    "sku": "CAB-250A-029",
+    "name": "CAB 250A Model 29",
+    "unit": "EA",
+    "unit_price": 909296,
+    "alt": [],
+    "safety": "KGS",
+    "lead_days": 7,
+    "vat": 0.1,
+    "margin": 0.15
+  },
+  {
+    "sku": "PDU-500A-030",
+    "name": "PDU 500A Model 30",
+    "unit": "SET",
+    "unit_price": 876001,
+    "alt": [],
+    "safety": "KC",
+    "lead_days": 14,
+    "vat": 0.1,
+    "margin": 0.16
+  },
+  {
+    "sku": "FAN-1KVA-031",
+    "name": "FAN 1KVA Model 31",
+    "unit": "M",
+    "unit_price": 407519,
+    "alt": [
+      "FAN-1KVA-PRO",
+      "FAN-1KVA-STD"
+    ],
+    "safety": "CE",
+    "lead_days": 2,
+    "vat": 0.1,
+    "margin": 0.12
+  },
+  {
+    "sku": "RAID-3KVA-032",
+    "name": "RAID 3KVA Model 32",
+    "unit": "UNIT",
+    "unit_price": 930225,
+    "alt": [],
+    "safety": "UL",
+    "lead_days": 3,
+    "vat": 0.1,
+    "margin": 0.13
+  },
+  {
+    "sku": "BRK-5M-033",
+    "name": "BRK 5M Model 33",
+    "unit": "EA",
+    "unit_price": 821296,
+    "alt": [],
+    "safety": "KGS",
+    "lead_days": 5,
+    "vat": 0.1,
+    "margin": 0.13999999999999999
+  },
+  {
+    "sku": "SW-10M-034",
+    "name": "SW 10M Model 34",
+    "unit": "SET",
+    "unit_price": 173712,
+    "alt": [
+      "SW-10M-PRO",
+      "SW-10M-STD"
+    ],
+    "safety": "KC",
+    "lead_days": 7,
+    "vat": 0.1,
+    "margin": 0.15
+  },
+  {
+    "sku": "NET-24P-035",
+    "name": "NET 24P Model 35",
+    "unit": "M",
+    "unit_price": 129776,
+    "alt": [],
+    "safety": "CE",
+    "lead_days": 14,
+    "vat": 0.1,
+    "margin": 0.16
+  },
+  {
+    "sku": "UPS-48P-036",
+    "name": "UPS 48P Model 36",
+    "unit": "UNIT",
+    "unit_price": 296156,
+    "alt": [],
+    "safety": "UL",
+    "lead_days": 2,
+    "vat": 0.1,
+    "margin": 0.12
+  },
+  {
+    "sku": "CAB-125A-037",
+    "name": "CAB 125A Model 37",
+    "unit": "EA",
+    "unit_price": 544658,
+    "alt": [
+      "CAB-125A-PRO",
+      "CAB-125A-STD"
+    ],
+    "safety": "KGS",
+    "lead_days": 3,
+    "vat": 0.1,
+    "margin": 0.13
+  },
+  {
+    "sku": "PDU-250A-038",
+    "name": "PDU 250A Model 38",
+    "unit": "SET",
+    "unit_price": 598774,
+    "alt": [],
+    "safety": "KC",
+    "lead_days": 5,
+    "vat": 0.1,
+    "margin": 0.13999999999999999
+  },
+  {
+    "sku": "FAN-500A-039",
+    "name": "FAN 500A Model 39",
+    "unit": "M",
+    "unit_price": 667390,
+    "alt": [],
+    "safety": "CE",
+    "lead_days": 7,
+    "vat": 0.1,
+    "margin": 0.15
+  },
+  {
+    "sku": "RAID-1KVA-040",
+    "name": "RAID 1KVA Model 40",
+    "unit": "UNIT",
+    "unit_price": 160666,
+    "alt": [
+      "RAID-1KVA-PRO",
+      "RAID-1KVA-STD"
+    ],
+    "safety": "UL",
+    "lead_days": 14,
+    "vat": 0.1,
+    "margin": 0.16
+  }
+]

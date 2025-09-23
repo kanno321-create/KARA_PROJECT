@@ -1,0 +1,36 @@
+name: M2.9 Synthetic Monitor
+on:
+  schedule:
+    - cron: "*/15 * * * *"  # Every 15 minutes
+  workflow_dispatch:  # Manual trigger for testing
+
+jobs:
+  synthetic-monitor:
+    runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      BASE_URL: ${{ secrets.BASE_URL_PROD }}
+      SYNTH_BASE: ${{ secrets.BASE_URL_PROD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      
+      - name: Run synthetic checks
+        run: node scripts/syntheticCheck.js
+        
+      - name: Evaluate SLO
+        run: node scripts/slo_eval.js
+        
+      - name: SLO breach notification
+        if: failure()
+        run: node scripts/notify_slack.js ":rotating_light: SLO breach detected on production - synthetic monitoring"
+        
+      - name: Upload synthetic results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-results-${{ github.run_number }}
+          path: ops/

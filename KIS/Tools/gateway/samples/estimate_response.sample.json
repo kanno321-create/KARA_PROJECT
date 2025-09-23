@@ -1,0 +1,31 @@
+﻿{
+  "project_id": "2025-0001",
+  "export_ok": true,
+  "totals": {
+    "materials": 1432000.0,
+    "labor": 255000.0,
+    "subtotal": 1687000.0,
+    "vat": 168700.0,
+    "grand_total": 1855700.0
+  },
+  "metrics": {
+    "fit_score": 0.842,
+    "phase_balance": 0.032,
+    "lint_errors": 0
+  },
+  "evidence": [
+    {"stage": "enclosure_solver", "artifacts": [".../enclosure_solver_*.json"]},
+    {"stage": "breaker_placer", "artifacts": [".../breaker_placer_*.json"]},
+    {"stage": "estimate_formatter", "artifacts": [".../estimate_formatter_*.json"]},
+    {"stage": "cover_tab_writer", "artifacts": [".../cover_tab_writer_*.json"]},
+    {"stage": "doc_lint_guard", "artifacts": [".../doc_lint_guard_*.json"]}
+  ],
+  "logs": [
+    "Enclosure solver computed fit score",
+    "Breaker placer balanced phases",
+    "Estimate formatter produced financial summary",
+    "Cover tab writer compiled presentation summary",
+    "Doc lint guard evaluated brand/accessibility"
+  ],
+  "next": ["/v1/validate", "/v1/rag/pack"]
+}

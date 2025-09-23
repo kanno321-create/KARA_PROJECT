@@ -1,0 +1,12 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "kis-cost-guard",
+    "code":  "MCP-12",
+    "description":  "비용 통제",
+    "priority":  "P0",
+    "endpoints":  {
+                      "execute":  "/kis-cost-guard/execute",
+                      "health":  "/kis-cost-guard/health"
+                  },
+    "status":  "INSTALLED"
+}
