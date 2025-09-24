@@ -5,7 +5,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- =============================================
--- 1. CUSTOMERS (‡ Ù)
+-- 1. CUSTOMERS (Í≥†Í∞ù)
 -- =============================================
 CREATE TABLE IF NOT EXISTS customers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS customers (
 );
 
 -- =============================================
--- 2. PRODUCTS (à t»\¯)
+-- 2. PRODUCTS (Ï†úÌíà)
 -- =============================================
 CREATE TABLE IF NOT EXISTS products (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 -- =============================================
--- 3. BREAKERS ((Ë0 Ù)
+-- 3. BREAKERS (Ï∞®Îã®Í∏∞)
 -- =============================================
 CREATE TABLE IF NOT EXISTS breakers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS breakers (
 );
 
 -- =============================================
--- 4. ENCLOSURES (h¥ Ù)
+-- 4. ENCLOSURES (Ìï®Ï≤¥)
 -- =============================================
 CREATE TABLE IF NOT EXISTS enclosures (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS enclosures (
 );
 
 -- =============================================
--- 5. ESTIMATES (¨)
+-- 5. ESTIMATES (Í≤¨Ï†Å)
 -- =============================================
 CREATE TABLE IF NOT EXISTS estimates (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS estimates (
 );
 
 -- =============================================
--- 6. ESTIMATE_ITEMS (¨ m©)
+-- 6. ESTIMATE_ITEMS (Í≤¨Ï†Å Ìï≠Î™©)
 -- =============================================
 CREATE TABLE IF NOT EXISTS estimate_items (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -108,3 +108,36 @@ CREATE TABLE IF NOT EXISTS estimate_items (
     specifications JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create indexes for better performance
+CREATE INDEX idx_products_sku ON products(sku);
+CREATE INDEX idx_products_category ON products(category);
+CREATE INDEX idx_breakers_type ON breakers(type);
+CREATE INDEX idx_enclosures_type ON enclosures(type);
+CREATE INDEX idx_estimates_customer ON estimates(customer_id);
+CREATE INDEX idx_estimates_status ON estimates(status);
+CREATE INDEX idx_estimate_items_estimate ON estimate_items(estimate_id);
+
+-- Add update triggers for updated_at columns
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_customers_updated_at BEFORE UPDATE ON customers
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON products
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_breakers_updated_at BEFORE UPDATE ON breakers
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_enclosures_updated_at BEFORE UPDATE ON enclosures
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_estimates_updated_at BEFORE UPDATE ON estimates
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
