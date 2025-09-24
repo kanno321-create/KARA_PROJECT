@@ -243,26 +243,16 @@ jobs:
         
     - name: Commit Emergency Override Log
       if: env.EMERGENCY_OVERRIDE == 'true'
+      shell: bash
       run: |
-        echo "💾 Logging emergency override..."
+        set -euo pipefail
+        echo "Logging emergency override..."
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action - Budget Guard"
-        
+
         git add ops/emergency_override.json
-        
-        git commit -m "$(cat <<'EOF'
-🚨 Emergency Override: Deployment freeze bypassed
 
-Actor: ${{ github.actor }}
-Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S')
-Run ID: ${{ github.run_id }}
+        TIMESTAMP="$(date -u '+%Y-%m-%d %H:%M:%S')"
+        git commit -m "Emergency Override: Deployment freeze bypassed - Actor: ${{ github.actor }}, Time: ${TIMESTAMP}, Run: ${{ github.run_id }}" || echo "No changes to commit"
 
-⚠️ This bypassed error budget protections!
-
-🚀 Generated with [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
-EOF
-)"
-        
-        echo "✅ Emergency override logged"
+        echo "Emergency override logged"
