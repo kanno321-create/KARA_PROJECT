@@ -1,4 +1,5 @@
-import type { EstimateRequest, Evidence, EvidenceTableRowSchema } from './validators.js';
+import type { EstimateRequest, Evidence } from './validators.js';
+// import type { EvidenceTableRowSchema } from './validators.js'; // Unused: removed
 import type { MCCBDimension } from './size-tables.js';
 import { getSize } from './size-tables.js';
 import { config } from '../config.js';

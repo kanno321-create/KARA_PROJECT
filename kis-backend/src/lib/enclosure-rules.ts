@@ -1,5 +1,5 @@
 import type { EstimateRequest, EnclosureResult, Form } from './validators.js';
-import { getSize, type MCCBDimension } from './size-tables.js';
+// import { getSize, type MCCBDimension } from './size-tables.js'; // Unused: removed
 import { findDimensionKeyed, type MCCBDimension as NewMCCBDimension } from './size-tables-v2.js';
 import { errors } from './errors.js';
 
@@ -108,7 +108,12 @@ function getMainBreakerDimensions(request: EstimateRequest): NewMCCBDimension | 
   const { brand, main } = request;
 
   // Use the new versioned knowledge system
-  const dimensions = findDimensionKeyed(brand, main.model, main.af, main.poles?.toString());
+  const dimensions = findDimensionKeyed({
+    brand: brand as 'SANGDO' | 'LS',
+    model: main.model,
+    af: main.af,
+    poles: main.poles as '1P' | '2P' | '3P' | '4P'
+  });
 
   if (!dimensions) {
     // ABSTAIN: 메인 차단기 치수 정보 부족
@@ -133,7 +138,12 @@ function getBranchBreakerDimensions(
   const { brand } = request;
 
   // Use the new versioned knowledge system
-  const dimensions = findDimensionKeyed(brand, branch.model, branch.af, branch.poles?.toString());
+  const dimensions = findDimensionKeyed({
+    brand: brand as 'SANGDO' | 'LS',
+    model: branch.model,
+    af: branch.af,
+    poles: branch.poles as '1P' | '2P' | '3P' | '4P'
+  });
 
   if (!dimensions) {
     // ABSTAIN: 분기 차단기 치수 정보 부족

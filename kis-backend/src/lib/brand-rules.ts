@@ -135,7 +135,7 @@ export function validateDeviceType(request: EstimateRequest): void {
 /**
  * 개별 모델의 디바이스 타입 검증
  */
-function validateModelDeviceType(model: string, expectedType: DeviceType, path: string): void {
+function validateModelDeviceType(model: string, expectedType: DeviceType, _path: string): void {
   const upperModel = model.toUpperCase();
   let actualType: DeviceType;
 
@@ -180,7 +180,7 @@ export function validatePoles(request: EstimateRequest): void {
 /**
  * 개별 모델의 극수 검증
  */
-function validateModelPoles(brand: string, model: string, poles: string, path: string): void {
+function validateModelPoles(brand: string, model: string, poles: string, _path: string): void {
   // 치수표에서 해당 모델의 극수 확인
   const dimensions = getSize(brand, model, undefined, poles);
 

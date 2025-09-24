@@ -1,8 +1,9 @@
 import type { FastifyInstance } from 'fastify';
-import type { PrismaClient } from '@prisma/client';
+// import type { PrismaClient } from '@prisma/client'; // Unused: removed
 import { parseKnowledgeCSV, type ParsedKnowledgeRow } from '../lib/csv.js';
 import { generateTableHashes, hashKnowledgeRow } from '../lib/hash.js';
-import { hotSwapKnowledge, findDimensionKeyed } from '../lib/size-tables-v2.js';
+import { hotSwapKnowledge } from '../lib/size-tables-v2.js';
+// import { findDimensionKeyed } from '../lib/size-tables-v2.js'; // Unused: removed
 import { withTxn } from '../lib/with-txn.js';
 import { runGoldenRegression, saveRegressionReport } from '../regression/golden.js';
 
@@ -83,7 +84,7 @@ export async function adminKnowledgeRoutes(fastify: FastifyInstance) {
 
       try {
         let parsedRows: ParsedKnowledgeRow[];
-        const errors: string[] = [];
+        // const errors: string[] = []; // Unused: removed
 
         if (format === 'CSV') {
           const parseResult = parseKnowledgeCSV(data);

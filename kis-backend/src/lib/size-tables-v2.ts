@@ -1,5 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
-import { sha256, hashTableData } from './hash.js';
+import { hashTableData } from './hash.js';
+// import { sha256 } from './hash.js'; // Unused: removed
 
 // ============================================
 // Knowledge Cache System with Hot Swap
@@ -207,7 +208,7 @@ async function buildCacheFromVersion(version: any): Promise<KnowledgeCache> {
   }
 
   // Calculate table hashes
-  for (const [groupKey, tables] of tableGroups) {
+  for (const [_groupKey, tables] of tableGroups) {
     const hash = hashTableData(tables);
     tableHashes.push(hash);
   }

@@ -22,7 +22,7 @@ export function requestIdMiddleware(fastify: FastifyInstance) {
 
 // 보안 헤더 미들웨어
 export function securityHeadersMiddleware(fastify: FastifyInstance) {
-  fastify.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.addHook('preHandler', async (_request: FastifyRequest, reply: FastifyReply) => {
     // 기본 보안 헤더 설정
     reply.header('X-Content-Type-Options', 'nosniff');
     reply.header('X-Frame-Options', 'DENY');
@@ -105,7 +105,7 @@ export function bodySizeMiddleware(fastify: FastifyInstance) {
 }
 
 // Admin API 키 검증 미들웨어
-export function adminAuthMiddleware(fastify: FastifyInstance) {
+export function adminAuthMiddleware(_fastify: FastifyInstance) {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     const apiKey = request.headers['x-api-key'] as string;
 

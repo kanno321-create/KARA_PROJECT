@@ -157,7 +157,7 @@ export const errors = {
 // Fastify 에러 핸들러
 export async function errorHandler(
   error: Error,
-  request: any,
+  _request: any,
   reply: FastifyReply
 ): Promise<void> {
   // KISError인 경우

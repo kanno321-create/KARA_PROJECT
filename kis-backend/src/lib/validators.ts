@@ -128,12 +128,12 @@ export const EvidenceSchema = z.object({
   rulesDoc: z.string(),
   tables: z.array(EvidenceTableRowSchema),
   brandPolicy: z.string(),
-  snapshot: z.record(z.any()),
+  snapshot: z.record(z.string(), z.any()),
   snapshotHash: z.string(),
   rulesVersion: z.string(),
   knowledgeVersion: z.string(),
   usedRows: z.array(z.string()),
-  tableHashes: z.record(z.string()),
+  tableHashes: z.record(z.string(), z.string()),
   signature: z.string(),
   version: z.object({
     rules: z.string(),
@@ -156,7 +156,7 @@ export const AbstainSchema = z.object({
   suggestion: z.string(),
   status: z.enum(['pending', 'resolved', 'ignored']),
   resolution: z.object({
-    providedData: z.record(z.any()),
+    providedData: z.record(z.string(), z.any()),
     updatedVersion: z.string(),
   }).optional(),
   createdAt: z.string(),
@@ -342,7 +342,7 @@ export const AuditLogSchema = z.object({
   id: z.string(),
   actor: z.string(),
   action: z.string(),
-  payload: z.record(z.any()),
+  payload: z.record(z.string(), z.any()),
   result: z.enum(['success', 'failed', 'abstain']).optional(),
   createdAt: z.string(),
 });

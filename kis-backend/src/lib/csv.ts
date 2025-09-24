@@ -169,10 +169,13 @@ function parseLine(line: string, headers: string[], lineNumber: number): ParsedK
   }
 
   // Validate and normalize values
-  const row = normalizeRow(rowData, lineNumber);
+  const rowWithoutHash = normalizeRow(rowData, lineNumber);
 
-  // Generate row hash
-  row.rowHash = hashKnowledgeRow(row);
+  // Generate row hash and create complete row
+  const row: ParsedKnowledgeRow = {
+    ...rowWithoutHash,
+    rowHash: hashKnowledgeRow(rowWithoutHash)
+  };
 
   return row;
 }
@@ -180,7 +183,7 @@ function parseLine(line: string, headers: string[], lineNumber: number): ParsedK
 /**
  * Normalize row data with validation
  */
-function normalizeRow(data: any, lineNumber: number): Omit<ParsedKnowledgeRow, 'rowHash'> {
+function normalizeRow(data: any, _lineNumber: number): Omit<ParsedKnowledgeRow, 'rowHash'> {
   // Brand validation (required)
   const brand = data.brand?.toUpperCase();
   if (!brand || !['SANGDO', 'LS'].includes(brand)) {

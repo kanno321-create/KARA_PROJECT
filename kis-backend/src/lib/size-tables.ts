@@ -207,7 +207,7 @@ export function getAvailableModels(brand: string): string[] {
   }
 
   if (normalizedBrand === 'SANGDO') {
-    return [...new Set(cache!.sangdo.map(item => item.model).filter(Boolean))];
+    return [...new Set(cache!.sangdo.map(item => item.model).filter((model): model is string => Boolean(model)))];
   }
 
   return [];
@@ -225,14 +225,14 @@ export function getAvailableAFs(brand: string): number[] {
   const normalizedBrand = brand.toUpperCase();
 
   if (normalizedBrand === 'LS') {
-    return [...new Set(cache!.lsMetasol.map(item => item.af).filter(Boolean))].sort((a, b) => a - b);
+    return [...new Set(cache!.lsMetasol.map(item => item.af).filter((af): af is number => Boolean(af)))].sort((a, b) => a - b);
   }
 
   if (normalizedBrand === 'SANGDO') {
     // SANGDO는 프레임에서 AF 추정
-    const frames = [...new Set(cache!.sangdo.map(item => item.frame).filter(Boolean))];
+    const frames = [...new Set(cache!.sangdo.map(item => item.frame).filter((frame): frame is string => Boolean(frame)))];
     return frames.map(frame => {
-      const match = frame.match(/F(\d+)/);
+      const match = frame?.match(/F(\d+)/);
       return match ? parseInt(match[1]) : 0;
     }).filter(Boolean).sort((a, b) => a - b);
   }

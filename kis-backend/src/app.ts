@@ -72,7 +72,7 @@ export async function createApp() {
 
   // Rate Limiting (엔드포인트별 차등)
   await app.register(import('@fastify/rate-limit'), {
-    max: config.rateLimitRefined.default,
+    // max: config.rateLimitRefined.default, // Removed: duplicate property, dynamic max function below handles this
     timeWindow: '1 minute',
     cache: 10000,
     allowList: ['127.0.0.1', '::1'],

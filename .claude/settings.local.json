@@ -105,7 +105,15 @@
       "Bash(git rm:*)",
       "Bash(git config:*)",
       "Bash(git ls-tree:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(git rev-parse:*)",
+      "Bash([ -f .github/workflows/slo_collector.yml ])",
+      "Bash(python3:*)",
+      "Bash(grep:*)",
+      "Bash(pnpm dlx:*)",
+      "Bash(npx:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)"
     ],
     "deny": [],
     "ask": []
