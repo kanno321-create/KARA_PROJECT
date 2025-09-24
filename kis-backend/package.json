@@ -24,7 +24,9 @@
     "test:idempotency": "node scripts/test-idempotency-concurrency.js",
     "test:knowledge-workflow": "node scripts/admin-activate-and-regress.js",
     "test:evidence-collection": "node scripts/collect-evidence-samples.js",
-    "audit:full": "npm run lint && npm run test:idempotency && npm run test:knowledge-workflow && npm run test:evidence-collection"
+    "audit:full": "npm run lint && npm run test:idempotency && npm run test:knowledge-workflow && npm run test:evidence-collection",
+    "openapi:lint": "npx @redocly/cli lint openapi.yaml",
+    "openapi:build": "npx @redocly/cli build-docs openapi.yaml -o reports/openapi.html"
   },
   "keywords": [
     "kis",
@@ -52,6 +54,7 @@
     "zod": "^4.1.11"
   },
   "devDependencies": {
+    "@redocly/cli": "^2.2.0",
     "@types/node": "^24.5.2",
     "@types/supertest": "^6.0.3",
     "@types/uuid": "^10.0.0",
