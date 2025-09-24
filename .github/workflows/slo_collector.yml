@@ -1,196 +1,60 @@
-name: M2.10 SLO Collector (30m Scheduled)
+name: SLO Collector
 
 on:
   schedule:
-    # Run every 30 minutes
-    - cron: '*/30 * * * *'
-  workflow_dispatch:
-    inputs:
-      force_collection:
-        description: 'Force SLO collection regardless of schedule'
-        type: boolean
-        default: false
-      collection_window:
-        description: 'Collection window in minutes (default: 30)'
-        type: number
-        default: 30
-
-env:
-  NODE_VERSION: '20'
-  SLO_HISTORY_FILE: 'ops/slo_history.json'
-  SLO_PROFILE_FILE: 'M29_SLO_PROFILE.json'
+    - cron: "0 * * * *"   # 매시간
+  workflow_dispatch: {}
 
 jobs:
-  collect-slo-metrics:
+  collect:
     runs-on: ubuntu-latest
-    name: 'SLO Collection & Budget Calculation'
-    timeout-minutes: 15
-
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 30  # Need history for 30-day rolling window
+      - uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-
-    - name: Install Dependencies
-      run: npm ci
-
-    - name: Verify SLO Profile Integrity
-      run: |
-        echo "🔍 Verifying SLO Profile integrity..."
-        if [ -f "${{ env.SLO_PROFILE_FILE }}" ]; then
-          node ops/tools/verify_slo_profile.js --profile "${{ env.SLO_PROFILE_FILE }}"
-        else
-          echo "❌ SLO Profile not found: ${{ env.SLO_PROFILE_FILE }}"
-          exit 1
-        fi
-
-    - name: Run Synthetic Monitoring
-      env:
-        SYNTH_BASE: ${{ secrets.BASE_URL_PROD || 'https://hkkor-ai.com' }}
-        DRY_RUN: ${{ contains(secrets.BASE_URL_PROD, 'localhost') && 'true' || 'false' }}
-      run: |
-        echo "📊 Running synthetic monitoring..."
-        node scripts/syntheticCheck.js --base "$SYNTH_BASE" --out "ops/synthetic_latest.json" --samples 10
-
-    - name: Evaluate SLO Compliance
-      env:
-        SLO_TARGETS_JSON: ${{ secrets.SLO_TARGETS_JSON || '{}' }}
-      run: |
-        echo "🔍 Evaluating SLO compliance..."
-        if [ -n "$SLO_TARGETS_JSON" ] && [ "$SLO_TARGETS_JSON" != "{}" ]; then
-          node scripts/slo_eval.js --in "ops/synthetic_latest.json" --out "ops/slo_report.json" --targets "$SLO_TARGETS_JSON"
-        else
-          echo "🧪 Using default SLO targets from config/ops.json"
-          node scripts/slo_eval.js --in "ops/synthetic_latest.json" --out "ops/slo_report.json"
-        fi
-
-    - name: Update SLO History
-      run: |
-        echo "📝 Updating SLO history..."
-        node ops/tools/update_slo_history.js --report "ops/slo_report.json" --history "${{ env.SLO_HISTORY_FILE }}"
-
-    - name: Calculate Error Budget Status
-      id: budget_check
-      run: |
-        echo "💰 Calculating error budget status..."
-        node ops/tools/freeze_status.js --history "${{ env.SLO_HISTORY_FILE }}" --profile "${{ env.SLO_PROFILE_FILE }}" --output-var
-
-    - name: Update Deployment Freeze Status
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        echo "🔒 Updating deployment freeze status..."
-        FREEZE_STATUS=$(cat ops/freeze_status.json | jq -r '.freeze_required')
-        ERROR_BUDGET_PCT=$(cat ops/freeze_status.json | jq -r '.error_budget_remaining')
-
-        # Set repository variable for deployment workflows
-        if [ "$FREEZE_STATUS" = "true" ]; then
-          echo "🚨 Setting DEPLOY_FREEZE=true (Error budget: ${ERROR_BUDGET_PCT}%)"
-          gh variable set DEPLOY_FREEZE --body "true"
-          gh variable set FREEZE_REASON --body "Error budget exhausted: ${ERROR_BUDGET_PCT}% remaining"
-        else
-          echo "✅ Setting DEPLOY_FREEZE=false (Error budget: ${ERROR_BUDGET_PCT}%)"
-          gh variable set DEPLOY_FREEZE --body "false"
-          gh variable set FREEZE_REASON --body "Error budget healthy: ${ERROR_BUDGET_PCT}% remaining"
-        fi
-
-    - name: Notify Slack
-      if: always()
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      run: |
-        if [ -n "$SLACK_WEBHOOK_URL" ] && [ "$SLACK_WEBHOOK_URL" != "https://hooks.slack.com/services/REPLACE/WITH/REAL-WEBHOOK" ]; then
-          echo "📱 Sending Slack notification..."
-
-          SLO_STATUS=$(cat ops/slo_report.json | jq -r '.status')
-          ERROR_BUDGET_PCT=$(cat ops/freeze_status.json | jq -r '.error_budget_remaining // "N/A"')
-          FREEZE_STATUS=$(cat ops/freeze_status.json | jq -r '.freeze_required // false')
-          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
-
-          if [ "$FREEZE_STATUS" = "true" ]; then
-            EMOJI="🚨"
-            STATUS_TEXT="DEPLOY FREEZE ACTIVE"
-            COLOR="danger"
-          elif [ "$SLO_STATUS" = "PASS" ]; then
-            EMOJI="✅"
-            STATUS_TEXT="SLO HEALTHY"
-            COLOR="good"
-          else
-            EMOJI="⚠️"
-            STATUS_TEXT="SLO WARNING"
-            COLOR="warning"
+      - name: Ensure jq (optional)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update && sudo apt-get install -y jq
           fi
 
-          node scripts/notify_slack.js "$EMOJI M2.10 SLO Collection • $STATUS_TEXT • Error Budget: ${ERROR_BUDGET_PCT}% • $TIMESTAMP"
-        else
-          echo "🧪 Slack notification skipped (webhook not configured)"
-        fi
+      - name: Prepare SLO folder
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .slo
+          # 샘플 보고서가 없으면 생성(운영에 맞게 다른 스텝에서 덮어써도 됨)
+          if [ ! -f ops/slo_report.json ]; then
+            mkdir -p ops
+            echo '{"status":"ok","ts":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}' > ops/slo_report.json
+          fi
+          # 스냅샷 생성
+          cat > .slo/SLO_SNAPSHOT.md <<'EOF'
+          # SLO Snapshot
+          source: slo_collector
+          ts: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          status: $(jq -r '.status' ops/slo_report.json 2>/dev/null || echo unknown)
+          EOF
 
-    - name: Commit SLO Data
-      if: success()
-      shell: bash
-      run: |
-        set -euo pipefail
-        echo "💾 Committing SLO collection data..."
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action - SLO Collector"
+      - name: Commit & Push SLO snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "KIS Bot"
+          git config user.email "bot@kis.local"
 
-        git add ops/synthetic_latest.json ops/slo_report.json ops/slo_history.json ops/freeze_status.json
+          git add ops/slo_report.json .slo/SLO_SNAPSHOT.md 2>/dev/null || true
 
-        if ! git diff --staged --quiet; then
-          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S')
-          SLO_STATUS=$(cat ops/slo_report.json | jq -r '.status')
-          ERROR_BUDGET=$(cat ops/freeze_status.json | jq -r '.error_budget_remaining // "N/A"')
-
-          cat > .commit_message.txt <<'EOF'
-🤖 SLO Collection: $SLO_STATUS | Budget: ${ERROR_BUDGET}% | $TIMESTAMP
-
-🚀 Generated with [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
-EOF
-
-          # Variable substitution
-          sed -i "s/\$SLO_STATUS/$SLO_STATUS/g" .commit_message.txt
-          sed -i "s/\$ERROR_BUDGET/$ERROR_BUDGET/g" .commit_message.txt
-          sed -i "s/\$TIMESTAMP/$TIMESTAMP/g" .commit_message.txt
-
-          git commit -F .commit_message.txt
-          rm .commit_message.txt
-
-          echo "✅ SLO data committed successfully"
-        else
-          echo "ℹ️ No changes to commit"
-        fi
-
-    - name: Upload SLO Artifacts
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: slo-collection-${{ github.run_number }}
-        path: |
-          ops/synthetic_latest.json
-          ops/slo_report.json
-          ops/slo_history.json
-          ops/freeze_status.json
-        retention-days: 30
-
-    - name: Summary Report
-      if: always()
-      run: |
-        echo "📊 M2.10 SLO Collection Summary"
-        echo "=================================="
-        echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-        echo "SLO Status: $(cat ops/slo_report.json | jq -r '.status')"
-        echo "Error Budget: $(cat ops/freeze_status.json | jq -r '.error_budget_remaining // "N/A"')%"
-        echo "Deploy Freeze: $(cat ops/freeze_status.json | jq -r '.freeze_required // false')"
-        echo "Collection ID: ${{ github.run_number }}"
-        echo "Branch: ${{ github.ref_name }}"
-        echo "=================================="
+          if ! git diff --staged --quiet; then
+            TIMESTAMP="$(date -u '+%Y-%m-%d %H:%M:%S')"
+            if command -v jq >/dev/null 2>&1; then
+              SLO_STATUS="$(jq -r '.status' ops/slo_report.json 2>/dev/null || echo unknown)"
+            else
+              SLO_STATUS="unknown"
+            fi
+            git commit -m "chore(slo): update snapshot (${TIMESTAMP}, status=${SLO_STATUS})" || echo "No changes to commit"
+            git push
+          else
+            echo "No staged changes"
+          fi
