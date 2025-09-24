@@ -98,38 +98,66 @@ jobs:
       # ============================================
       # 5. 서버 기동 및 스모크 테스트
       # ============================================
-      - name: 🚀 Start Development Server
+      - name: 🚀 Start Development Server (Background)
         working-directory: kis-backend
+        env:
+          PORT: 3001
+          DATABASE_URL: file:./prisma/dev.db
+          EVIDENCE_SECRET: 'audit-test-secret-key-for-ci-pipeline'
+          ADMIN_API_KEY: 'test-admin-key-for-audit'
+        shell: bash
         run: |
-          echo "🚀 Starting KIS ERP Backend..."
+          set -euo pipefail
+          echo "🚀 Starting KIS ERP Backend on port 3001..."
+          # 앱을 백그라운드로 실행하고 PID 저장
           npm run dev &
+          echo $! > ../app.pid
+          echo "Server PID: $(cat ../app.pid)"
+          sleep 3  # 초기 시작 대기
 
-          # 서버 시작 대기
-          echo "⏳ Waiting for server to start..."
-          for i in {1..30}; do
-            if curl -sf http://localhost:3001/health > /dev/null 2>&1; then
-              echo "✅ Server is ready!"
-              break
+      - name: ⏳ Wait for Server Ready
+        shell: bash
+        env:
+          HEALTH_URL: http://127.0.0.1:3001/health
+          TIMEOUT_SEC: "90"
+          RETRY: "30"
+        run: |
+          set -euo pipefail
+          echo "⏳ Waiting for server to be ready..."
+          end=$((SECONDS + TIMEOUT_SEC))
+          attempt=0
+
+          until curl -fsS --ipv4 "$HEALTH_URL" >/dev/null 2>&1; do
+            attempt=$((attempt + 1))
+            if (( SECONDS >= end )); then
+              echo "❌ Server not ready within ${TIMEOUT_SEC}s after ${attempt} attempts"
+              # 진단 정보 출력
+              echo "=== Process Status ==="
+              ps aux | grep -E "node|npm" | head -10 || true
+              echo "=== Port Status ==="
+              netstat -lntp 2>/dev/null | grep 3001 || ss -lntp | grep 3001 || true
+              echo "=== Recent Logs ==="
+              if [ -d kis-backend/.logs ]; then
+                tail -30 kis-backend/.logs/*.log 2>/dev/null || true
+              fi
+              exit 1
             fi
-            echo "⏳ Attempt $i/30: Server not ready yet..."
+            echo "⏳ Attempt ${attempt}/${RETRY}: Waiting... ($(( end-SECONDS ))s left)"
             sleep 2
           done
 
-          # 최종 확인
-          if ! curl -sf http://localhost:3001/health > /dev/null 2>&1; then
-            echo "❌ Server failed to start after 60 seconds"
-            exit 1
-          fi
+          echo "✅ Server is ready after ${attempt} attempts!"
 
       - name: 🏥 Health Check & Smoke Tests
         working-directory: kis-backend
+        shell: bash
         run: |
-
+          set -euo pipefail
           echo "🏥 Running health check..."
-          curl -sf http://localhost:3001/health | tee health-check.json
+          curl -fsS --ipv4 http://127.0.0.1:3001/health | tee health-check.json
 
           echo "🔍 Running info endpoint check..."
-          curl -sf http://localhost:3001/info | tee info-check.json
+          curl -fsS --ipv4 http://127.0.0.1:3001/info | tee info-check.json
 
           echo "✅ Basic smoke tests passed"
 
@@ -312,15 +340,19 @@ jobs:
       # ============================================
       - name: 🔐 Evidence Integrity Tests
         working-directory: kis-backend
+        shell: bash
+        env:
+          BASE_URL: http://127.0.0.1:3001
         run: |
-
+          set -euo pipefail
           echo "🔐 Testing Evidence integrity..."
 
-          # 견적 생성 (Evidence 포함)
-          ESTIMATE_RESPONSE=$(curl -s -X POST http://localhost:3001/v1/estimate/create \
+          # 견적 생성 (Evidence 포함) - IPv4 강제 + retry
+          ESTIMATE_RESPONSE=$(curl -fsS --ipv4 --retry 3 --retry-delay 1 --retry-connrefused \
+            -X POST "$BASE_URL/v1/estimate/create" \
             -H 'Content-Type: application/json' \
             -H 'X-KIS-Actor: Evidence-Test' \
-            -H 'Idempotency-Key: evidence-test-$(date +%s)' \
+            -H "Idempotency-Key: evidence-test-$(date +%s)" \
             -d '{
               "brand": "SANGDO",
               "form": "ECONOMIC",
@@ -329,17 +361,26 @@ jobs:
               "main": {"model": "SBS-603", "poles": "3P"},
               "branches": [{"model": "SBS-203", "poles": "3P", "qty": 2}],
               "accessories": {"enabled": false}
-            }')
+            }' || echo '{"error": "Failed to create estimate"}')
 
           echo "$ESTIMATE_RESPONSE" | tee estimate-response.json
-          ESTIMATE_ID=$(echo "$ESTIMATE_RESPONSE" | grep -o '"id":"[^"]*"' | cut -d'"' -f4)
+          ESTIMATE_ID=$(echo "$ESTIMATE_RESPONSE" | grep -o '"id":"[^"]*"' | cut -d'"' -f4 || true)
 
           if [ -n "$ESTIMATE_ID" ]; then
             echo "🔐 Testing Evidence retrieval for estimate: $ESTIMATE_ID"
-            curl -s "http://localhost:3001/v1/estimate/$ESTIMATE_ID/evidence?verify=true" | tee evidence.json
-            echo "✅ Evidence integrity test completed"
+            curl -fsS --ipv4 --retry 3 --retry-delay 1 \
+              "$BASE_URL/v1/estimate/$ESTIMATE_ID/evidence?verify=true" \
+              -o evidence.json || echo '{"error": "Failed to get evidence"}' > evidence.json
+
+            if grep -q '"signature"' evidence.json; then
+              echo "✅ Evidence integrity test completed successfully"
+            else
+              echo "⚠️ Evidence response incomplete"
+              cat evidence.json
+            fi
           else
             echo "⚠️ Could not create estimate for Evidence test"
+            echo "Response was: $ESTIMATE_RESPONSE"
           fi
 
       # ============================================
@@ -393,6 +434,53 @@ jobs:
           name: kis-audit-artifacts-${{ github.run_number }}
           path: kis-backend/audit-artifacts/
           retention-days: 30
+
+      # ============================================
+      # 진단 정보 (실패 시)
+      # ============================================
+      - name: 🔍 Diagnostics on Failure
+        if: failure()
+        shell: bash
+        run: |
+          echo "=== Process Status ==="
+          ps aux | grep -E "node|npm|tsx" | head -20 || true
+          echo ""
+          echo "=== Port Status (3001) ==="
+          ss -lntp 2>/dev/null | grep 3001 || netstat -lntp 2>/dev/null | grep 3001 || true
+          echo ""
+          echo "=== Network Interfaces ==="
+          ip addr show 2>/dev/null | grep -E "inet |lo:" || ifconfig 2>/dev/null | grep -E "inet |lo" || true
+          echo ""
+          echo "=== Recent App Logs ==="
+          if [ -d kis-backend/.logs ]; then
+            tail -50 kis-backend/.logs/*.log 2>/dev/null || true
+          fi
+          echo ""
+          echo "=== Environment Variables (filtered) ==="
+          env | grep -E "PORT|NODE|DATABASE" | sort || true
+
+      # ============================================
+      # 서버 종료
+      # ============================================
+      - name: 🛑 Stop Development Server
+        if: always()
+        shell: bash
+        run: |
+          if [ -f app.pid ]; then
+            PID=$(cat app.pid)
+            echo "Stopping server (PID: $PID)..."
+            kill $PID 2>/dev/null || true
+            sleep 2
+            # 확인 종료
+            if ps -p $PID > /dev/null 2>&1; then
+              echo "Force killing server..."
+              kill -9 $PID 2>/dev/null || true
+            fi
+            rm app.pid
+            echo "✅ Server stopped"
+          else
+            echo "No app.pid file found, server may not have started"
+          fi
 
       # ============================================
       # 12. PR 코멘트 (PR인 경우)

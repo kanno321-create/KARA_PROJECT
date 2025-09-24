@@ -113,7 +113,9 @@
       "Bash(pnpm dlx:*)",
       "Bash(npx:*)",
       "Bash(git checkout:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(npm i:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": []
