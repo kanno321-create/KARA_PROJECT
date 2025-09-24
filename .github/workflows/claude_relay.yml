@@ -107,7 +107,7 @@ jobs:
         run: |
           echo "🚀 Starting Claude Relay execution..."
           node ops/relay/claude_relay.js
-        timeout-minutes: ${{ fromJSON(env.RELAY_TIMEOUT_SEC) / 60 }}
+        timeout-minutes: 30
       
       - name: 📁 Upload Relay Artifacts
         uses: actions/upload-artifact@v4
