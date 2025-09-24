@@ -1,0 +1,66 @@
+name: Deploy to Supabase
+
+on:
+  push:
+    branches: ["main", "master"]
+    paths:
+      - "supabase/**"
+      - ".github/workflows/supabase-deploy.yml"
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    # 시크릿 없으면 스킵 (오류 방지)
+    if: ${{ secrets.SUPABASE_PROJECT_REF && secrets.SUPABASE_ACCESS_TOKEN }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+
+      - name: Link Supabase Project
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          echo "🔗 Linking to Supabase project..."
+          supabase link \
+            --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}" \
+            ${{ secrets.SUPABASE_DB_PASSWORD && '--password "${{ secrets.SUPABASE_DB_PASSWORD }}"' || '' }}
+
+          echo "📊 Checking project status..."
+          supabase status -o pretty
+
+      - name: Run Database Migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          echo "🗄️ Running database migrations..."
+          if [ -d "supabase/migrations" ] && [ "$(ls -A supabase/migrations)" ]; then
+            supabase db push --include-all --debug
+            echo "✅ Migrations applied successfully"
+          else
+            echo "ℹ️ No migrations found to apply"
+          fi
+
+      - name: Deploy Edge Functions
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          echo "⚡ Deploying edge functions..."
+          if [ -d "supabase/functions" ] && [ "$(ls -A supabase/functions)" ]; then
+            supabase functions deploy
+            echo "✅ Edge functions deployed successfully"
+          else
+            echo "ℹ️ No edge functions found to deploy"
+          fi
+
+      - name: Validate Deployment
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          echo "🔍 Validating deployment..."
+          supabase status -o pretty
+          echo "✅ Deployment validation completed"

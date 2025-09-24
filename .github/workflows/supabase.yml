@@ -1,0 +1,36 @@
+name: Supabase Deploy (Simple)
+
+on:
+  push:
+    branches: [ "master", "main" ]
+    paths:
+      - "supabase/**"
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    # 시크릿 없으면 스킵 (오류 방지)
+    if: ${{ secrets.SUPABASE_PROJECT_REF && secrets.SUPABASE_ACCESS_TOKEN }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+
+      - name: Link and Deploy
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          echo "🔗 Linking to Supabase project..."
+          supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+
+          echo "🗄️ Pushing database changes..."
+          if [ -d "supabase/migrations" ] && [ "$(ls -A supabase/migrations)" ]; then
+            supabase db push
+            echo "✅ Database deployment completed"
+          else
+            echo "ℹ️ No database changes to deploy"
+          fi
