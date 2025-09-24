@@ -26,22 +26,21 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: '9'
-
       - name: ⚙️ Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-          cache-dependency-path: 'kis-backend/pnpm-lock.yaml'
+          cache: 'npm'
+          cache-dependency-path: 'kis-backend/package-lock.json'
 
       - name: 📚 Install Dependencies
         run: |
           cd kis-backend
-          pnpm install --frozen-lockfile
+          npm ci
+
+      - name: 📁 Create Audit Artifacts Directory
+        run: |
+          mkdir -p kis-backend/audit-artifacts
 
       # ============================================
       # 2. 정적 분석 (안전망 1)
@@ -49,22 +48,22 @@ jobs:
       - name: 🧬 Generate Prisma Client
         run: |
           cd kis-backend
-          pnpm prisma generate
+          npm run db:generate
 
       - name: ✅ Validate Prisma Schema
         run: |
           cd kis-backend
-          pnpm prisma validate
+          npx prisma validate
 
       - name: 🔍 TypeScript Type Check
         run: |
           cd kis-backend
-          pnpm tsc --noEmit
+          npx tsc --noEmit
 
       - name: 🎯 ESLint Analysis
         run: |
           cd kis-backend
-          pnpm eslint "src/**/*.{ts,tsx}" --format unix || true
+          npm run lint || true
         continue-on-error: true
 
       # ============================================
@@ -94,7 +93,7 @@ jobs:
         run: |
           cd kis-backend
           # SQLite 테스트 DB 생성
-          pnpm prisma db push --force-reset
+          npx prisma db push --force-reset
           echo "🗄️ Test database created"
 
       # ============================================
@@ -104,7 +103,7 @@ jobs:
         run: |
           cd kis-backend
           echo "🚀 Starting KIS ERP Backend..."
-          pnpm dev &
+          npm run dev &
 
           # 서버 시작 대기
           echo "⏳ Waiting for server to start..."
