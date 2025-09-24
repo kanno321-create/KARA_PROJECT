@@ -1,0 +1,100 @@
+lockfileVersion: '6.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+dependencies:
+  '@fastify/cors':
+    specifier: ^11.1.0
+    version: 11.1.0
+  '@fastify/rate-limit':
+    specifier: ^10.3.0
+    version: 10.3.0
+  '@fastify/swagger':
+    specifier: ^9.5.1
+    version: 9.5.1
+  '@fastify/swagger-ui':
+    specifier: ^5.2.3
+    version: 5.2.3
+  '@prisma/client':
+    specifier: ^6.16.2
+    version: 6.16.2
+  'csv-parse':
+    specifier: ^6.1.0
+    version: 6.1.0
+  dotenv:
+    specifier: ^17.2.2
+    version: 17.2.2
+  duckdb:
+    specifier: ^1.4.0
+    version: 1.4.0
+  fastify:
+    specifier: ^5.6.1
+    version: 5.6.1
+  pino:
+    specifier: ^9.11.0
+    version: 9.11.0
+  'pino-pretty':
+    specifier: ^13.1.1
+    version: 13.1.1
+  prisma:
+    specifier: ^6.16.2
+    version: 6.16.2
+  uuid:
+    specifier: ^13.0.0
+    version: 13.0.0
+  zod:
+    specifier: ^4.1.11
+    version: 4.1.11
+
+devDependencies:
+  '@types/node':
+    specifier: ^24.5.2
+    version: 24.5.2
+  '@types/supertest':
+    specifier: ^6.0.3
+    version: 6.0.3
+  '@types/uuid':
+    specifier: ^10.0.0
+    version: 10.0.0
+  '@typescript-eslint/eslint-plugin':
+    specifier: ^8.44.1
+    version: 8.44.1
+  '@typescript-eslint/parser':
+    specifier: ^8.44.1
+    version: 8.44.1
+  '@vitest/ui':
+    specifier: ^3.2.4
+    version: 3.2.4
+  eslint:
+    specifier: ^9.36.0
+    version: 9.36.0
+  husky:
+    specifier: ^9.1.7
+    version: 9.1.7
+  'lint-staged':
+    specifier: ^16.2.0
+    version: 16.2.0
+  nodemon:
+    specifier: ^3.1.10
+    version: 3.1.10
+  prettier:
+    specifier: ^3.6.2
+    version: 3.6.2
+  supertest:
+    specifier: ^7.1.4
+    version: 7.1.4
+  tsx:
+    specifier: ^4.20.5
+    version: 4.20.5
+  typescript:
+    specifier: ^5.9.2
+    version: 5.9.2
+  vitest:
+    specifier: ^3.2.4
+    version: 3.2.4
+
+packages:
+  # This is a minimal pnpm-lock.yaml for GitHub Actions caching
+  # Actual package resolution will be done during `pnpm install`

@@ -102,7 +102,9 @@
       "Bash(pnpm install:*)",
       "Bash(touch:*)",
       "Bash(git submodule:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(git config:*)",
+      "Bash(git ls-tree:*)"
     ],
     "deny": [],
     "ask": []
