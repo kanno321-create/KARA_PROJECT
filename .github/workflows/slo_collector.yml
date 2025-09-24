@@ -135,7 +135,9 @@ jobs:
 
     - name: Commit SLO Data
       if: success()
+      shell: bash
       run: |
+        set -euo pipefail
         echo "💾 Committing SLO collection data..."
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action - SLO Collector"
@@ -147,14 +149,21 @@ jobs:
           SLO_STATUS=$(cat ops/slo_report.json | jq -r '.status')
           ERROR_BUDGET=$(cat ops/freeze_status.json | jq -r '.error_budget_remaining // "N/A"')
 
-          git commit -m "$(cat <<'EOF'
+          cat > .commit_message.txt <<'EOF'
 🤖 SLO Collection: $SLO_STATUS | Budget: ${ERROR_BUDGET}% | $TIMESTAMP
 
 🚀 Generated with [Claude Code](https://claude.ai/code)
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 EOF
-)"
+
+          # Variable substitution
+          sed -i "s/\$SLO_STATUS/$SLO_STATUS/g" .commit_message.txt
+          sed -i "s/\$ERROR_BUDGET/$ERROR_BUDGET/g" .commit_message.txt
+          sed -i "s/\$TIMESTAMP/$TIMESTAMP/g" .commit_message.txt
+
+          git commit -F .commit_message.txt
+          rm .commit_message.txt
 
           echo "✅ SLO data committed successfully"
         else
