@@ -9,8 +9,8 @@ on:
 
 jobs:
   deploy:
-    # 시크릿 없으면 스킵 (오류 방지)
-    if: ${{ secrets.SUPABASE_PROJECT_REF && secrets.SUPABASE_ACCESS_TOKEN }}
+    # 🔹 job 레벨에서 사용 + 빈 문자열 비교 (fork PR 방지에도 유리)
+    if: ${{ github.event_name == 'workflow_dispatch' || (secrets.SUPABASE_PROJECT_REF != '' && secrets.SUPABASE_ACCESS_TOKEN != '') }}
     runs-on: ubuntu-latest
 
     steps:
