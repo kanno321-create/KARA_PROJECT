@@ -136,7 +136,28 @@ export class SettingsService {
     require3Gates: boolean;
     economicByDefault: boolean;
   }>): Promise<Settings> {
-    return await this.updateSettings({ rules });
+    // Get current rules to merge with partial updates
+    const currentRules = await this.getRulesInternal();
+    const mergedRules = { ...currentRules, ...rules };
+    return await this.updateSettings({ rules: mergedRules });
+  }
+
+  private async getRulesInternal(): Promise<{
+    singleBrand: boolean;
+    antiPoleMistake: boolean;
+    allowMixedBrand: boolean;
+    require3Gates: boolean;
+    economicByDefault: boolean;
+  }> {
+    const settings = await this.getSettings();
+    return {
+      singleBrand: true,
+      antiPoleMistake: true,
+      allowMixedBrand: false,
+      require3Gates: true,
+      economicByDefault: true,
+      ...(settings.rules as any)
+    };
   }
 
   async getRules(): Promise<{
@@ -146,8 +167,7 @@ export class SettingsService {
     require3Gates: boolean;
     economicByDefault: boolean;
   }> {
-    const settings = await this.getSettings();
-    return settings.rules;
+    return await this.getRulesInternal();
   }
 
   // ========================================

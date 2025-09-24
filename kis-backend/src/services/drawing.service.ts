@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import type { Drawing, DrawingCreate, DrawingUpdate } from '../lib/validators.js';
 import { errors } from '../lib/errors.js';
+import { fromJsonArray } from '../lib/json-utils.js';
 
 // ============================================
 // 도면 서비스
@@ -320,9 +321,8 @@ export class DrawingService {
 
     const allTags = new Set<string>();
     drawings.forEach(drawing => {
-      if (Array.isArray(drawing.tags)) {
-        drawing.tags.forEach(tag => allTags.add(tag));
-      }
+      const tags = fromJsonArray<string>(drawing.tags) || [];
+      tags.forEach(tag => allTags.add(tag));
     });
 
     return Array.from(allTags).sort();
@@ -331,8 +331,10 @@ export class DrawingService {
   async getDrawingsByTag(tag: string): Promise<Drawing[]> {
     const drawings = await this.prisma.drawing.findMany({
       where: {
+        // Use JSON path to search within array
         tags: {
-          has: tag,
+          path: '$[*]',
+          equals: tag,
         },
       },
       orderBy: [
@@ -352,10 +354,10 @@ export class DrawingService {
     const drawings = await this.prisma.drawing.findMany({
       where: {
         OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { author: { contains: query, mode: 'insensitive' } },
-          { memo: { contains: query, mode: 'insensitive' } },
-          { tags: { has: query } },
+          { name: { contains: query } },
+          { author: { contains: query } },
+          { memo: { contains: query } },
+          { tags: { path: '$[*]', equals: query } },
         ],
       },
       take: limit,
@@ -393,9 +395,8 @@ export class DrawingService {
 
     const allTags = new Set<string>();
     drawings.forEach(drawing => {
-      if (Array.isArray(drawing.tags)) {
-        drawing.tags.forEach(tag => allTags.add(tag));
-      }
+      const tags = fromJsonArray<string>(drawing.tags) || [];
+      tags.forEach(tag => allTags.add(tag));
     });
 
     const thirtyDaysAgo = new Date();

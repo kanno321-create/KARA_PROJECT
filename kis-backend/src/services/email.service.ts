@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import type { EmailGroup, EmailGroupCreate, EmailGroupUpdate, EmailThread, EmailThreadCreate, EmailThreadUpdate } from '../lib/validators.js';
 import { errors } from '../lib/errors.js';
+import { fromJsonArray } from '../lib/json-utils.js';
 
 // ============================================
 // 이메일 서비스
@@ -245,13 +246,13 @@ export class EmailService {
     const groups = await this.prisma.emailGroup.findMany();
 
     for (const group of groups) {
-      const rules = Array.isArray(group.rules) ? group.rules : [];
+      const rules = fromJsonArray<{type: string, value: string}>(group.rules) || [];
 
       for (const rule of rules) {
-        if (rule.type === 'email' && to && to.includes(rule.value)) {
+        if (rule && rule.type === 'email' && to && to.includes(rule.value)) {
           return group.id;
         }
-        if (rule.type === 'domain' && to && to.endsWith(rule.value)) {
+        if (rule && rule.type === 'domain' && to && to.endsWith(rule.value)) {
           return group.id;
         }
       }
@@ -325,9 +326,9 @@ export class EmailService {
     const threads = await this.prisma.emailThread.findMany({
       where: {
         OR: [
-          { subject: { contains: query, mode: 'insensitive' } },
-          { body: { contains: query, mode: 'insensitive' } },
-          { to: { contains: query, mode: 'insensitive' } },
+          { subject: { contains: query } },
+          { body: { contains: query } },
+          { to: { contains: query } },
         ],
       },
       take: limit,
