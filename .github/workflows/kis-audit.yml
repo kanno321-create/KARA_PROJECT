@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
+    env:
+      DATABASE_URL: file:./prisma/dev.db
+
     steps:
       # ============================================
       # 1. 환경 설정
@@ -34,44 +37,39 @@ jobs:
           cache-dependency-path: 'kis-backend/package-lock.json'
 
       - name: 📚 Install Dependencies
-        run: |
-          cd kis-backend
-          npm ci
+        working-directory: kis-backend
+        run: npm ci
 
       - name: 📁 Create Audit Artifacts Directory
-        run: |
-          mkdir -p kis-backend/audit-artifacts
+        working-directory: kis-backend
+        run: mkdir -p audit-artifacts
 
       # ============================================
       # 2. 정적 분석 (안전망 1)
       # ============================================
       - name: 🧬 Generate Prisma Client
-        run: |
-          cd kis-backend
-          npm run db:generate
+        working-directory: kis-backend
+        run: npm run db:generate
 
       - name: ✅ Validate Prisma Schema
-        run: |
-          cd kis-backend
-          npx prisma validate
+        working-directory: kis-backend
+        run: npx prisma validate
 
       - name: 🔍 TypeScript Type Check
-        run: |
-          cd kis-backend
-          npx tsc --noEmit
+        working-directory: kis-backend
+        run: npx tsc --noEmit
 
       - name: 🎯 ESLint Analysis
-        run: |
-          cd kis-backend
-          npm run lint || true
+        working-directory: kis-backend
+        run: npm run lint || true
         continue-on-error: true
 
       # ============================================
       # 3. OpenAPI 계약 검증 (안전망 6)
       # ============================================
       - name: 📋 Lint OpenAPI Specification
+        working-directory: kis-backend
         run: |
-          cd kis-backend
           echo "🔍 Running Redocly OpenAPI Lint..."
           npx @redocly/cli lint openapi.yaml --format stylish || true
 
@@ -80,8 +78,9 @@ jobs:
         continue-on-error: false
 
       - name: 📖 Build OpenAPI Documentation
+        working-directory: kis-backend
         run: |
-          cd kis-backend
+
           mkdir -p reports
           npx redoc-cli build openapi.yaml --output reports/openapi.html
           echo "📖 OpenAPI documentation built: reports/openapi.html"
@@ -90,18 +89,18 @@ jobs:
       # 4. 데이터베이스 설정
       # ============================================
       - name: 🗄️ Setup Test Database
+        working-directory: kis-backend
         run: |
-          cd kis-backend
           # SQLite 테스트 DB 생성
-          npx prisma db push --force-reset
+          npx prisma db push --accept-data-loss
           echo "🗄️ Test database created"
 
       # ============================================
       # 5. 서버 기동 및 스모크 테스트
       # ============================================
       - name: 🚀 Start Development Server
+        working-directory: kis-backend
         run: |
-          cd kis-backend
           echo "🚀 Starting KIS ERP Backend..."
           npm run dev &
 
@@ -123,8 +122,9 @@ jobs:
           fi
 
       - name: 🏥 Health Check & Smoke Tests
+        working-directory: kis-backend
         run: |
-          cd kis-backend
+
           echo "🏥 Running health check..."
           curl -sf http://localhost:3001/health | tee health-check.json
 
@@ -137,8 +137,9 @@ jobs:
       # 6. 견적 검증 테스트 (안전망 1-2)
       # ============================================
       - name: 🧪 Estimate Validation Tests
+        working-directory: kis-backend
         run: |
-          cd kis-backend
+
           echo "🧪 Testing estimate validation..."
 
           # 유효한 요청 테스트
@@ -175,8 +176,9 @@ jobs:
       # 7. 멱등성 동시성 테스트 (안전망 4)
       # ============================================
       - name: 🔄 Idempotency Concurrency Test
+        working-directory: kis-backend
         run: |
-          cd kis-backend
+
           echo "🔄 Testing idempotency with concurrent requests..."
 
           IDEMPOTENCY_KEY="test-concurrent-$(date +%s)"
@@ -222,8 +224,9 @@ jobs:
       # 8. 부하 테스트
       # ============================================
       - name: ⚡ Load Testing
+        working-directory: kis-backend
         run: |
-          cd kis-backend
+
           echo "⚡ Running load test..."
 
           # 10초간 20 동시 연결로 부하 테스트
@@ -248,8 +251,9 @@ jobs:
       # 9. 지식 관리 및 회귀 테스트 (안전망 5)
       # ============================================
       - name: 🧠 Knowledge Management & Golden Regression Test
+        working-directory: kis-backend
         run: |
-          cd kis-backend
+
           echo "🧠 Testing knowledge management workflow..."
 
           # CSV 데이터 준비
@@ -300,8 +304,9 @@ jobs:
       # 10. Evidence 무결성 테스트 (안전망 3)
       # ============================================
       - name: 🔐 Evidence Integrity Tests
+        working-directory: kis-backend
         run: |
-          cd kis-backend
+
           echo "🔐 Testing Evidence integrity..."
 
           # 견적 생성 (Evidence 포함)
@@ -334,8 +339,9 @@ jobs:
       # 11. 아티팩트 수집 및 업로드
       # ============================================
       - name: 📊 Collect Audit Artifacts
+        working-directory: kis-backend
         run: |
-          cd kis-backend
+
           echo "📊 Collecting audit artifacts..."
 
           # 로그 디렉토리 생성
