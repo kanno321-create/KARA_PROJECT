@@ -11,7 +11,7 @@ export const toJson = (value: unknown): Prisma.InputJsonValue => {
 
 // Convert JsonValue to typed array safely
 export function fromJsonArray<T>(value: Prisma.JsonValue | null): T[] | null {
-  if (value === null || value === Prisma.DbNull || value === Prisma.JsonNull) {
+  if (value === null) {
     return null;
   }
 
@@ -24,7 +24,7 @@ export function fromJsonArray<T>(value: Prisma.JsonValue | null): T[] | null {
 
 // Convert JsonValue to typed object safely
 export function fromJsonObject<T>(value: Prisma.JsonValue | null): T | null {
-  if (value === null || value === Prisma.DbNull || value === Prisma.JsonNull) {
+  if (value === null) {
     return null;
   }
 
