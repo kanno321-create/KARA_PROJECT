@@ -6,12 +6,12 @@ import type { PrismaClient } from '@prisma/client';
 
 export async function withTxn<T>(
   prisma: PrismaClient,
-  fn: (tx: PrismaClient) => Promise<T>,
+  fn: (tx: any) => Promise<T>,
   opts?: { timeoutMs?: number }
 ): Promise<T> {
   // 필요시 타임아웃/재시도 정책 고려(기본은 1회)
   return prisma.$transaction(async (tx) => {
-    // tx는 PrismaClient 프록시
+    // tx는 PrismaClient 프록시 (typed as any due to Prisma transaction type complexity)
     return fn(tx);
   }, {
     timeout: opts?.timeoutMs || 30000, // 30초 기본 타임아웃

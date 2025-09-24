@@ -37,7 +37,7 @@ export function securityHeadersMiddleware(fastify: FastifyInstance) {
 
 // 감사 로깅 미들웨어
 export function auditLogMiddleware(fastify: FastifyInstance) {
-  fastify.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.addHook('preHandler', async (request: FastifyRequest, _reply: FastifyReply) => {
     // 시작 시간 기록
     // @ts-ignore
     request.startTime = Date.now();

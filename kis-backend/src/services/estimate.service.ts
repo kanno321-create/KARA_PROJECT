@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import type { EstimateRequest, EstimateResponse, EnclosureResult } from '../lib/validators.js';
+import type { EstimateRequest, EstimateResponse } from '../lib/validators.js';
+// import type { EnclosureResult } from '../lib/validators.js'; // Unused: removed
 import { validateBrandRules } from '../lib/brand-rules.js';
 import { calculateEnclosureSize, validateMixedBrand } from '../lib/enclosure-rules.js';
 import { generateEvidence, collectUsedDimensions, verifyEvidenceSignature } from '../lib/evidence.js';
@@ -8,7 +9,9 @@ import { withTxn } from '../lib/with-txn.js';
 import { errors } from '../lib/errors.js';
 import { config } from '../config.js';
 import { AbstainService } from './abstain.service.js';
-import { getCurrentKnowledgeVersion } from '../lib/size-tables-v2.js';
+// import { getCurrentKnowledgeVersion } from '../lib/size-tables-v2.js'; // Unused: removed
+import { toJson, fromJsonObject } from '../lib/json-utils.js';
+// import { toError } from '../lib/json-utils.js'; // Unused: removed
 
 // ============================================
 // 견적 서비스
@@ -39,7 +42,8 @@ export class EstimateService {
 
       // 2. 혼합 브랜드 검증
       const settings = await this.getSettings();
-      validateMixedBrand(request, settings.rules.allowMixedBrand);
+      const rules = fromJsonObject<any>(settings.rules) || {};
+      validateMixedBrand(request, rules.allowMixedBrand || false);
 
       // 3. 접근성 검증 (부속자재)
       this.validateAccessories(request);
@@ -84,7 +88,7 @@ export class EstimateService {
     return await withTxn(this.prisma, async (tx) => {
       try {
         // 3-1. 설정 조회
-        const settings = await this.getSettingsInTx(tx);
+        // const _settings = await this.getSettingsInTx(tx); // Unused: removed for now
 
         // 3-2. 현재 활성 지식 버전 및 해시 수집
         const knowledgeVersion = await this.getCurrentKnowledgeVersionInTx(tx);
@@ -108,11 +112,11 @@ export class EstimateService {
         const isSignatureValid = verifyEvidenceSignature({
           ...evidenceData,
           estimateId: 'temp',
-          createdAt: new Date(),
+          createdAt: new Date().toISOString(),
         });
 
         if (!isSignatureValid) {
-          throw errors.evidenceIntegrityError('증거 패키지 서명 검증 실패');
+          throw errors.internal('증거 패키지 서명 검증 실패');
         }
 
         // 3-5. 원자적 저장: Estimate + Evidence + AuditLog
@@ -261,7 +265,9 @@ export class EstimateService {
   // ABSTAIN 요청 처리
   // ========================================
 
-  private async handleAbstainRequest(request: EstimateRequest, error: any): Promise<void> {
+  // Commented out temporarily as unused
+  /*
+  private async _handleAbstainRequest(request: EstimateRequest, error: any): Promise<void> {
     // 일시적인 견적 생성 (status: failed)
     const estimate = await this.prisma.estimate.create({
       data: {
@@ -300,6 +306,7 @@ export class EstimateService {
       throw errors.accessoryConflict();
     }
   }
+  */
 
   // ========================================
   // 설정 조회
@@ -315,13 +322,14 @@ export class EstimateService {
           defaultForm: config.defaults.form,
           defaultLocation: config.defaults.location,
           defaultMount: config.defaults.mount,
-          rules: {
+          knowledgeVersion: 1, // Default knowledge version
+          rules: toJson({
             singleBrand: true,
             antiPoleMistake: true,
             allowMixedBrand: config.features.allowMixedBrand,
             require3Gates: true,
             economicByDefault: true,
-          },
+          }),
         },
       });
     }
@@ -332,7 +340,7 @@ export class EstimateService {
   // 트랜잭션용 헬퍼 메서드들
   // ========================================
 
-  private async getSettingsInTx(tx: PrismaClient) {
+  private async getSettingsInTx(tx: any) {
     const settings = await tx.setting.findFirst();
     if (!settings) {
       // 기본 설정 생성
@@ -342,27 +350,28 @@ export class EstimateService {
           defaultForm: config.defaults.form,
           defaultLocation: config.defaults.location,
           defaultMount: config.defaults.mount,
-          rules: {
+          knowledgeVersion: 1, // Default knowledge version
+          rules: toJson({
             singleBrand: true,
             antiPoleMistake: true,
             allowMixedBrand: config.features.allowMixedBrand,
             require3Gates: true,
             economicByDefault: true,
-          },
+          }),
         },
       });
     }
     return settings;
   }
 
-  private async getCurrentKnowledgeVersionInTx(tx: PrismaClient) {
+  private async getCurrentKnowledgeVersionInTx(tx: any) {
     const version = await tx.knowledgeVersion.findFirst({
       where: { active: true },
       include: { tables: true },
     });
 
     if (!version) {
-      throw errors.serverError('No active knowledge version found');
+      throw errors.internal('No active knowledge version found');
     }
 
     return version;

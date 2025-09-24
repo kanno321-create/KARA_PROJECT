@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { SettingsService } from '../services/settings.service.js';
 import { SettingsJSONSchema, SettingsUpdateJSONSchema } from '../lib/json-schemas.js';
-import { errors } from '../lib/errors.js';
+// import { errors } from '../lib/errors.js'; // Unused: removed
 
 // ============================================
 // 설정 라우트
@@ -102,7 +102,7 @@ export async function settingsRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    handler: async (request, reply) => {
+    handler: async (_request, reply) => {
       const exportData = await settingsService.exportSettings();
 
       reply

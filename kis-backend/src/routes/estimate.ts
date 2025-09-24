@@ -61,7 +61,7 @@ export async function estimateRoutes(fastify: FastifyInstance) {
         return {
           valid: result.isValid,
           resolved_brand: preGateResult.resolvedBrand,
-          knowledge_hits: result.knowledgeHits || [],
+          knowledge_hits: (result as any).knowledgeHits || [],
           warnings: result.warnings || [],
         };
       } catch (error: any) {

@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { AbstainService } from '../services/abstain.service.js';
 import { adminAuthMiddleware } from '../lib/security-middleware.js';
-import { errors } from '../lib/errors.js';
+// import { errors } from '../lib/errors.js'; // Unused: removed
 
 // ============================================
 // 관리자 라우트 (ABSTAIN 관리)

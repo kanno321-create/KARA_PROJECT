@@ -6,6 +6,7 @@ import { hotSwapKnowledge } from '../lib/size-tables-v2.js';
 // import { findDimensionKeyed } from '../lib/size-tables-v2.js'; // Unused: removed
 import { withTxn } from '../lib/with-txn.js';
 import { runGoldenRegression, saveRegressionReport } from '../regression/golden.js';
+import { toJson, fromJsonArray } from '../lib/json-utils.js';
 
 // ============================================
 // Admin Knowledge Management Routes
@@ -19,8 +20,8 @@ export async function adminKnowledgeRoutes(fastify: FastifyInstance) {
   fastify.addHook('preHandler', async (request, reply) => {
     const apiKey = request.headers['x-api-key'];
     if (!apiKey || apiKey !== process.env.ADMIN_API_KEY) {
-      reply.status(401);
-      return { code: 'UNAUTHORIZED', message: 'Valid X-API-Key required' };
+      reply.status(401).send({ code: 'UNAUTHORIZED', message: 'Valid X-API-Key required' });
+      return;
     }
   });
 
@@ -158,7 +159,7 @@ export async function adminKnowledgeRoutes(fastify: FastifyInstance) {
             actor: actor || 'unknown',
             format,
             payload: Buffer.from(data, 'utf-8'),
-            parsed: parsedRows,
+            parsed: toJson(parsedRows),
             summary: {
               total: parsedRows.length,
               valid: parsedRows.length,
@@ -198,7 +199,7 @@ export async function adminKnowledgeRoutes(fastify: FastifyInstance) {
           tableHashes: Object.values(tableHashes),
         };
       } catch (error: any) {
-        reply.status(500);
+        reply.status(422);
         return {
           code: 'IMPORT_ERROR',
           message: 'Import failed',
@@ -264,7 +265,7 @@ export async function adminKnowledgeRoutes(fastify: FastifyInstance) {
           };
         }
 
-        const parsedRows = staging.parsed as ParsedKnowledgeRow[];
+        const parsedRows = fromJsonArray<ParsedKnowledgeRow>(staging.parsed) || [];
         const errors: string[] = [];
         const samples: string[] = [];
 
@@ -320,11 +321,10 @@ export async function adminKnowledgeRoutes(fastify: FastifyInstance) {
           errors,
         };
       } catch (error: any) {
-        reply.status(500);
+        reply.status(404);
         return {
-          ok: false,
-          samples: [],
-          errors: [error.message],
+          code: 'VALIDATION_ERROR',
+          message: error.message,
         };
       }
     },
@@ -407,16 +407,16 @@ export async function adminKnowledgeRoutes(fastify: FastifyInstance) {
           });
 
           if (!staging) {
-            reply.status(404);
+            reply.status(409);
             throw new Error(`Staging record ${stagingId} not found`);
           }
 
           if (staging.status !== 'VALIDATED') {
-            reply.status(422);
+            reply.status(409);
             throw new Error(`Staging status is ${staging.status}, must be VALIDATED`);
           }
 
-          const parsedRows = staging.parsed as ParsedKnowledgeRow[];
+          const parsedRows = fromJsonArray<ParsedKnowledgeRow>(staging.parsed) || [];
 
           // Create new version
           const newVersion = await tx.knowledgeVersion.create({
@@ -512,7 +512,7 @@ export async function adminKnowledgeRoutes(fastify: FastifyInstance) {
           };
         });
       } catch (error: any) {
-        reply.status(500);
+        reply.status(409);
         throw error;
       } finally {
         activationLock = false;
@@ -606,7 +606,7 @@ export async function adminKnowledgeRoutes(fastify: FastifyInstance) {
           };
         });
       } catch (error: any) {
-        reply.status(500);
+        reply.status(404);
         throw error;
       }
     },

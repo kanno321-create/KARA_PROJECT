@@ -5,6 +5,7 @@
 
 import type { PrismaClient } from '@prisma/client';
 import { errors } from '../lib/errors.js';
+import { toError, toJson } from '../lib/json-utils.js';
 
 export interface AbstainRequest {
   estimateId?: string;
@@ -39,7 +40,7 @@ export class AbstainService {
 
       return abstain;
     } catch (error) {
-      throw errors.database('ABSTAIN 요청 생성 실패', error);
+      throw errors.internal(`ABSTAIN 요청 생성 실패: ${toError(error).message}`);
     }
   }
 
@@ -70,7 +71,7 @@ export class AbstainService {
 
       return abstains;
     } catch (error) {
-      throw errors.database('ABSTAIN 큐 조회 실패', error);
+      throw errors.internal(`ABSTAIN 큐 조회 실패: ${toError(error).message}`);
     }
   }
 
@@ -93,8 +94,9 @@ export class AbstainService {
 
       return abstain;
     } catch (error) {
-      if (error.statusCode) throw error;
-      throw errors.database('ABSTAIN 요청 조회 실패', error);
+      const err = toError(error);
+      if ((err as any).statusCode) throw error;
+      throw errors.internal(`ABSTAIN 요청 조회 실패: ${err.message}`);
     }
   }
 
@@ -107,10 +109,9 @@ export class AbstainService {
       const abstain = await this.getAbstainRequest(id);
 
       if (abstain.status !== 'pending') {
-        throw errors.validation(
-          'ABSTAIN_ALREADY_RESOLVED',
+        throw errors.conflict(
           `ABSTAIN 요청이 이미 ${abstain.status} 상태입니다`,
-          'status'
+          'status 필드를 확인해 주세요.'
         );
       }
 
@@ -119,7 +120,7 @@ export class AbstainService {
         where: { id },
         data: {
           status: 'resolved',
-          resolution: resolution,
+          resolution: toJson(resolution),
           resolvedAt: new Date(),
         },
       });
@@ -137,8 +138,9 @@ export class AbstainService {
 
       return updatedAbstain;
     } catch (error) {
-      if (error.statusCode) throw error;
-      throw errors.database('ABSTAIN 요청 해결 실패', error);
+      const err = toError(error);
+      if ((err as any).statusCode) throw error;
+      throw errors.internal(`ABSTAIN 요청 해결 실패: ${err.message}`);
     }
   }
 
@@ -151,10 +153,9 @@ export class AbstainService {
       const abstain = await this.getAbstainRequest(id);
 
       if (abstain.status !== 'pending') {
-        throw errors.validation(
-          'ABSTAIN_ALREADY_PROCESSED',
+        throw errors.conflict(
           `ABSTAIN 요청이 이미 ${abstain.status} 상태입니다`,
-          'status'
+          'status 필드를 확인해 주세요.'
         );
       }
 
@@ -162,15 +163,16 @@ export class AbstainService {
         where: { id },
         data: {
           status: 'ignored',
-          resolution: reason ? { reason } : null,
+          resolution: reason ? toJson({ reason }) : undefined,
           resolvedAt: new Date(),
         },
       });
 
       return updatedAbstain;
     } catch (error) {
-      if (error.statusCode) throw error;
-      throw errors.database('ABSTAIN 요청 무시 실패', error);
+      const err = toError(error);
+      if ((err as any).statusCode) throw error;
+      throw errors.internal(`ABSTAIN 요청 무시 실패: ${err.message}`);
     }
   }
 
@@ -211,7 +213,7 @@ export class AbstainService {
         })),
       };
     } catch (error) {
-      throw errors.database('ABSTAIN 통계 조회 실패', error);
+      throw errors.internal(`ABSTAIN 통계 조회 실패: ${toError(error).message}`);
     }
   }
 
