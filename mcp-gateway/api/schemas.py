@@ -84,3 +84,51 @@ class EventMessage(BaseModel):
     trace_id: str
     timestamp: str
     sequence: int
+
+# Estimate schemas
+class EstimateItem(BaseModel):
+    """Single item in an estimate"""
+    item_id: Optional[str] = None
+    description: str
+    quantity: float
+    unit_price: float
+    unit: Optional[str] = "EA"
+
+class EstimateRequest(BaseModel):
+    """Request for creating an estimate"""
+    items: List[Dict[str, Any]]
+    customer_id: Optional[str] = None
+    project_name: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+class EstimateResponse(BaseModel):
+    """Response for estimate creation"""
+    estimate_id: str
+    status: str
+    items: List[Dict[str, Any]]
+    total: float
+    created_at: str
+    created_by: str
+    trace_id: str
+
+# Validation schemas
+class ValidateRequest(BaseModel):
+    """Request for data validation"""
+    data_type: str  # "estimate", "invoice", "configuration"
+    data: Dict[str, Any]
+    rules: Optional[List[str]] = None
+
+class ValidationResult(BaseModel):
+    """Single validation result"""
+    field: str
+    error: str
+
+class ValidateResponse(BaseModel):
+    """Response for validation request"""
+    validation_id: str
+    is_valid: bool
+    validations: List[Dict[str, str]]
+    data_type: str
+    validated_at: str
+    validated_by: str
+    trace_id: str

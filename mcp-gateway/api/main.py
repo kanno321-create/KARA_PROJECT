@@ -1,8 +1,9 @@
 """
 MCP Gateway - FastAPI Application
 JSON-RPC 2.0 + WebSocket Support for KARA orchestration
+With JWT/HMAC authentication
 """
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Any, Dict, Optional
@@ -13,6 +14,8 @@ from datetime import datetime, timezone
 from .schemas import JobRequest, JobResult, JSONRPCRequest, JSONRPCResponse
 from .orchestrator import Orchestrator
 from .utils import utc_iso, generate_trace_id
+from .auth import get_auth_context, require_auth
+from .endpoints import router as v1_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -37,19 +40,25 @@ app.add_middleware(
 # Initialize orchestrator
 orchestrator = Orchestrator()
 
+# Include v1 endpoints with authentication
+app.include_router(v1_router)
+
 @app.get("/health")
 async def health_check():
-    """Health check endpoint for monitoring"""
+    """Public health check endpoint (no auth required)"""
     return {
         "status": "healthy",
         "version": "1.0.0",
         "timestamp": utc_iso(),
         "service": "mcp-gateway",
-        "environment": "development"
+        "auth": "not_required"
     }
 
 @app.post("/mcp/gateway")
-async def json_rpc_gateway(request: JSONRPCRequest) -> JSONRPCResponse:
+async def json_rpc_gateway(
+    request: JSONRPCRequest,
+    auth: Optional[Dict] = Depends(get_auth_context)
+) -> JSONRPCResponse:
     """JSON-RPC 2.0 gateway endpoint"""
     trace_id = generate_trace_id()
     logger.info(f"[{trace_id}] Received JSON-RPC request: {request.method}")
