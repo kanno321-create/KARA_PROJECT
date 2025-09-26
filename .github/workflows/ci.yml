@@ -232,12 +232,13 @@ jobs:
           npm run test:regression:report
           
       - name: 📤 Upload regression artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: regression-reports-${{ github.sha }}
           path: reports/regression/
           retention-days: 30
+        # migrated to v4 due to v3 deprecation (cutoff 2025-01-30)
 
   # Gate 6: WhyTrace Completeness (==1.0)
   whytrace-validation:
@@ -293,12 +294,13 @@ jobs:
           npm run test:whytrace:report
           
       - name: 📤 Upload WhyTrace artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: whytrace-reports-${{ github.sha }}
           path: reports/whytrace/
           retention-days: 30
+        # migrated to v4 due to v3 deprecation (cutoff 2025-01-30)
 
   # Final Integration Test
   integration:
@@ -363,12 +365,13 @@ jobs:
           echo "✅ Integration: Full system operational"
           
       - name: 📤 Upload final artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: integration-reports-${{ github.sha }}
           path: reports/
           retention-days: 30
+        # migrated to v4 due to v3 deprecation (cutoff 2025-01-30)
 
   # Deployment readiness check
   deployment-ready:
