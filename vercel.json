@@ -3,26 +3,26 @@
   "public": true,
   "builds": [
     {
-      "src": "api/index.py",
+      "src": "api/test.py",
       "use": "@vercel/python"
     }
   ],
   "rewrites": [
     {
       "source": "/health",
-      "destination": "/api/index"
+      "destination": "/api/test"
     },
     {
       "source": "/mcp/gateway",
-      "destination": "/api/index"
+      "destination": "/api/test"
     },
     {
       "source": "/v1/(.*)",
-      "destination": "/api/index"
+      "destination": "/api/test"
     },
     {
       "source": "/(.*)",
-      "destination": "/api/index"
+      "destination": "/api/test"
     }
   ],
   "regions": ["icn1"],
