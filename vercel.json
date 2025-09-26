@@ -1,28 +1,10 @@
 {
   "version": 2,
   "public": true,
-  "builds": [
-    {
-      "src": "api/hello.py",
-      "use": "@vercel/python"
-    }
-  ],
   "rewrites": [
     {
       "source": "/health",
-      "destination": "/api/hello"
-    },
-    {
-      "source": "/mcp/gateway",
-      "destination": "/api/hello"
-    },
-    {
-      "source": "/v1/(.*)",
-      "destination": "/api/hello"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/api/hello"
+      "destination": "/api/health"
     }
   ],
   "regions": ["icn1"],
