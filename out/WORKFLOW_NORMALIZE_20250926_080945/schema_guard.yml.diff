@@ -1,0 +1,717 @@
+--- /c/Users/PC/Desktop/KIS_CORE_V2/out/WORKFLOW_NORMALIZE_20250926_080945/schema_guard.yml.backup	2025-09-26 17:09:46.966683800 +0900
++++ /c/Users/PC/Desktop/KIS_CORE_V2/.github/workflows/schema_guard.yml	2025-09-26 17:09:47.036956800 +0900
+@@ -1,357 +1,357 @@
+-name: Schema Guard - Core Protection
+-
+-on:
+-  push:
+-    branches: [ main, develop ]
+-    paths:
+-      - 'ops/schemas/**'
+-  pull_request:
+-    branches: [ main, develop ]
+-    paths:
+-      - 'ops/schemas/**'
+-  schedule:
+-    # Daily integrity check at 6 AM UTC
+-    - cron: '0 6 * * *'
+-
+-env:
+-  NOTIFICATION_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_URL }}
+-  EMERGENCY_EMAIL: ${{ secrets.EMERGENCY_EMAIL }}
+-
+-jobs:
+-  schema-protection:
+-    name: Schema Integrity Protection
+-    runs-on: ubuntu-latest
+-    
+-    steps:
+-    - name: Checkout repository
+-      uses: actions/checkout@v4
+-      with:
+-        fetch-depth: 0
+-        token: ${{ secrets.GITHUB_TOKEN }}
+-    
+-    - name: Setup Node.js
+-      uses: actions/setup-node@v3
+-      with:
+-        node-version: '18'
+-    
+-    - name: Install dependencies
+-      run: |
+-        npm install -g ajv-cli ajv-formats crypto-js
+-        npm install crypto-js
+-    
+-    - name: Check Schema Modification Authority
+-      if: github.event_name == 'pull_request'
+-      run: |
+-        echo "🔒 Checking schema modification authority..."
+-        
+-        # Get list of modified schema files
+-        MODIFIED_SCHEMAS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep "ops/schemas/.*\.json$" || true)
+-        
+-        if [ -n "$MODIFIED_SCHEMAS" ]; then
+-          echo "Modified schema files detected:"
+-          echo "$MODIFIED_SCHEMAS"
+-          
+-          # Check if PR author is authorized for schema changes
+-          PR_AUTHOR="${{ github.actor }}"
+-          AUTHORIZED_USERS="ceo,cto,senior-architect,schema-admin"
+-          
+-          if echo "$AUTHORIZED_USERS" | grep -q "$PR_AUTHOR"; then
+-            echo "✅ $PR_AUTHOR is authorized for schema modifications"
+-          else
+-            echo "❌ $PR_AUTHOR is NOT authorized for schema modifications"
+-            echo "Schema changes require approval from: $AUTHORIZED_USERS"
+-            
+-            # Create review request
+-            gh api repos/${{ github.repository }}/pulls/${{ github.event.number }}/requested_reviewers \
+-              --method POST \
+-              --field reviewers='["cto","senior-architect"]' || true
+-            
+-            exit 1
+-          fi
+-        else
+-          echo "✅ No schema files modified"
+-        fi
+-      env:
+-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+-    
+-    - name: Validate Schema Integrity Hashes
+-      run: |
+-        echo "🔐 Validating schema integrity hashes..."
+-        
+-        # Calculate current hashes for all schemas
+-        for schema in ops/schemas/*.json; do
+-          if [ -f "$schema" ]; then
+-            CURRENT_HASH=$(sha256sum "$schema" | cut -d' ' -f1)
+-            SCHEMA_NAME=$(basename "$schema")
+-            echo "$SCHEMA_NAME: $CURRENT_HASH"
+-            
+-            # Store hash for comparison
+-            echo "$SCHEMA_NAME:$CURRENT_HASH" >> current_hashes.txt
+-          fi
+-        done
+-        
+-        # Check if baseline hashes exist
+-        if [ -f "ops/schema_hashes.baseline" ]; then
+-          echo "📋 Comparing against baseline hashes..."
+-          
+-          while IFS=: read -r schema_name expected_hash; do
+-            current_hash=$(grep "^$schema_name:" current_hashes.txt | cut -d: -f2)
+-            
+-            if [ "$current_hash" != "$expected_hash" ]; then
+-              echo "⚠️  Hash mismatch for $schema_name"
+-              echo "  Expected: $expected_hash"
+-              echo "  Current:  $current_hash"
+-              
+-              # Flag for manual review
+-              echo "$schema_name" >> modified_schemas.txt
+-            else
+-              echo "✅ $schema_name hash verified"
+-            fi
+-          done < ops/schema_hashes.baseline
+-          
+-          if [ -f "modified_schemas.txt" ]; then
+-            echo "❌ Schema integrity violations detected"
+-            cat modified_schemas.txt
+-            exit 1
+-          fi
+-        else
+-          echo "📝 Creating baseline hashes (first run)"
+-          cp current_hashes.txt ops/schema_hashes.baseline
+-        fi
+-    
+-    - name: Validate Breaking Changes
+-      run: |
+-        echo "🔍 Checking for breaking schema changes..."
+-        
+-        if [ "${{ github.event_name }}" = "pull_request" ]; then
+-          # Get previous version of schemas
+-          git checkout origin/${{ github.base_ref }} -- ops/schemas/ 2>/dev/null || true
+-          
+-          # Compare schemas for breaking changes
+-          for schema in ops/schemas/*.json; do
+-            if [ -f "$schema" ]; then
+-              SCHEMA_NAME=$(basename "$schema")
+-              
+-              # Switch back to current branch
+-              git checkout HEAD -- "$schema"
+-              
+-              echo "Checking $SCHEMA_NAME for breaking changes..."
+-              
+-              # Use ajv to validate backward compatibility
+-              # This is a simplified check - in production, use proper schema evolution tools
+-              node -e "
+-              const fs = require('fs');
+-              try {
+-                const oldSchema = JSON.parse(fs.readFileSync('$schema.old', 'utf8'));
+-                const newSchema = JSON.parse(fs.readFileSync('$schema', 'utf8'));
+-                
+-                // Check for removed required fields (breaking change)
+-                const oldRequired = oldSchema.required || [];
+-                const newRequired = newSchema.required || [];
+-                
+-                const removedRequired = oldRequired.filter(field => !newRequired.includes(field));
+-                if (removedRequired.length > 0) {
+-                  console.log('❌ Breaking change in $SCHEMA_NAME: Removed required fields:', removedRequired);
+-                  process.exit(1);
+-                }
+-                
+-                console.log('✅ $SCHEMA_NAME: No breaking changes detected');
+-              } catch (error) {
+-                console.log('ℹ️  $SCHEMA_NAME: New schema or parse error');
+-              }
+-              " || echo "⚠️  Could not validate $SCHEMA_NAME"
+-            fi
+-          done
+-        fi
+-    
+-    - name: Validate CEO Signature Requirement
+-      run: |
+-        echo "📝 Checking CEO signature requirements..."
+-        
+-        # Check for core SOT schema modifications
+-        CORE_SCHEMAS="sot_core.schema.json"
+-        MODIFIED_CORE=$(git diff --name-only origin/main...HEAD | grep -E "(sot_core|ai_estimation_core)" || true)
+-        
+-        if [ -n "$MODIFIED_CORE" ]; then
+-          echo "🔴 CRITICAL: Core SOT schema modifications detected"
+-          echo "Modified files: $MODIFIED_CORE"
+-          
+-          # Check for CEO signature in commit message or PR description
+-          COMMIT_MSG=$(git log --oneline -1)
+-          PR_BODY="${{ github.event.pull_request.body }}"
+-          
+-          if echo "$COMMIT_MSG $PR_BODY" | grep -i "ceo.*signature\|signed.*ceo"; then
+-            echo "✅ CEO signature reference found"
+-          else
+-            echo "❌ CEO signature required for SOT core modifications"
+-            echo "Please include CEO signature verification in PR description"
+-            
+-            # Create urgent notification
+-            curl -X POST "$NOTIFICATION_WEBHOOK" \
+-              -H "Content-Type: application/json" \
+-              -d '{
+-                "title": "🚨 URGENT: Core Schema Modification Without CEO Signature",
+-                "text": "Core SOT schema changes detected without CEO signature verification",
+-                "themeColor": "FF0000",
+-                "sections": [{
+-                  "facts": [
+-                    {"name": "Repository", "value": "${{ github.repository }}"},
+-                    {"name": "Branch", "value": "${{ github.ref_name }}"},
+-                    {"name": "Author", "value": "${{ github.actor }}"},
+-                    {"name": "Files", "value": "'"$MODIFIED_CORE"'"}
+-                  ]
+-                }]
+-              }' || true
+-            
+-            exit 1
+-          fi
+-        fi
+-    
+-    - name: Emergency Rollback Check
+-      run: |
+-        echo "🚨 Checking for emergency rollback conditions..."
+-        
+-        # Check for multiple schema failures
+-        FAILURE_COUNT=0
+-        
+-        # Count recent failed validations
+-        if [ -f "validation_failures.log" ]; then
+-          RECENT_FAILURES=$(grep "$(date +%Y-%m-%d)" validation_failures.log | wc -l)
+-          if [ "$RECENT_FAILURES" -gt 3 ]; then
+-            FAILURE_COUNT=$((FAILURE_COUNT + 1))
+-            echo "⚠️  Multiple validation failures today: $RECENT_FAILURES"
+-          fi
+-        fi
+-        
+-        # Check for schema corruption indicators
+-        for schema in ops/schemas/*.json; do
+-          if ! jq empty "$schema" 2>/dev/null; then
+-            FAILURE_COUNT=$((FAILURE_COUNT + 1))
+-            echo "❌ Schema corruption detected: $schema"
+-          fi
+-        done
+-        
+-        # Trigger emergency rollback if critical threshold reached
+-        if [ "$FAILURE_COUNT" -gt 2 ]; then
+-          echo "🚨 EMERGENCY: Critical schema failures detected (count: $FAILURE_COUNT)"
+-          echo "Triggering emergency rollback procedures..."
+-          
+-          # Create emergency issue
+-          gh issue create \
+-            --title "🚨 EMERGENCY: Schema Integrity Failure - Immediate Action Required" \
+-            --body "Critical schema failures detected. Count: $FAILURE_COUNT. Emergency rollback may be required." \
+-            --label "emergency,schema,critical" \
+-            --assignee "cto,senior-architect" || true
+-          
+-          # Set up emergency notification
+-          echo "EMERGENCY_ROLLBACK=true" >> $GITHUB_ENV
+-          
+-          exit 42  # Special exit code for emergency situations
+-        fi
+-      env:
+-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+-    
+-    - name: Update Schema Registry
+-      if: github.ref == 'refs/heads/main' && success()
+-      run: |
+-        echo "📝 Updating schema registry..."
+-        
+-        # Create schema registry entry
+-        cat > schema_registry.json << EOF
+-        {
+-          "update_timestamp": "$(date -Iseconds)",
+-          "commit_sha": "${{ github.sha }}",
+-          "branch": "${{ github.ref_name }}",
+-          "schemas": {
+-        EOF
+-        
+-        FIRST=true
+-        for schema in ops/schemas/*.json; do
+-          if [ -f "$schema" ]; then
+-            SCHEMA_NAME=$(basename "$schema" .json)
+-            SCHEMA_HASH=$(sha256sum "$schema" | cut -d' ' -f1)
+-            
+-            if [ "$FIRST" = true ]; then
+-              FIRST=false
+-            else
+-              echo "," >> schema_registry.json
+-            fi
+-            
+-            echo "    \"$SCHEMA_NAME\": {" >> schema_registry.json
+-            echo "      \"hash\": \"$SCHEMA_HASH\"," >> schema_registry.json
+-            echo "      \"last_modified\": \"$(date -Iseconds)\"" >> schema_registry.json
+-            echo -n "    }" >> schema_registry.json
+-          fi
+-        done
+-        
+-        echo "" >> schema_registry.json
+-        echo "  }" >> schema_registry.json
+-        echo "}" >> schema_registry.json
+-        
+-        # Commit registry update
+-        git config user.name "Schema Guard Bot"
+-        git config user.email "schema-guard@kis.co.kr"
+-        git add schema_registry.json
+-        git commit -m "chore: update schema registry" || echo "No changes to commit"
+-    
+-    - name: Generate Protection Report
+-      run: |
+-        echo "📊 Generating schema protection report..."
+-        
+-        cat > schema_protection_report.md << EOF
+-        # Schema Protection Report
+-        
+-        **Date**: $(date -Iseconds)
+-        **Trigger**: ${{ github.event_name }}
+-        **Branch**: ${{ github.ref_name }}
+-        **Author**: ${{ github.actor }}
+-        
+-        ## Protection Checks
+-        
+-        - ✅ Schema modification authority verified
+-        - ✅ Integrity hashes validated  
+-        - ✅ Breaking change analysis completed
+-        - ✅ CEO signature requirements checked
+-        - ✅ Emergency rollback conditions assessed
+-        
+-        ## Schema Status
+-        EOF
+-        
+-        for schema in ops/schemas/*.json; do
+-          if [ -f "$schema" ]; then
+-            SCHEMA_NAME=$(basename "$schema")
+-            SCHEMA_SIZE=$(stat -f%z "$schema" 2>/dev/null || stat -c%s "$schema")
+-            echo "- $SCHEMA_NAME: $SCHEMA_SIZE bytes" >> schema_protection_report.md
+-          fi
+-        done
+-        
+-        echo "
+-        ## Next Actions
+-        - Schema changes require PR review
+-        - SOT core changes require CEO signature
+-        - Emergency procedures documented and tested
+-        " >> schema_protection_report.md
+-    
+-    - name: Emergency Notification
+-      if: env.EMERGENCY_ROLLBACK == 'true'
+-      run: |
+-        echo "🚨 Sending emergency notifications..."
+-        
+-        # Send emergency email
+-        curl -X POST "https://api.emailservice.com/send" \
+-          -H "Authorization: Bearer ${{ secrets.EMAIL_API_KEY }}" \
+-          -H "Content-Type: application/json" \
+-          -d '{
+-            "to": "${{ env.EMERGENCY_EMAIL }}",
+-            "subject": "🚨 KIS M30 Schema Emergency - Immediate Action Required",
+-            "body": "Critical schema integrity failure detected. Repository: ${{ github.repository }}. Immediate investigation required."
+-          }' || true
+-        
+-        # Send Teams notification
+-        curl -X POST "$NOTIFICATION_WEBHOOK" \
+-          -H "Content-Type: application/json" \
+-          -d '{
+-            "title": "🚨 SCHEMA EMERGENCY - IMMEDIATE ACTION REQUIRED",
+-            "text": "Critical schema failures detected in KIS M30 v3.0",
+-            "themeColor": "FF0000"
++name: Schema Guard - Core Protection
++
++on:
++  push:
++    branches: [ main, develop ]
++    paths:
++      - 'ops/schemas/**'
++  pull_request:
++    branches: [ main, develop ]
++    paths:
++      - 'ops/schemas/**'
++  schedule:
++    # Daily integrity check at 6 AM UTC
++    - cron: '0 6 * * *'
++
++env:
++  NOTIFICATION_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_URL }}
++  EMERGENCY_EMAIL: ${{ secrets.EMERGENCY_EMAIL }}
++
++jobs:
++  schema-protection:
++    name: Schema Integrity Protection
++    runs-on: ubuntu-latest
++    
++    steps:
++    - name: Checkout repository
++      uses: actions/checkout@v4
++      with:
++        fetch-depth: 0
++        token: ${{ secrets.GITHUB_TOKEN }}
++    
++    - name: Setup Node.js
++      uses: actions/setup-node@v3
++      with:
++        node-version: '18'
++    
++    - name: Install dependencies
++      run: |
++        npm install -g ajv-cli ajv-formats crypto-js
++        npm install crypto-js
++    
++    - name: Check Schema Modification Authority
++      if: github.event_name == 'pull_request'
++      run: |
++        echo "🔒 Checking schema modification authority..."
++        
++        # Get list of modified schema files
++        MODIFIED_SCHEMAS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep "ops/schemas/.*\.json$" || true)
++        
++        if [ -n "$MODIFIED_SCHEMAS" ]; then
++          echo "Modified schema files detected:"
++          echo "$MODIFIED_SCHEMAS"
++          
++          # Check if PR author is authorized for schema changes
++          PR_AUTHOR="${{ github.actor }}"
++          AUTHORIZED_USERS="ceo,cto,senior-architect,schema-admin"
++          
++          if echo "$AUTHORIZED_USERS" | grep -q "$PR_AUTHOR"; then
++            echo "✅ $PR_AUTHOR is authorized for schema modifications"
++          else
++            echo "❌ $PR_AUTHOR is NOT authorized for schema modifications"
++            echo "Schema changes require approval from: $AUTHORIZED_USERS"
++            
++            # Create review request
++            gh api repos/${{ github.repository }}/pulls/${{ github.event.number }}/requested_reviewers \
++              --method POST \
++              --field reviewers='["cto","senior-architect"]' || true
++            
++            exit 1
++          fi
++        else
++          echo "✅ No schema files modified"
++        fi
++      env:
++        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
++    
++    - name: Validate Schema Integrity Hashes
++      run: |
++        echo "🔐 Validating schema integrity hashes..."
++        
++        # Calculate current hashes for all schemas
++        for schema in ops/schemas/*.json; do
++          if [ -f "$schema" ]; then
++            CURRENT_HASH=$(sha256sum "$schema" | cut -d' ' -f1)
++            SCHEMA_NAME=$(basename "$schema")
++            echo "$SCHEMA_NAME: $CURRENT_HASH"
++            
++            # Store hash for comparison
++            echo "$SCHEMA_NAME:$CURRENT_HASH" >> current_hashes.txt
++          fi
++        done
++        
++        # Check if baseline hashes exist
++        if [ -f "ops/schema_hashes.baseline" ]; then
++          echo "📋 Comparing against baseline hashes..."
++          
++          while IFS=: read -r schema_name expected_hash; do
++            current_hash=$(grep "^$schema_name:" current_hashes.txt | cut -d: -f2)
++            
++            if [ "$current_hash" != "$expected_hash" ]; then
++              echo "⚠️  Hash mismatch for $schema_name"
++              echo "  Expected: $expected_hash"
++              echo "  Current:  $current_hash"
++              
++              # Flag for manual review
++              echo "$schema_name" >> modified_schemas.txt
++            else
++              echo "✅ $schema_name hash verified"
++            fi
++          done < ops/schema_hashes.baseline
++          
++          if [ -f "modified_schemas.txt" ]; then
++            echo "❌ Schema integrity violations detected"
++            cat modified_schemas.txt
++            exit 1
++          fi
++        else
++          echo "📝 Creating baseline hashes (first run)"
++          cp current_hashes.txt ops/schema_hashes.baseline
++        fi
++    
++    - name: Validate Breaking Changes
++      run: |
++        echo "🔍 Checking for breaking schema changes..."
++        
++        if [ "${{ github.event_name }}" = "pull_request" ]; then
++          # Get previous version of schemas
++          git checkout origin/${{ github.base_ref }} -- ops/schemas/ 2>/dev/null || true
++          
++          # Compare schemas for breaking changes
++          for schema in ops/schemas/*.json; do
++            if [ -f "$schema" ]; then
++              SCHEMA_NAME=$(basename "$schema")
++              
++              # Switch back to current branch
++              git checkout HEAD -- "$schema"
++              
++              echo "Checking $SCHEMA_NAME for breaking changes..."
++              
++              # Use ajv to validate backward compatibility
++              # This is a simplified check - in production, use proper schema evolution tools
++              node -e "
++              const fs = require('fs');
++              try {
++                const oldSchema = JSON.parse(fs.readFileSync('$schema.old', 'utf8'));
++                const newSchema = JSON.parse(fs.readFileSync('$schema', 'utf8'));
++                
++                // Check for removed required fields (breaking change)
++                const oldRequired = oldSchema.required || [];
++                const newRequired = newSchema.required || [];
++                
++                const removedRequired = oldRequired.filter(field => !newRequired.includes(field));
++                if (removedRequired.length > 0) {
++                  console.log('❌ Breaking change in $SCHEMA_NAME: Removed required fields:', removedRequired);
++                  process.exit(1);
++                }
++                
++                console.log('✅ $SCHEMA_NAME: No breaking changes detected');
++              } catch (error) {
++                console.log('ℹ️  $SCHEMA_NAME: New schema or parse error');
++              }
++              " || echo "⚠️  Could not validate $SCHEMA_NAME"
++            fi
++          done
++        fi
++    
++    - name: Validate CEO Signature Requirement
++      run: |
++        echo "📝 Checking CEO signature requirements..."
++        
++        # Check for core SOT schema modifications
++        CORE_SCHEMAS="sot_core.schema.json"
++        MODIFIED_CORE=$(git diff --name-only origin/main...HEAD | grep -E "(sot_core|ai_estimation_core)" || true)
++        
++        if [ -n "$MODIFIED_CORE" ]; then
++          echo "🔴 CRITICAL: Core SOT schema modifications detected"
++          echo "Modified files: $MODIFIED_CORE"
++          
++          # Check for CEO signature in commit message or PR description
++          COMMIT_MSG=$(git log --oneline -1)
++          PR_BODY="${{ github.event.pull_request.body }}"
++          
++          if echo "$COMMIT_MSG $PR_BODY" | grep -i "ceo.*signature\|signed.*ceo"; then
++            echo "✅ CEO signature reference found"
++          else
++            echo "❌ CEO signature required for SOT core modifications"
++            echo "Please include CEO signature verification in PR description"
++            
++            # Create urgent notification
++            curl -X POST "$NOTIFICATION_WEBHOOK" \
++              -H "Content-Type: application/json" \
++              -d '{
++                "title": "🚨 URGENT: Core Schema Modification Without CEO Signature",
++                "text": "Core SOT schema changes detected without CEO signature verification",
++                "themeColor": "FF0000",
++                "sections": [{
++                  "facts": [
++                    {"name": "Repository", "value": "${{ github.repository }}"},
++                    {"name": "Branch", "value": "${{ github.ref_name }}"},
++                    {"name": "Author", "value": "${{ github.actor }}"},
++                    {"name": "Files", "value": "'"$MODIFIED_CORE"'"}
++                  ]
++                }]
++              }' || true
++            
++            exit 1
++          fi
++        fi
++    
++    - name: Emergency Rollback Check
++      run: |
++        echo "🚨 Checking for emergency rollback conditions..."
++        
++        # Check for multiple schema failures
++        FAILURE_COUNT=0
++        
++        # Count recent failed validations
++        if [ -f "validation_failures.log" ]; then
++          RECENT_FAILURES=$(grep "$(date +%Y-%m-%d)" validation_failures.log | wc -l)
++          if [ "$RECENT_FAILURES" -gt 3 ]; then
++            FAILURE_COUNT=$((FAILURE_COUNT + 1))
++            echo "⚠️  Multiple validation failures today: $RECENT_FAILURES"
++          fi
++        fi
++        
++        # Check for schema corruption indicators
++        for schema in ops/schemas/*.json; do
++          if ! jq empty "$schema" 2>/dev/null; then
++            FAILURE_COUNT=$((FAILURE_COUNT + 1))
++            echo "❌ Schema corruption detected: $schema"
++          fi
++        done
++        
++        # Trigger emergency rollback if critical threshold reached
++        if [ "$FAILURE_COUNT" -gt 2 ]; then
++          echo "🚨 EMERGENCY: Critical schema failures detected (count: $FAILURE_COUNT)"
++          echo "Triggering emergency rollback procedures..."
++          
++          # Create emergency issue
++          gh issue create \
++            --title "🚨 EMERGENCY: Schema Integrity Failure - Immediate Action Required" \
++            --body "Critical schema failures detected. Count: $FAILURE_COUNT. Emergency rollback may be required." \
++            --label "emergency,schema,critical" \
++            --assignee "cto,senior-architect" || true
++          
++          # Set up emergency notification
++          echo "EMERGENCY_ROLLBACK=true" >> $GITHUB_ENV
++          
++          exit 42  # Special exit code for emergency situations
++        fi
++      env:
++        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
++    
++    - name: Update Schema Registry
++      if: github.ref == 'refs/heads/main' && success()
++      run: |
++        echo "📝 Updating schema registry..."
++        
++        # Create schema registry entry
++        cat > schema_registry.json << EOF
++        {
++          "update_timestamp": "$(date -Iseconds)",
++          "commit_sha": "${{ github.sha }}",
++          "branch": "${{ github.ref_name }}",
++          "schemas": {
++        EOF
++        
++        FIRST=true
++        for schema in ops/schemas/*.json; do
++          if [ -f "$schema" ]; then
++            SCHEMA_NAME=$(basename "$schema" .json)
++            SCHEMA_HASH=$(sha256sum "$schema" | cut -d' ' -f1)
++            
++            if [ "$FIRST" = true ]; then
++              FIRST=false
++            else
++              echo "," >> schema_registry.json
++            fi
++            
++            echo "    \"$SCHEMA_NAME\": {" >> schema_registry.json
++            echo "      \"hash\": \"$SCHEMA_HASH\"," >> schema_registry.json
++            echo "      \"last_modified\": \"$(date -Iseconds)\"" >> schema_registry.json
++            echo -n "    }" >> schema_registry.json
++          fi
++        done
++        
++        echo "" >> schema_registry.json
++        echo "  }" >> schema_registry.json
++        echo "}" >> schema_registry.json
++        
++        # Commit registry update
++        git config user.name "Schema Guard Bot"
++        git config user.email "schema-guard@kis.co.kr"
++        git add schema_registry.json
++        git commit -m "chore: update schema registry" || echo "No changes to commit"
++    
++    - name: Generate Protection Report
++      run: |
++        echo "📊 Generating schema protection report..."
++        
++        cat > schema_protection_report.md << EOF
++        # Schema Protection Report
++        
++        **Date**: $(date -Iseconds)
++        **Trigger**: ${{ github.event_name }}
++        **Branch**: ${{ github.ref_name }}
++        **Author**: ${{ github.actor }}
++        
++        ## Protection Checks
++        
++        - ✅ Schema modification authority verified
++        - ✅ Integrity hashes validated  
++        - ✅ Breaking change analysis completed
++        - ✅ CEO signature requirements checked
++        - ✅ Emergency rollback conditions assessed
++        
++        ## Schema Status
++        EOF
++        
++        for schema in ops/schemas/*.json; do
++          if [ -f "$schema" ]; then
++            SCHEMA_NAME=$(basename "$schema")
++            SCHEMA_SIZE=$(stat -f%z "$schema" 2>/dev/null || stat -c%s "$schema")
++            echo "- $SCHEMA_NAME: $SCHEMA_SIZE bytes" >> schema_protection_report.md
++          fi
++        done
++        
++        echo "
++        ## Next Actions
++        - Schema changes require PR review
++        - SOT core changes require CEO signature
++        - Emergency procedures documented and tested
++        " >> schema_protection_report.md
++    
++    - name: Emergency Notification
++      if: env.EMERGENCY_ROLLBACK == 'true'
++      run: |
++        echo "🚨 Sending emergency notifications..."
++        
++        # Send emergency email
++        curl -X POST "https://api.emailservice.com/send" \
++          -H "Authorization: Bearer ${{ secrets.EMAIL_API_KEY }}" \
++          -H "Content-Type: application/json" \
++          -d '{
++            "to": "${{ env.EMERGENCY_EMAIL }}",
++            "subject": "🚨 KIS M30 Schema Emergency - Immediate Action Required",
++            "body": "Critical schema integrity failure detected. Repository: ${{ github.repository }}. Immediate investigation required."
++          }' || true
++        
++        # Send Teams notification
++        curl -X POST "$NOTIFICATION_WEBHOOK" \
++          -H "Content-Type: application/json" \
++          -d '{
++            "title": "🚨 SCHEMA EMERGENCY - IMMEDIATE ACTION REQUIRED",
++            "text": "Critical schema failures detected in KIS M30 v3.0",
++            "themeColor": "FF0000"
+           }' || true
+\ No newline at end of file

@@ -1,0 +1,12 @@
+{
+  "utc_ts": "20250926_080915",
+  "workflows_found": 14,
+  "normalized": 0,
+  "failed": 14,
+  "yamllint_issues": 14,
+  "artifacts": {
+    "checksums": "checksums.txt",
+    "yamllint_results": "yamllint_results.txt",
+    "normalize_log": "normalize.log"
+  }
+}

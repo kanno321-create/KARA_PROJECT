@@ -1,0 +1,81 @@
+--- /c/Users/PC/Desktop/KIS_CORE_V2/out/WORKFLOW_NORMALIZE_20250926_080945/unlock_gate.yml.backup	2025-09-26 17:09:48.312711200 +0900
++++ /c/Users/PC/Desktop/KIS_CORE_V2/.github/workflows/unlock_gate.yml	2025-09-26 17:09:48.384274500 +0900
+@@ -1,39 +1,39 @@
+-name: Unlock Production Gate
+-
+-on:
+-  workflow_dispatch:
+-  push:
+-    branches: [main, release/*]
+-
+-env:
+-  FEATURE_PROD_ENABLED: 0  # Must be 1 to pass
+-
+-jobs:
+-  verify_unlock:
+-    runs-on: ubuntu-latest
+-    steps:
+-      - uses: actions/checkout@v3
+-
+-      - name: Check Production Flag
+-        run: |
+-          if [ "$FEATURE_PROD_ENABLED" != "1" ]; then
+-            echo "❌ FEATURE_PROD_ENABLED is not 1"
+-            exit 1
+-          fi
+-
+-      - name: Setup Python
+-        uses: actions/setup-python@v4
+-        with:
+-          python-version: '3.10'
+-
+-      - name: Verify Unlock Requirements
+-        run: |
+-          python tools/verify_unlock.py
+-
+-      - name: Summary
+-        if: always()
+-        run: |
+-          echo "### Unlock Gate Status" >> $GITHUB_STEP_SUMMARY
+-          echo "- Production Flag: $FEATURE_PROD_ENABLED" >> $GITHUB_STEP_SUMMARY
+-          echo "- Verification: See logs above" >> $GITHUB_STEP_SUMMARY
++name: Unlock Production Gate
++
++on:
++  workflow_dispatch:
++  push:
++    branches: [main, release/*]
++
++env:
++  FEATURE_PROD_ENABLED: 0  # Must be 1 to pass
++
++jobs:
++  verify_unlock:
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v3
++
++      - name: Check Production Flag
++        run: |
++          if [ "$FEATURE_PROD_ENABLED" != "1" ]; then
++            echo "❌ FEATURE_PROD_ENABLED is not 1"
++            exit 1
++          fi
++
++      - name: Setup Python
++        uses: actions/setup-python@v4
++        with:
++          python-version: '3.10'
++
++      - name: Verify Unlock Requirements
++        run: |
++          python tools/verify_unlock.py
++
++      - name: Summary
++        if: always()
++        run: |
++          echo "### Unlock Gate Status" >> $GITHUB_STEP_SUMMARY
++          echo "- Production Flag: $FEATURE_PROD_ENABLED" >> $GITHUB_STEP_SUMMARY
++          echo "- Verification: See logs above" >> $GITHUB_STEP_SUMMARY
+           echo "**Note: This is dry-run mode**" >> $GITHUB_STEP_SUMMARY
+\ No newline at end of file

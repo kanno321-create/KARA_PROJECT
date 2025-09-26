@@ -16,6 +16,7 @@ from .orchestrator import Orchestrator
 from .utils import utc_iso, generate_trace_id
 from .auth import get_auth_context, require_auth
 from .endpoints import router as v1_router
+from .security import security_middleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -31,11 +32,14 @@ app = FastAPI(
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify exact origins
+    allow_origins=["https://kis.company.com", "https://mcp.kis.company.com"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# Add security middleware
+app.middleware("http")(security_middleware)
 
 # Initialize orchestrator
 orchestrator = Orchestrator()

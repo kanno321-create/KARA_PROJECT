@@ -1,0 +1,11 @@
+{
+  "utc_ts": "20250926_073635",
+  "first_run": false,
+  "allow_diff": "false",
+  "files_scanned": 0,
+  "added": 0,
+  "removed": 0,
+  "changed": 0,
+  "baseline_path": ".evidence/schema_hash/baseline_hashes.txt",
+  "current_path": ".evidence/schema_hash/current_hashes.txt"
+}

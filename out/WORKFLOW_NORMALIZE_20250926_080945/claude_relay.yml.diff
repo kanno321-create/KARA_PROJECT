@@ -1,0 +1,547 @@
+--- /c/Users/PC/Desktop/KIS_CORE_V2/out/WORKFLOW_NORMALIZE_20250926_080945/claude_relay.yml.backup	2025-09-26 17:09:46.146691700 +0900
++++ /c/Users/PC/Desktop/KIS_CORE_V2/.github/workflows/claude_relay.yml	2025-09-26 17:09:46.213686300 +0900
+@@ -1,272 +1,272 @@
+-name: 🤖 Claude Relay - Autonomous Code Assistant
+-
+-on:
+-  # 큐 파일 트리거
+-  push:
+-    paths:
+-      - 'queue/**'
+-    branches:
+-      - main
+-      - develop
+-      - 'feat/**'
+-      - 'chore/**'
+-  
+-  # 이슈 라벨 트리거
+-  issues:
+-    types: [labeled]
+-  
+-  # PR/이슈 코멘트 트리거
+-  issue_comment:
+-    types: [created]
+-  
+-  # 수동 실행
+-  workflow_dispatch:
+-    inputs:
+-      source_type:
+-        description: 'Source type (queue/issue/comment/manual)'
+-        required: false
+-        default: 'manual'
+-      dry_run:
+-        description: 'Force DRY-RUN mode'
+-        required: false
+-        default: 'false'
+-
+-permissions:
+-  contents: write
+-  issues: write
+-  pull-requests: write
+-  actions: read
+-
+-concurrency:
+-  group: claude-relay-${{ github.ref }}
+-  cancel-in-progress: true
+-
+-env:
+-  NODE_VERSION: '20'
+-  CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL || 'anthropic/claude-3.5-sonnet' }}
+-  RELAY_TIMEOUT_SEC: ${{ vars.RELAY_TIMEOUT_SEC || '300' }}
+-  MAX_TOKENS: ${{ vars.MAX_TOKENS || '8000' }}
+-
+-jobs:
+-  validate-and-relay:
+-    name: 🔍 Validate & Execute Claude Relay
+-    runs-on: ubuntu-latest
+-    
+-    steps:
+-      - name: 📥 Checkout Repository
+-        uses: actions/checkout@v4
+-        with:
+-          token: ${{ secrets.GITHUB_TOKEN }}
+-          fetch-depth: 0
+-      
+-      - name: 🟢 Setup Node.js
+-        uses: actions/setup-node@v4
+-        with:
+-          node-version: ${{ env.NODE_VERSION }}
+-          cache: 'npm'
+-      
+-      - name: 📦 Install Dependencies
+-        run: |
+-          npm ci
+-          # Install additional relay dependencies if needed
+-          cd ops/relay
+-          if [ -f package.json ]; then
+-            npm ci
+-          fi
+-      
+-      - name: 🔒 Check Security Secrets
+-        id: check_secrets
+-        run: |
+-          SECRETS_AVAILABLE="false"
+-          if [ -n "${{ secrets.OPENROUTER_API_KEY }}" ] || [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+-            SECRETS_AVAILABLE="true"
+-          fi
+-          echo "secrets_available=${SECRETS_AVAILABLE}" >> $GITHUB_OUTPUT
+-          echo "🔐 Secrets available: ${SECRETS_AVAILABLE}"
+-      
+-      - name: ✅ Validate Queue Files
+-        run: |
+-          echo "🔍 Validating queue files..."
+-          node ops/relay/validate_queue.js
+-        continue-on-error: true
+-      
+-      - name: 🤖 Execute Claude Relay
+-        id: relay_execution
+-        env:
+-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+-          GITHUB_EVENT_NAME: ${{ github.event_name }}
+-          GITHUB_EVENT_PATH: ${{ github.event_path }}
+-          GITHUB_SHA: ${{ github.sha }}
+-          GITHUB_REF: ${{ github.ref }}
+-          GITHUB_ACTOR: ${{ github.actor }}
+-          SECRETS_AVAILABLE: ${{ steps.check_secrets.outputs.secrets_available }}
+-          FORCE_DRY_RUN: ${{ github.event.inputs.dry_run }}
+-        run: |
+-          echo "🚀 Starting Claude Relay execution..."
+-          node ops/relay/claude_relay.js
+-        timeout-minutes: 30
+-      
+-      - name: 📁 Upload Relay Artifacts
+-        uses: actions/upload-artifact@v4
+-        if: always()
+-        with:
+-          name: claude-relay-results-${{ github.run_id }}
+-          path: |
+-            reports/claude_runs/**
+-            queue/rejected/**
+-          retention-days: 30
+-      
+-      - name: 📊 Upload Execution Logs
+-        uses: actions/upload-artifact@v4
+-        if: always()
+-        with:
+-          name: claude-relay-logs-${{ github.run_id }}
+-          path: |
+-            ops/relay/logs/**
+-          retention-days: 7
+-      
+-      - name: 💬 Post Results Comment
+-        if: github.event_name == 'issue_comment' || github.event_name == 'issues'
+-        uses: actions/github-script@v7
+-        with:
+-          script: |
+-            const fs = require('fs');
+-            const path = require('path');
+-            
+-            // Find latest result file
+-            const reportsDir = 'reports/claude_runs';
+-            let resultContent = '🤖 Claude Relay execution completed. Check artifacts for details.';
+-            
+-            try {
+-              if (fs.existsSync(reportsDir)) {
+-                const runs = fs.readdirSync(reportsDir);
+-                if (runs.length > 0) {
+-                  const latestRun = runs.sort().reverse()[0];
+-                  const resultPath = path.join(reportsDir, latestRun, 'result.md');
+-                  if (fs.existsSync(resultPath)) {
+-                    const content = fs.readFileSync(resultPath, 'utf8');
+-                    const summary = content.split('\n').slice(0, 20).join('\n');
+-                    resultContent = `## 🤖 Claude Relay Results\n\n${summary}\n\n[Full Report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+-                  }
+-                }
+-              }
+-            } catch (error) {
+-              console.log('Error reading result:', error.message);
+-            }
+-            
+-            const issue_number = context.issue.number;
+-            if (issue_number) {
+-              github.rest.issues.createComment({
+-                issue_number: issue_number,
+-                owner: context.repo.owner,
+-                repo: context.repo.repo,
+-                body: resultContent
+-              });
+-            }
+-      
+-      - name: 📢 Send Slack Notification
+-        if: always() && env.SLACK_WEBHOOK_URL
+-        env:
+-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+-        run: |
+-          STATUS="${{ job.status }}"
+-          COLOR="good"
+-          if [ "$STATUS" != "success" ]; then
+-            COLOR="danger"
+-          fi
+-          
+-          PAYLOAD=$(cat <<EOF
+-          {
+-            "attachments": [
+-              {
+-                "color": "$COLOR",
+-                "title": "🤖 Claude Relay Execution",
+-                "fields": [
+-                  {
+-                    "title": "Status",
+-                    "value": "$STATUS",
+-                    "short": true
+-                  },
+-                  {
+-                    "title": "Trigger",
+-                    "value": "${{ github.event_name }}",
+-                    "short": true
+-                  },
+-                  {
+-                    "title": "Actor",
+-                    "value": "${{ github.actor }}",
+-                    "short": true
+-                  },
+-                  {
+-                    "title": "Secrets",
+-                    "value": "${{ steps.check_secrets.outputs.secrets_available }}",
+-                    "short": true
+-                  }
+-                ],
+-                "footer": "KIS Claude Relay",
+-                "ts": $(date +%s),
+-                "actions": [
+-                  {
+-                    "type": "button",
+-                    "text": "View Run",
+-                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+-                  }
+-                ]
+-              }
+-            ]
+-          }
+-          EOF
+-          )
+-          
+-          curl -X POST -H 'Content-type: application/json' \
+-            --data "$PAYLOAD" \
+-            "$SLACK_WEBHOOK_URL" || echo "Slack notification failed"
+-      
+-      - name: 🚨 Create Missing Secrets Issue
+-        if: steps.check_secrets.outputs.secrets_available == 'false'
+-        uses: actions/github-script@v7
+-        with:
+-          script: |
+-            const title = '🔐 Claude Relay: Missing API Secrets';
+-            const body = `## ⚠️ Claude Relay DRY-RUN Mode
+-            
+-            Claude Relay is running in DRY-RUN mode because API secrets are missing.
+-            
+-            ### Required Secrets:
+-            - \`OPENROUTER_API_KEY\` OR \`ANTHROPIC_API_KEY\`
+-            - \`SLACK_WEBHOOK_URL\` (optional)
+-            
+-            ### To Enable Full Functionality:
+-            1. Go to Repository Settings → Secrets and Variables → Actions
+-            2. Add the required secrets
+-            3. Re-run the workflow or trigger a new relay request
+-            
+-            ### Current Status:
+-            - ✅ Queue validation: Working
+-            - ✅ File processing: Working  
+-            - ❌ AI model calls: DRY-RUN only
+-            - ❌ Slack notifications: Disabled
+-            
+-            **Auto-generated by Claude Relay on:** \`${{ github.run_id }}\`
+-            `;
+-            
+-            // Check if issue already exists
+-            const { data: issues } = await github.rest.issues.listForRepo({
+-              owner: context.repo.owner,
+-              repo: context.repo.repo,
+-              labels: 'claude-relay,missing-secrets',
+-              state: 'open'
+-            });
+-            
+-            if (issues.length === 0) {
+-              await github.rest.issues.create({
+-                owner: context.repo.owner,
+-                repo: context.repo.repo,
+-                title: title,
+-                body: body,
+-                labels: ['claude-relay', 'missing-secrets', 'configuration']
+-              });
++name: 🤖 Claude Relay - Autonomous Code Assistant
++
++on:
++  # 큐 파일 트리거
++  push:
++    paths:
++      - 'queue/**'
++    branches:
++      - main
++      - develop
++      - 'feat/**'
++      - 'chore/**'
++  
++  # 이슈 라벨 트리거
++  issues:
++    types: [labeled]
++  
++  # PR/이슈 코멘트 트리거
++  issue_comment:
++    types: [created]
++  
++  # 수동 실행
++  workflow_dispatch:
++    inputs:
++      source_type:
++        description: 'Source type (queue/issue/comment/manual)'
++        required: false
++        default: 'manual'
++      dry_run:
++        description: 'Force DRY-RUN mode'
++        required: false
++        default: 'false'
++
++permissions:
++  contents: write
++  issues: write
++  pull-requests: write
++  actions: read
++
++concurrency:
++  group: claude-relay-${{ github.ref }}
++  cancel-in-progress: true
++
++env:
++  NODE_VERSION: '20'
++  CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL || 'anthropic/claude-3.5-sonnet' }}
++  RELAY_TIMEOUT_SEC: ${{ vars.RELAY_TIMEOUT_SEC || '300' }}
++  MAX_TOKENS: ${{ vars.MAX_TOKENS || '8000' }}
++
++jobs:
++  validate-and-relay:
++    name: 🔍 Validate & Execute Claude Relay
++    runs-on: ubuntu-latest
++    
++    steps:
++      - name: 📥 Checkout Repository
++        uses: actions/checkout@v4
++        with:
++          token: ${{ secrets.GITHUB_TOKEN }}
++          fetch-depth: 0
++      
++      - name: 🟢 Setup Node.js
++        uses: actions/setup-node@v4
++        with:
++          node-version: ${{ env.NODE_VERSION }}
++          cache: 'npm'
++      
++      - name: 📦 Install Dependencies
++        run: |
++          npm ci
++          # Install additional relay dependencies if needed
++          cd ops/relay
++          if [ -f package.json ]; then
++            npm ci
++          fi
++      
++      - name: 🔒 Check Security Secrets
++        id: check_secrets
++        run: |
++          SECRETS_AVAILABLE="false"
++          if [ -n "${{ secrets.OPENROUTER_API_KEY }}" ] || [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
++            SECRETS_AVAILABLE="true"
++          fi
++          echo "secrets_available=${SECRETS_AVAILABLE}" >> $GITHUB_OUTPUT
++          echo "🔐 Secrets available: ${SECRETS_AVAILABLE}"
++      
++      - name: ✅ Validate Queue Files
++        run: |
++          echo "🔍 Validating queue files..."
++          node ops/relay/validate_queue.js
++        continue-on-error: true
++      
++      - name: 🤖 Execute Claude Relay
++        id: relay_execution
++        env:
++          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
++          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
++          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
++          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
++          GITHUB_EVENT_NAME: ${{ github.event_name }}
++          GITHUB_EVENT_PATH: ${{ github.event_path }}
++          GITHUB_SHA: ${{ github.sha }}
++          GITHUB_REF: ${{ github.ref }}
++          GITHUB_ACTOR: ${{ github.actor }}
++          SECRETS_AVAILABLE: ${{ steps.check_secrets.outputs.secrets_available }}
++          FORCE_DRY_RUN: ${{ github.event.inputs.dry_run }}
++        run: |
++          echo "🚀 Starting Claude Relay execution..."
++          node ops/relay/claude_relay.js
++        timeout-minutes: 30
++      
++      - name: 📁 Upload Relay Artifacts
++        uses: actions/upload-artifact@v4
++        if: always()
++        with:
++          name: claude-relay-results-${{ github.run_id }}
++          path: |
++            reports/claude_runs/**
++            queue/rejected/**
++          retention-days: 30
++      
++      - name: 📊 Upload Execution Logs
++        uses: actions/upload-artifact@v4
++        if: always()
++        with:
++          name: claude-relay-logs-${{ github.run_id }}
++          path: |
++            ops/relay/logs/**
++          retention-days: 7
++      
++      - name: 💬 Post Results Comment
++        if: github.event_name == 'issue_comment' || github.event_name == 'issues'
++        uses: actions/github-script@v7
++        with:
++          script: |
++            const fs = require('fs');
++            const path = require('path');
++            
++            // Find latest result file
++            const reportsDir = 'reports/claude_runs';
++            let resultContent = '🤖 Claude Relay execution completed. Check artifacts for details.';
++            
++            try {
++              if (fs.existsSync(reportsDir)) {
++                const runs = fs.readdirSync(reportsDir);
++                if (runs.length > 0) {
++                  const latestRun = runs.sort().reverse()[0];
++                  const resultPath = path.join(reportsDir, latestRun, 'result.md');
++                  if (fs.existsSync(resultPath)) {
++                    const content = fs.readFileSync(resultPath, 'utf8');
++                    const summary = content.split('\n').slice(0, 20).join('\n');
++                    resultContent = `## 🤖 Claude Relay Results\n\n${summary}\n\n[Full Report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
++                  }
++                }
++              }
++            } catch (error) {
++              console.log('Error reading result:', error.message);
++            }
++            
++            const issue_number = context.issue.number;
++            if (issue_number) {
++              github.rest.issues.createComment({
++                issue_number: issue_number,
++                owner: context.repo.owner,
++                repo: context.repo.repo,
++                body: resultContent
++              });
++            }
++      
++      - name: 📢 Send Slack Notification
++        if: always() && env.SLACK_WEBHOOK_URL
++        env:
++          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
++        run: |
++          STATUS="${{ job.status }}"
++          COLOR="good"
++          if [ "$STATUS" != "success" ]; then
++            COLOR="danger"
++          fi
++          
++          PAYLOAD=$(cat <<EOF
++          {
++            "attachments": [
++              {
++                "color": "$COLOR",
++                "title": "🤖 Claude Relay Execution",
++                "fields": [
++                  {
++                    "title": "Status",
++                    "value": "$STATUS",
++                    "short": true
++                  },
++                  {
++                    "title": "Trigger",
++                    "value": "${{ github.event_name }}",
++                    "short": true
++                  },
++                  {
++                    "title": "Actor",
++                    "value": "${{ github.actor }}",
++                    "short": true
++                  },
++                  {
++                    "title": "Secrets",
++                    "value": "${{ steps.check_secrets.outputs.secrets_available }}",
++                    "short": true
++                  }
++                ],
++                "footer": "KIS Claude Relay",
++                "ts": $(date +%s),
++                "actions": [
++                  {
++                    "type": "button",
++                    "text": "View Run",
++                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
++                  }
++                ]
++              }
++            ]
++          }
++          EOF
++          )
++          
++          curl -X POST -H 'Content-type: application/json' \
++            --data "$PAYLOAD" \
++            "$SLACK_WEBHOOK_URL" || echo "Slack notification failed"
++      
++      - name: 🚨 Create Missing Secrets Issue
++        if: steps.check_secrets.outputs.secrets_available == 'false'
++        uses: actions/github-script@v7
++        with:
++          script: |
++            const title = '🔐 Claude Relay: Missing API Secrets';
++            const body = `## ⚠️ Claude Relay DRY-RUN Mode
++            
++            Claude Relay is running in DRY-RUN mode because API secrets are missing.
++            
++            ### Required Secrets:
++            - \`OPENROUTER_API_KEY\` OR \`ANTHROPIC_API_KEY\`
++            - \`SLACK_WEBHOOK_URL\` (optional)
++            
++            ### To Enable Full Functionality:
++            1. Go to Repository Settings → Secrets and Variables → Actions
++            2. Add the required secrets
++            3. Re-run the workflow or trigger a new relay request
++            
++            ### Current Status:
++            - ✅ Queue validation: Working
++            - ✅ File processing: Working  
++            - ❌ AI model calls: DRY-RUN only
++            - ❌ Slack notifications: Disabled
++            
++            **Auto-generated by Claude Relay on:** \`${{ github.run_id }}\`
++            `;
++            
++            // Check if issue already exists
++            const { data: issues } = await github.rest.issues.listForRepo({
++              owner: context.repo.owner,
++              repo: context.repo.repo,
++              labels: 'claude-relay,missing-secrets',
++              state: 'open'
++            });
++            
++            if (issues.length === 0) {
++              await github.rest.issues.create({
++                owner: context.repo.owner,
++                repo: context.repo.repo,
++                title: title,
++                body: body,
++                labels: ['claude-relay', 'missing-secrets', 'configuration']
++              });
+             }
+\ No newline at end of file

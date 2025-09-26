@@ -1,0 +1,56 @@
+{
+  "version": 2,
+  "public": true,
+  "builds": [
+    {
+      "src": "mcp-gateway/api/main.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/health",
+      "destination": "/mcp-gateway/api/main.py"
+    },
+    {
+      "source": "/mcp/gateway",
+      "destination": "/mcp-gateway/api/main.py"
+    },
+    {
+      "source": "/v1/(.*)",
+      "destination": "/mcp-gateway/api/main.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/mcp-gateway/api/main.py"
+    }
+  ],
+  "regions": ["icn1"],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+=== ci.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+
+=== claude_relay.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+
+=== deploy.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+
+=== kis-audit.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+
+=== mcp-gateway-ci.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+
+=== schema_guard.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+
+=== schema_validation.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+
+=== slo_budget_guard.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+
+=== slo_collector.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+
+=== speckit_gate.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+
+=== supabase.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+
+=== supabase-deploy.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+
+=== unlock_gate.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+
+=== weekly_ops_summary.yml ===
+scripts/normalize_workflows.sh: line 125: yamllint: command not found
+FAIL
+

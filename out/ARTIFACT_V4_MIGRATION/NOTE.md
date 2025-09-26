@@ -1,0 +1,3 @@
+﻿Background: GitHub is deprecating `actions/{upload,download}-artifact@v3` (see https://github.blog/changelog/2024-04-16-deprecation-notice-v3-of-the-artifact-actions/ and https://github.blog/changelog/2024-11-05-notice-of-breaking-changes-for-github-actions/). All workflows now target `@v4` and carry an inline comment noting the mandated migration.
+Changes: Updated every `actions/upload-artifact` and `actions/download-artifact` invocation under `.github/workflows/` to `@v4` without touching existing inputs.
+Validation: `python -m yamllint .github/workflows` (fails: many pre-existing lint violations plus UnicodeDecodeError; captured in lint.log).
