@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import type { EstimateRequest, EstimateResponse } from '../lib/validators.js';
+import type { EstimateRequest, EstimateResponse, EstimateApiResponse } from '../lib/validators.js';
 // import type { EnclosureResult } from '../lib/validators.js'; // Unused: removed
 import { validateBrandRules } from '../lib/brand-rules.js';
 import { calculateEnclosureSize, validateMixedBrand } from '../lib/enclosure-rules.js';
@@ -9,6 +9,7 @@ import { withTxn } from '../lib/with-txn.js';
 import { errors } from '../lib/errors.js';
 import { config } from '../config.js';
 import { AbstainService } from './abstain.service.js';
+import { logDecision } from '../lib/observability.js';
 // import { getCurrentKnowledgeVersion } from '../lib/size-tables-v2.js'; // Unused: removed
 import { toJson, fromJsonObject, fromJsonArray } from '../lib/json-utils.js';
 // import { toError } from '../lib/json-utils.js'; // Unused: removed
@@ -19,9 +20,11 @@ import { toJson, fromJsonObject, fromJsonArray } from '../lib/json-utils.js';
 
 export class EstimateService {
   private abstainService: AbstainService;
+  private logger: any;
 
-  constructor(private prisma: PrismaClient) {
+  constructor(private prisma: PrismaClient, logger?: any) {
     this.abstainService = new AbstainService(prisma);
+    this.logger = logger || console;
   }
 
   // ========================================
@@ -56,9 +59,11 @@ export class EstimateService {
       };
 
     } catch (error: any) {
+      console.error('Validation error:', error);
       if (error.code) {
         validationErrors.push(error.message);
       } else {
+        console.error('Unknown validation error details:', error.message, error.stack);
         validationErrors.push('알 수 없는 검증 오류가 발생했습니다.');
       }
 
@@ -74,7 +79,7 @@ export class EstimateService {
   // 견적 생성
   // ========================================
 
-  async createEstimate(request: EstimateRequest): Promise<EstimateResponse> {
+  async createEstimate(request: EstimateRequest, requestId: string = 'unknown', startTime: number = Date.now()): Promise<EstimateApiResponse> {
     // 단계 1: 입력 정규화 (트랜잭션 외부)
     const normalizedInput = normalizeRequestBody(request);
 
@@ -90,8 +95,37 @@ export class EstimateService {
         // 3-1. 설정 조회
         // const _settings = await this.getSettingsInTx(tx); // Unused: removed for now
 
-        // 3-2. 현재 활성 지식 버전 및 해시 수집
-        const knowledgeVersion = await this.getCurrentKnowledgeVersionInTx(tx);
+        // 3-2. 현재 활성 지식 버전 확인
+        const knowledgeResult = await this.getCurrentKnowledgeVersionInTx(tx);
+        if (!knowledgeResult.ok && knowledgeResult.reason === 'NO_ACTIVE_KNOWLEDGE') {
+          // 지식 부재 → 200 + ABSTAIN 반환
+          const response = {
+            decision: 'ABSTAIN' as const,
+            reasons: ['no active knowledge version'],
+            hints: ['activate knowledge via /v1/knowledge/activate or seed default pack'],
+            metadata: {
+              stage: 'knowledge' as const,
+              status: 'absent',
+              requestId: requestId
+            }
+          };
+
+          // 관측지표 기록
+          logDecision(this.logger, {
+            stage: 'knowledge',
+            decision: 'ABSTAIN',
+            reason: 'no_active_knowledge_version',
+            requestId,
+            latency_ms: Date.now() - startTime,
+            http_status: 200,
+            metadata: { knowledge_status: 'absent' }
+          });
+
+          return response;
+        }
+
+        // 지식 버전 해시 수집 (타입 가드 이미 통과함)
+        const knowledgeVersion = (knowledgeResult as { ok: true; kv: any }).kv;
         const tableHashes = await this.getTableHashesInTx(tx, knowledgeVersion.id);
 
         // 3-3. 외함 크기 계산 또는 ABSTAIN
@@ -151,8 +185,28 @@ export class EstimateService {
         // 감사 로그 생성
         await this.createAuditLogInTx(tx, 'CREATE_ESTIMATE', request, 'success');
 
-        // 6. 응답 변환
-        return this.toEstimateResponse(estimate);
+        // 6. 응답 변환 - OK decision으로 감싸기
+        const response = {
+          decision: 'OK' as const,
+          estimate: this.toEstimateResponse(estimate)
+        };
+
+        // 관측지표 기록
+        logDecision(this.logger, {
+          stage: 'calculation',
+          decision: 'OK',
+          reason: 'estimate_created_successfully',
+          requestId,
+          latency_ms: Date.now() - startTime,
+          http_status: 200,
+          metadata: {
+            estimate_id: estimate.id,
+            brand: estimate.brand,
+            enclosure_calculated: true
+          }
+        });
+
+        return response;
 
       } catch (error: any) {
         // 감사 로그 (실패) - 트랜잭션 내에서
@@ -368,17 +422,23 @@ export class EstimateService {
   }
   */
 
-  private async getCurrentKnowledgeVersionInTx(tx: any) {
+  private async getCurrentKnowledgeVersionInTx(tx: any): Promise<{
+    ok: true;
+    kv: any;
+  } | {
+    ok: false;
+    reason: 'NO_ACTIVE_KNOWLEDGE';
+  }> {
     const version = await tx.knowledgeVersion.findFirst({
       where: { active: true },
       include: { tables: true },
     });
 
     if (!version) {
-      throw errors.internal('No active knowledge version found');
+      return { ok: false, reason: 'NO_ACTIVE_KNOWLEDGE' };
     }
 
-    return version;
+    return { ok: true, kv: version };
   }
 
   private async getTableHashesInTx(tx: PrismaClient, versionId: number): Promise<Record<string, string>> {

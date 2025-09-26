@@ -1,8 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import { EstimateService } from '../services/estimate.service.js';
 import { EstimateRequestJSONSchema, EstimateResponseJSONSchema } from '../lib/json-schemas.js';
+import { EstimateApiResponseJSONSchema } from '../lib/json-schemas-extended.js';
 import { handleIdempotencyStart, handleIdempotencyFinish } from '../lib/idempotency.js';
 import { normalizeResponse } from '../lib/normalize.js';
+// import { logError } from '../lib/observability.js';
 import { errors } from '../lib/errors.js';
 import { preGateEstimateInput } from '../lib/pre-gates.js';
 
@@ -10,8 +12,26 @@ import { preGateEstimateInput } from '../lib/pre-gates.js';
 // 견적 라우트
 // ============================================
 
+/**
+ * Normalize poles field: number -> string (temporary compatibility)
+ * Standard contract: "2P"|"3P"|"4P"
+ * Compatibility: 2|3|4 -> "2P"|"3P"|"4P"
+ */
+function normalizePoles(body: any): void {
+  if (body.main?.poles && typeof body.main.poles === 'number') {
+    body.main.poles = `${body.main.poles}P`;
+  }
+  if (body.branches && Array.isArray(body.branches)) {
+    body.branches.forEach((branch: any) => {
+      if (branch.poles && typeof branch.poles === 'number') {
+        branch.poles = `${branch.poles}P`;
+      }
+    });
+  }
+}
+
 export async function estimateRoutes(fastify: FastifyInstance) {
-  const estimateService = new EstimateService(fastify.prisma);
+  const estimateService = new EstimateService(fastify.prisma, fastify.log);
 
   // ========================================
   // POST /v1/estimate/validate - 견적 검증
@@ -44,6 +64,9 @@ export async function estimateRoutes(fastify: FastifyInstance) {
       },
     },
     handler: async (request, reply) => {
+      // Normalize poles: number -> string (compatibility layer)
+      normalizePoles(request.body as any);
+
       // Pre-Gate 검증 (서비스 호출 전)
       const preGateResult = preGateEstimateInput(request.body);
       if (!preGateResult.ok) {
@@ -85,7 +108,7 @@ export async function estimateRoutes(fastify: FastifyInstance) {
       tags: ['estimate'],
       body: EstimateRequestJSONSchema,
       response: {
-        201: EstimateResponseJSONSchema,
+        200: EstimateApiResponseJSONSchema,
         409: {
           type: 'object',
           properties: {
@@ -106,11 +129,18 @@ export async function estimateRoutes(fastify: FastifyInstance) {
       },
     },
     handler: async (request, reply) => {
+      // 0. 요청 추적 정보
+      const startTime = Date.now();
+      const requestId = request.headers['x-request-id'] as string || `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
       // 1. 멱등성 키 추출
       const idempotencyKey = request.headers['idempotency-key'] as string;
       const actor = request.headers['x-kis-actor'] as string;
 
-      // 2. Pre-Gate 검증 (서비스 호출 전)
+      // 2. Normalize poles: number -> string (compatibility layer)
+      normalizePoles(request.body as any);
+
+      // 3. Pre-Gate 검증 (서비스 호출 전)
       const preGateResult = preGateEstimateInput(request.body);
       if (!preGateResult.ok) {
         reply.status(422);
@@ -123,7 +153,7 @@ export async function estimateRoutes(fastify: FastifyInstance) {
       }
 
       try {
-        // 3. 멱등성 처리 시작
+        // 4. 멱등성 처리 시작
         const idempotencyResult = await handleIdempotencyStart(fastify.prisma, {
           key: idempotencyKey,
           scope: 'POST /v1/estimate/create',
@@ -133,12 +163,12 @@ export async function estimateRoutes(fastify: FastifyInstance) {
 
         // 4. 멱등성 재생 모드
         if (idempotencyResult.mode === 'REPLAY') {
-          reply.status(201);
+          reply.status(200);
           return idempotencyResult.response;
         }
 
         // 5. 바이패스 또는 신규 저장 모드
-        const estimate = await estimateService.createEstimate(request.body as any);
+        const estimate = await estimateService.createEstimate(request.body as any, requestId, startTime);
 
         // 6. 멱등성 완료 처리 (신규 저장 모드만)
         if (idempotencyResult.mode === 'STORE') {
@@ -149,7 +179,7 @@ export async function estimateRoutes(fastify: FastifyInstance) {
           });
         }
 
-        reply.status(201);
+        reply.status(200);
         return estimate;
       } catch (error: any) {
         if (error.statusCode === 409 && error.code === 'IDEMPOTENCY_BODY_MISMATCH') {

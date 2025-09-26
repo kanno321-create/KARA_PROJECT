@@ -1,0 +1,5 @@
+url: https://kis-project.vercel.app
+health: FAIL (404 / DEPLOYMENT_NOT_FOUND)
+ping: FAIL
+latest_deploy: NA
+time: 2025-01-24T11:07:41Z

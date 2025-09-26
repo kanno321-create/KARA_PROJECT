@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIS ERP - AI 견적 시스템</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .sidebar-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .chat-message {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .typing-indicator {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .work-panel-slide {
+            transition: transform 0.3s ease-out;
+        }
+
+        .work-panel-slide.open {
+            transform: translateX(0);
+        }
+
+        .work-panel-slide.closed {
+            transform: translateX(100%);
+        }
+
+        /* 다크모드 지원 */
+        .dark {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .dark .bg-white { background-color: #1e293b; }
+        .dark .text-gray-900 { color: #e2e8f0; }
+        .dark .text-gray-600 { color: #94a3b8; }
+        .dark .border-gray-200 { border-color: #334155; }
+        .dark .bg-gray-100 { background-color: #334155; }
+        .dark .bg-gray-50 { background-color: #1e293b; }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen overflow-hidden">
+
+    <!-- 메인 컨테이너 -->
+    <div class="flex h-full">
+
+        <!-- 사이드바 -->
+        <div id="sidebar" class="sidebar-transition w-80 bg-white border-r border-gray-200 flex flex-col">
+            <!-- 사이드바 헤더 -->
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-lg font-semibold text-gray-900">KIS ERP</h1>
+                    <button id="sidebarToggle" class="p-1 hover:bg-gray-100 rounded">
+                        <i data-lucide="panel-left-close" class="w-4 h-4 text-gray-600"></i>
+                    </button>
+                </div>
+
+                <!-- 새 채팅/프로젝트 버튼 -->
+                <div class="mt-4 space-y-2">
+                    <button id="newChatBtn" class="w-full flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        새 채팅
+                    </button>
+                    <button id="newProjectBtn" class="w-full flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="folder-plus" class="w-4 h-4"></i>
+                        새 프로젝트
+                    </button>
+                </div>
+            </div>
+
+            <!-- 네비게이션 메뉴 -->
+            <div class="flex-1 p-4 overflow-y-auto">
+                <nav class="space-y-1">
+                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">메뉴</div>
+                    <button class="nav-item active w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg" data-view="hero">
+                        <i data-lucide="bot" class="w-4 h-4"></i>
+                        AI 매니저
+                    </button>
+                    <button class="nav-item w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg" data-view="chat">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        채팅
+                    </button>
+                    <button class="nav-item w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg" data-view="projects">
+                        <i data-lucide="folder" class="w-4 h-4"></i>
+                        프로젝트
+                    </button>
+                    <button class="nav-item w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg" data-view="quote">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                        견적서
+                    </button>
+                    <button class="nav-item w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg" data-view="erp">
+                        <i data-lucide="building" class="w-4 h-4"></i>
+                        ERP 시스템
+                    </button>
+                </nav>
+
+                <!-- 최근 채팅 -->
+                <div class="mt-6">
+                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">최근 채팅</div>
+                    <div id="recentChats" class="space-y-1">
+                        <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                            <i data-lucide="message-circle" class="w-3 h-3 text-gray-400"></i>
+                            <span class="text-sm text-gray-700 truncate">철골 구조 견적 문의</span>
+                        </div>
+                        <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                            <i data-lucide="message-circle" class="w-3 h-3 text-gray-400"></i>
+                            <span class="text-sm text-gray-700 truncate">건축 자재 단가 조회</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 최근 프로젝트 -->
+                <div class="mt-6">
+                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">최근 프로젝트</div>
+                    <div id="recentProjects" class="space-y-1">
+                        <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                            <i data-lucide="folder" class="w-3 h-3 text-gray-400"></i>
+                            <span class="text-sm text-gray-700 truncate">부산 공장 신축</span>
+                        </div>
+                        <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                            <i data-lucide="folder" class="w-3 h-3 text-gray-400"></i>
+                            <span class="text-sm text-gray-700 truncate">서울 오피스 리모델링</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 계정 메뉴 -->
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                        <span class="text-xs text-white font-medium">KIS</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium text-gray-900">KIS 사용자</div>
+                        <div class="text-xs text-gray-500">kis@example.com</div>
+                    </div>
+                    <button id="settingsBtn" class="p-1 hover:bg-gray-100 rounded">
+                        <i data-lucide="settings" class="w-4 h-4 text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <div class="flex-1 flex flex-col">
+
+            <!-- 헤더 -->
+            <header class="bg-white border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <button id="sidebarToggleMain" class="p-2 hover:bg-gray-100 rounded-lg sidebar-hidden">
+                            <i data-lucide="panel-left-open" class="w-4 h-4 text-gray-600"></i>
+                        </button>
+                        <h2 id="pageTitle" class="text-lg font-semibold text-gray-900">AI 매니저</h2>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button id="workPanelToggle" class="flex items-center gap-2 px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i data-lucide="layout-panel-left" class="w-4 h-4"></i>
+                            작업 패널
+                        </button>
+                        <button id="darkModeToggle" class="p-2 hover:bg-gray-100 rounded-lg">
+                            <i data-lucide="moon" class="w-4 h-4 text-gray-600"></i>
+                        </button>
+                        <button class="p-2 hover:bg-gray-100 rounded-lg">
+                            <i data-lucide="maximize-2" class="w-4 h-4 text-gray-600"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 콘텐츠 영역 -->
+            <main class="flex-1 overflow-hidden">
+
+                <!-- 히어로 섹션 (기본 화면) -->
+                <div id="heroView" class="view-content h-full flex flex-col items-center justify-center p-8">
+                    <div class="text-center max-w-2xl">
+                        <h1 class="text-4xl font-bold text-gray-900 mb-4">KIS ERP AI 견적 시스템</h1>
+                        <p class="text-lg text-gray-600 mb-8">AI 기반 산업 견적 및 ERP 관리 시스템입니다. 정확한 견적과 효율적인 프로젝트 관리를 경험하세요.</p>
+
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <button class="p-6 border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all group">
+                                <i data-lucide="calculator" class="w-8 h-8 text-blue-600 mx-auto mb-3"></i>
+                                <h3 class="font-semibold text-gray-900 mb-2">AI 견적 생성</h3>
+                                <p class="text-sm text-gray-600">지능형 알고리즘으로 정확한 견적을 생성합니다</p>
+                            </button>
+                            <button class="p-6 border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all group">
+                                <i data-lucide="chart-line" class="w-8 h-8 text-green-600 mx-auto mb-3"></i>
+                                <h3 class="font-semibold text-gray-900 mb-2">프로젝트 분석</h3>
+                                <p class="text-sm text-gray-600">프로젝트 진행 상황과 수익성을 분석합니다</p>
+                            </button>
+                            <button class="p-6 border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all group">
+                                <i data-lucide="database" class="w-8 h-8 text-purple-600 mx-auto mb-3"></i>
+                                <h3 class="font-semibold text-gray-900 mb-2">ERP 통합</h3>
+                                <p class="text-sm text-gray-600">기존 ERP 시스템과 완벽하게 통합됩니다</p>
+                            </button>
+                            <button class="p-6 border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all group">
+                                <i data-lucide="shield-check" class="w-8 h-8 text-orange-600 mx-auto mb-3"></i>
+                                <h3 class="font-semibold text-gray-900 mb-2">안전망 시스템</h3>
+                                <p class="text-sm text-gray-600">7단계 안전망으로 신뢰성을 보장합니다</p>
+                            </button>
+                        </div>
+
+                        <button id="startChatFromHero" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            지금 시작하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 채팅 화면 -->
+                <div id="chatView" class="view-content hidden h-full flex flex-col">
+                    <div id="chatContainer" class="flex-1 overflow-y-auto p-6 space-y-4">
+                        <div class="text-center text-gray-500 text-sm mb-8">
+                            오늘 - 2025년 9월 25일
+                        </div>
+
+                        <!-- 채팅 메시지들이 동적으로 추가됩니다 -->
+                        <div id="messages"></div>
+
+                        <!-- 타이핑 인디케이터 -->
+                        <div id="typingIndicator" class="hidden">
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+                                </div>
+                                <div class="bg-white rounded-lg p-3 shadow-sm typing-indicator">
+                                    <div class="flex items-center gap-1">
+                                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
+                                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 채팅 입력 -->
+                    <div class="border-t border-gray-200 p-4">
+                        <div class="flex items-end gap-3">
+                            <div class="flex-1 relative">
+                                <textarea
+                                    id="chatInput"
+                                    placeholder="메시지를 입력하세요..."
+                                    class="w-full resize-none border border-gray-200 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    rows="1"></textarea>
+                                <button id="sendButton" class="absolute right-2 bottom-2 p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 프로젝트 화면 -->
+                <div id="projectsView" class="view-content hidden h-full overflow-y-auto p-6">
+                    <div class="max-w-6xl mx-auto">
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">프로젝트 관리</h2>
+                            <p class="text-gray-600">진행 중인 프로젝트와 견적서를 관리합니다.</p>
+                        </div>
+
+                        <!-- 프로젝트 카드들 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i data-lucide="building" class="w-5 h-5 text-blue-600"></i>
+                                    </div>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">진행중</span>
+                                </div>
+                                <h3 class="font-semibold text-gray-900 mb-2">부산 공장 신축</h3>
+                                <p class="text-gray-600 text-sm mb-4">철골구조 공장 건설 프로젝트</p>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-500">예산: ₩15억</span>
+                                    <span class="text-gray-500">75% 완료</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                        <i data-lucide="home" class="w-5 h-5 text-orange-600"></i>
+                                    </div>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">검토중</span>
+                                </div>
+                                <h3 class="font-semibold text-gray-900 mb-2">서울 오피스 리모델링</h3>
+                                <p class="text-gray-600 text-sm mb-4">사무실 인테리어 공사</p>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-500">예산: ₩3억</span>
+                                    <span class="text-gray-500">25% 완료</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 견적서 화면 -->
+                <div id="quoteView" class="view-content hidden h-full overflow-y-auto p-6">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">견적서 관리</h2>
+                            <p class="text-gray-600">AI 기반 자동 견적 생성 및 관리 시스템</p>
+                        </div>
+
+                        <!-- 견적서 생성 폼 -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">새 견적서 생성</h3>
+                            <form class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">프로젝트명</label>
+                                        <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">고객사</label>
+                                        <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">프로젝트 설명</label>
+                                    <textarea rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                    AI 견적 생성
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- 최근 견적서 목록 -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-lg font-semibold text-gray-900">최근 견적서</h3>
+                            </div>
+                            <div class="divide-y divide-gray-200">
+                                <div class="p-6 hover:bg-gray-50">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">부산 공장 신축 견적</h4>
+                                            <p class="text-sm text-gray-600">현대건설 • 2025.09.20</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="font-semibold text-gray-900">₩15억 2천만원</div>
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">승인됨</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-6 hover:bg-gray-50">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">서울 오피스 리모델링</h4>
+                                            <p class="text-sm text-gray-600">삼성물산 • 2025.09.18</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="font-semibold text-gray-900">₩3억 5천만원</div>
+                                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">검토중</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ERP 시스템 화면 -->
+                <div id="erpView" class="view-content hidden h-full overflow-y-auto p-6">
+                    <div class="max-w-6xl mx-auto">
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">ERP 시스템</h2>
+                            <p class="text-gray-600">통합 기업 자원 관리 시스템</p>
+                        </div>
+
+                        <!-- ERP 대시보드 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-600">총 매출</p>
+                                        <p class="text-2xl font-bold text-gray-900">₩42억</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                        <i data-lucide="trending-up" class="w-6 h-6 text-green-600"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-green-600 mt-2">+12% 전월 대비</p>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-600">진행 프로젝트</p>
+                                        <p class="text-2xl font-bold text-gray-900">18개</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <i data-lucide="folder" class="w-6 h-6 text-blue-600"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-blue-600 mt-2">+3개 신규</p>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-600">대기 견적</p>
+                                        <p class="text-2xl font-bold text-gray-900">7개</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                        <i data-lucide="file-text" class="w-6 h-6 text-orange-600"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-orange-600 mt-2">검토 필요</p>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-600">팀 구성원</p>
+                                        <p class="text-2xl font-bold text-gray-900">24명</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                        <i data-lucide="users" class="w-6 h-6 text-purple-600"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-purple-600 mt-2">활성 사용자</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 작업 패널 -->
+        <div id="workPanel" class="work-panel-slide closed fixed right-0 top-0 h-full w-96 bg-white border-l border-gray-200 shadow-lg z-50">
+            <div class="h-full flex flex-col">
+                <!-- 작업 패널 헤더 -->
+                <div class="p-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">작업 패널</h3>
+                        <button id="closeWorkPanel" class="p-1 hover:bg-gray-100 rounded">
+                            <i data-lucide="x" class="w-4 h-4 text-gray-600"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 작업 내용 -->
+                <div class="flex-1 p-4 overflow-y-auto">
+                    <div class="text-center text-gray-500 py-8">
+                        <i data-lucide="clipboard" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
+                        <p>진행 중인 작업이 없습니다</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 전역 변수
+        let sidebarExpanded = true;
+        let currentView = 'hero';
+        let messages = [];
+        let isDarkMode = false;
+        let workPanelOpen = false;
+
+        // DOM 요소
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarToggleMain = document.getElementById('sidebarToggleMain');
+        const pageTitle = document.getElementById('pageTitle');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const messagesContainer = document.getElementById('messages');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const workPanel = document.getElementById('workPanel');
+        const workPanelToggle = document.getElementById('workPanelToggle');
+        const closeWorkPanel = document.getElementById('closeWorkPanel');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+
+        // 사이드바 토글
+        function toggleSidebar() {
+            sidebarExpanded = !sidebarExpanded;
+            if (sidebarExpanded) {
+                sidebar.classList.remove('w-0', '-ml-80');
+                sidebar.classList.add('w-80');
+                sidebarToggleMain.classList.add('sidebar-hidden');
+            } else {
+                sidebar.classList.add('w-0', '-ml-80');
+                sidebar.classList.remove('w-80');
+                sidebarToggleMain.classList.remove('sidebar-hidden');
+            }
+        }
+
+        // 뷰 전환
+        function switchView(viewName) {
+            // 모든 뷰 숨기기
+            document.querySelectorAll('.view-content').forEach(view => {
+                view.classList.add('hidden');
+            });
+
+            // 선택된 뷰 표시
+            const targetView = document.getElementById(viewName + 'View');
+            if (targetView) {
+                targetView.classList.remove('hidden');
+            }
+
+            // 네비게이션 활성화 상태 업데이트
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active', 'bg-blue-50', 'text-blue-700');
+                item.classList.add('text-gray-700', 'hover:bg-gray-50');
+            });
+
+            const activeNavItem = document.querySelector(`[data-view="${viewName}"]`);
+            if (activeNavItem) {
+                activeNavItem.classList.add('active', 'bg-blue-50', 'text-blue-700');
+                activeNavItem.classList.remove('text-gray-700', 'hover:bg-gray-50');
+            }
+
+            // 페이지 제목 업데이트
+            const titles = {
+                'hero': 'AI 매니저',
+                'chat': '채팅',
+                'projects': '프로젝트',
+                'quote': '견적서',
+                'erp': 'ERP 시스템'
+            };
+            pageTitle.textContent = titles[viewName] || 'KIS ERP';
+            currentView = viewName;
+        }
+
+        // 메시지 추가
+        function addMessage(type, content) {
+            const messageId = Date.now().toString();
+            const message = { id: messageId, type, content, timestamp: new Date().toLocaleString() };
+            messages.push(message);
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message';
+
+            if (type === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start gap-3 justify-end">
+                        <div class="bg-blue-600 text-white rounded-lg p-3 max-w-xs shadow-sm">
+                            <p>${content}</p>
+                        </div>
+                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                            <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                            <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 max-w-xs shadow-sm">
+                            <p>${content}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            messagesContainer.appendChild(messageDiv);
+
+            // 루시드 아이콘 다시 로드
+            lucide.createIcons();
+
+            // 스크롤을 맨 아래로
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // 메시지 전송
+        async function sendMessage() {
+            const input = chatInput.value.trim();
+            if (!input) return;
+
+            // 사용자 메시지 추가
+            addMessage('user', input);
+            chatInput.value = '';
+
+            // 타이핑 인디케이터 표시
+            typingIndicator.classList.remove('hidden');
+
+            // AI 응답 시뮬레이션 (실제로는 백엔드 API 호출)
+            setTimeout(() => {
+                typingIndicator.classList.add('hidden');
+
+                // 간단한 AI 응답 로직
+                let response = "죄송합니다. 현재 AI 서비스가 준비 중입니다.";
+
+                if (input.includes('견적')) {
+                    response = "견적 관련 문의를 도와드리겠습니다. 프로젝트의 규모와 종류를 알려주시면 더 정확한 견적을 제공해드릴 수 있습니다.";
+                } else if (input.includes('프로젝트')) {
+                    response = "현재 진행 중인 프로젝트는 18개이며, 부산 공장 신축과 서울 오피스 리모델링이 주요 프로젝트입니다. 더 자세한 정보가 필요하시면 말씀해주세요.";
+                } else if (input.includes('안녕') || input.includes('hello')) {
+                    response = "안녕하세요! KIS ERP AI 어시스턴트입니다. 견적, 프로젝트 관리, ERP 시스템에 대해 궁금한 점이 있으시면 언제든 문의해주세요.";
+                }
+
+                addMessage('ai', response);
+            }, 1000 + Math.random() * 1000);
+        }
+
+        // 작업 패널 토글
+        function toggleWorkPanel() {
+            workPanelOpen = !workPanelOpen;
+            if (workPanelOpen) {
+                workPanel.classList.remove('closed');
+                workPanel.classList.add('open');
+            } else {
+                workPanel.classList.add('closed');
+                workPanel.classList.remove('open');
+            }
+        }
+
+        // 다크모드 토글
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+                darkModeToggle.innerHTML = '<i data-lucide="sun" class="w-4 h-4 text-gray-600"></i>';
+            } else {
+                document.documentElement.classList.remove('dark');
+                darkModeToggle.innerHTML = '<i data-lucide="moon" class="w-4 h-4 text-gray-600"></i>';
+            }
+            lucide.createIcons();
+        }
+
+        // 이벤트 리스너 등록
+        document.addEventListener('DOMContentLoaded', function() {
+            // 루시드 아이콘 초기화
+            lucide.createIcons();
+
+            // 사이드바 토글
+            sidebarToggle.addEventListener('click', toggleSidebar);
+            sidebarToggleMain.addEventListener('click', toggleSidebar);
+
+            // 네비게이션 메뉴
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const view = item.getAttribute('data-view');
+                    if (view) switchView(view);
+                });
+            });
+
+            // 채팅 관련
+            sendButton.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // 히어로 섹션에서 채팅 시작
+            document.getElementById('startChatFromHero').addEventListener('click', () => {
+                switchView('chat');
+            });
+
+            // 새 채팅 버튼
+            document.getElementById('newChatBtn').addEventListener('click', () => {
+                switchView('chat');
+                messages = [];
+                messagesContainer.innerHTML = '';
+            });
+
+            // 작업 패널
+            workPanelToggle.addEventListener('click', toggleWorkPanel);
+            closeWorkPanel.addEventListener('click', toggleWorkPanel);
+
+            // 다크모드
+            darkModeToggle.addEventListener('click', toggleDarkMode);
+
+            // 텍스트에리어 자동 크기 조정
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+        });
+    </script>
+</body>
+</html>

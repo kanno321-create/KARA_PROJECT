@@ -41,7 +41,12 @@ export const EstimateRequestJSONSchema = {
         AT: { type: 'number' },
         af: { type: 'number' },
         at: { type: 'number' },
-        poles: { type: 'number', enum: [1, 2, 3, 4] },
+        poles: {
+          anyOf: [
+            { type: 'string', enum: ['2P', '3P', '4P'] }, // Standard contract
+            { type: 'number', enum: [2, 3, 4] }           // Temporary compatibility
+          ]
+        },
         model: { type: 'string' }
       }
     },
@@ -50,14 +55,18 @@ export const EstimateRequestJSONSchema = {
       minItems: 1,
       items: {
         type: 'object',
-        required: ['poles', 'count'],
+        required: ['poles', 'qty'],
         properties: {
           AF: { type: 'number' },
           AT: { type: 'number' },
           af: { type: 'number' },
           at: { type: 'number' },
-          poles: { type: 'number', enum: [1, 2, 3, 4] },
-          count: { type: 'number', minimum: 1 },
+          poles: {
+          anyOf: [
+            { type: 'string', enum: ['2P', '3P', '4P'] }, // Standard contract
+            { type: 'number', enum: [2, 3, 4] }           // Temporary compatibility
+          ]
+        },
           qty: { type: 'number', minimum: 1 },
           model: { type: 'string' },
           remark: { type: 'string' }

@@ -1,0 +1,9 @@
+{
+  "summary": {
+    "scenario": "LS_Standard_3P",
+    "error": "API request failed: 500 - {\"code\":\"INTERNAL_ERROR\",\"message\":\"body/installation/mount must be equal to one of the allowed values\"}",
+    "timestamp": "2025-09-24T08:05:22.419Z"
+  },
+  "fullEvidence": null,
+  "estimateResult": null
+}

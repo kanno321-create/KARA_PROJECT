@@ -127,14 +127,17 @@ export function getSize(
   brand: string,
   model?: string,
   af?: number,
-  poles?: string
+  poles?: string | number
 ): MCCBDimension | null {
   if (!cache) {
     loadSizeTables();
   }
 
   const normalizedBrand = brand.toUpperCase();
-  const normalizedPoles = poles?.toUpperCase();
+  // Handle both string ("3P") and number (3) poles
+  const normalizedPoles = typeof poles === 'number'
+    ? `${poles}P`
+    : poles?.toUpperCase();
 
   // ELCB 매핑 처리 (SANGDO only)
   let searchModel = model;

@@ -1,0 +1,6 @@
+repo: https://github.com/username/kis-project.git
+action: fail
+head: NA
+paths: mcp-gateway=NO, supabase=NO, workflows=NO
+note: Repository not found
+time: 2025-01-24T11:07:41Z

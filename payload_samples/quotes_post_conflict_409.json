@@ -1,0 +1,38 @@
+﻿{
+  "request": {
+    "title": "Factory Panel - ABC Industrial",
+    "customerInfo": {
+      "company": "ABC Industrial Co.",
+      "contact": "Alex Kim",
+      "email": "alex.kim@abc.example",
+      "address": "123 Techno Valley, Suwon"
+    },
+    "enclosureInfo": {
+      "type": "indoor",
+      "boxType": "wall-mount",
+      "material": "STEEL 1.6T"
+    },
+    "mainBreakerInfo": {
+      "type": "MCCB",
+      "poles": "3P",
+      "capacity": "200A",
+      "brand": "KIS"
+    },
+    "branchBreakers": [],
+    "accessories": [],
+    "dedupKey": "QUOTE-ABC-20250926"
+  },
+  "response": {
+    "status": 409,
+    "body": {
+      "error": {
+        "code": "DUPLICATE_KEY",
+        "message": "Resource with dedupKey 'QUOTE-ABC-20250926' already exists",
+        "traceId": "11111111-2222-3333-4444-555555555555",
+        "meta": {
+          "dedupKey": "QUOTE-ABC-20250926"
+        }
+      }
+    }
+  }
+}

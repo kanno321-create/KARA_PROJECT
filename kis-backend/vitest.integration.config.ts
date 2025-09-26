@@ -12,7 +12,7 @@ export default defineConfig({
       DATABASE_URL: 'file:./test-integration.db',
       API_KEY: 'test-api-key-123',
       EVIDENCE_SECRET: 'test-evidence-secret-for-integration-tests-67890',
-      PORT: '3002'
+      PORT: '7000'
     },
     pool: 'forks', // Use separate processes for isolation
     reporters: ['verbose'],

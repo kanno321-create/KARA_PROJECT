@@ -100,12 +100,13 @@ jobs:
           npm run type-check
 
       - name: Upload security reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: security-reports
           path: |
             bandit-report.json
             safety-report.json
+        # migrated to v4 due to v3 deprecation (cutoff 2025-01-30)
 
   # ═══════════════════════════════════════════════════
   # 스키마 및 정책 검증
@@ -272,13 +273,14 @@ jobs:
           name: backend-${{ matrix.test-type }}
 
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-results-backend-${{ matrix.test-type }}
           path: |
             backend/htmlcov/
             backend/coverage.xml
+        # migrated to v4 due to v3 deprecation (cutoff 2025-01-30)
 
   # ═══════════════════════════════════════════════════
   # 프론트엔드 테스트
@@ -324,10 +326,11 @@ jobs:
           npm run build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-build
           path: apps/web/dist/
+        # migrated to v4 due to v3 deprecation (cutoff 2025-01-30)
 
   # ═══════════════════════════════════════════════════
   # 성능 테스트
@@ -375,12 +378,13 @@ jobs:
           locust -f tests/load_test.py --headless -u 50 -r 10 -t 60s --host http://localhost:8000
 
       - name: Upload performance results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: performance-results
           path: |
             backend/benchmark.json
             backend/locust_report.html
+        # migrated to v4 due to v3 deprecation (cutoff 2025-01-30)
 
   # ═══════════════════════════════════════════════════
   # 보안 테스트
@@ -417,10 +421,11 @@ jobs:
           format: 'ALL'
 
       - name: Upload OWASP report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: owasp-report
           path: reports/
+        # migrated to v4 due to v3 deprecation (cutoff 2025-01-30)
 
   # ═══════════════════════════════════════════════════
   # 도커 이미지 빌드 및 테스트
@@ -506,11 +511,12 @@ jobs:
           docker-compose -f docker-compose.test.yml down
 
       - name: Upload system logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: system-logs
           path: system-logs.txt
+        # migrated to v4 due to v3 deprecation (cutoff 2025-01-30)
 
   # ═══════════════════════════════════════════════════
   # 배포 준비 및 검증
@@ -564,10 +570,11 @@ jobs:
           echo "- 🔐 엔터프라이즈 보안" >> deployment-report.md
 
       - name: Upload deployment report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: deployment-report
           path: deployment-report.md
+        # migrated to v4 due to v3 deprecation (cutoff 2025-01-30)
 
   # ═══════════════════════════════════════════════════
   # 알림 및 완료

@@ -1,0 +1,29 @@
+﻿{
+  "title": "Invalid Types",
+  "customerInfo": {
+    "company": "KIS Test",
+    "contact": "010-3333-4444",
+    "email": "invalid@test.co",
+    "address": "Busan"
+  },
+  "enclosureInfo": {
+    "type": "indoor",
+    "boxType": "standard",
+    "material": "STEEL 1.6T"
+  },
+  "mainBreakerInfo": {
+    "type": "MCCB",
+    "poles": "3P",
+    "capacity": "200A",
+    "brand": "KIS"
+  },
+  "branchBreakers": [
+    {
+      "type": "MCB",
+      "poles": "1P",
+      "capacity": "20A",
+      "quantity": "four"
+    }
+  ],
+  "accessories": []
+}

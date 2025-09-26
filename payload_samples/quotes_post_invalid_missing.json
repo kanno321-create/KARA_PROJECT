@@ -1,0 +1,9 @@
+﻿{
+  "title": "Missing Fields",
+  "customerInfo": {
+    "company": "KIS Test",
+    "contact": "010-1111-2222",
+    "email": "missing@test.co",
+    "address": "Seoul"
+  }
+}

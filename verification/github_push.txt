@@ -1,0 +1,7 @@
+# GitHub Repository 정보 업데이트
+Repository: KARA_PROJECT
+URL: https://github.com/kanno321-create/KARA_PROJECT.git
+Branch: master
+Last commit: 68fc154
+Status: PUSHED
+Timestamp: 2025-09-26T07:27:16Z

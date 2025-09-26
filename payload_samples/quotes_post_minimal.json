@@ -1,0 +1,23 @@
+﻿{
+  "title": "Minimal Quote",
+  "customerInfo": {
+    "company": "KIS Test",
+    "contact": "010-1111-2222",
+    "email": "minimal@test.co",
+    "address": "Seoul"
+  },
+  "enclosureInfo": {
+    "type": "indoor",
+    "boxType": "standard",
+    "material": "STEEL 1.6T"
+  },
+  "mainBreakerInfo": {
+    "type": "MCCB",
+    "poles": "3P",
+    "capacity": "200A",
+    "brand": "KIS"
+  },
+  "branchBreakers": [],
+  "accessories": [],
+  "dedupKey": "QUOTE-MIN-001"
+}

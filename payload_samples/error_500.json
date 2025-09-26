@@ -1,0 +1,12 @@
+﻿{
+  "response": {
+    "status": 500,
+    "body": {
+      "error": {
+        "code": "internal_error",
+        "message": "Unexpected error",
+        "traceId": "ffcc88aa-3311-44bb-9900-112233445566"
+      }
+    }
+  }
+}

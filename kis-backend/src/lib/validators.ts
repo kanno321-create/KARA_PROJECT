@@ -109,8 +109,32 @@ export const EstimateResponseSchema = z.object({
   updatedAt: z.string(),
 });
 
+export const EstimateAbstainResponseSchema = z.object({
+  decision: z.literal('ABSTAIN'),
+  reasons: z.array(z.string()),
+  hints: z.array(z.string()),
+  metadata: z.object({
+    stage: z.string(),
+    status: z.string(),
+    requestId: z.string(),
+  }),
+});
+
+export const EstimateOkResponseSchema = z.object({
+  decision: z.literal('OK'),
+  estimate: EstimateResponseSchema,
+});
+
+// 유니온 타입으로 정의
+export const EstimateApiResponseSchema = z.union([
+  EstimateAbstainResponseSchema,
+  EstimateOkResponseSchema,
+]);
+
 export type EstimateRequest = z.infer<typeof EstimateRequestSchema>;
 export type EstimateResponse = z.infer<typeof EstimateResponseSchema>;
+export type EstimateAbstainResponse = z.infer<typeof EstimateAbstainResponseSchema>;
+export type EstimateApiResponse = z.infer<typeof EstimateApiResponseSchema>;
 export type EnclosureResult = z.infer<typeof EnclosureResultSchema>;
 
 // ============================================

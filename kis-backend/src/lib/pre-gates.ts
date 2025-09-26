@@ -53,7 +53,7 @@ interface EstimateRequestInput {
     af?: number;
     at?: number;
     poles?: number;
-    count?: number;
+    qty?: number;
     model?: string;
     remark?: string;
   }>;
@@ -143,18 +143,18 @@ function validate3Gates(input: EstimateRequestInput): PreGateResult {
   // 분기별 필수 정보 검증
   for (let i = 0; i < input.branches.length; i++) {
     const branch = input.branches[i];
-    if (!branch.af || !branch.at || !branch.poles || !branch.count) {
+    if (!branch.af || !branch.at || !branch.poles || !branch.qty) {
       return {
         ok: false,
         code: 'REQ_MORE_INFO',
         message: `분기 ${i + 1}번의 정보가 부족합니다. AF, AT, 극수, 수량을 모두 입력해 주세요`,
         path: `branches[${i}]`,
-        hint: '예시: {AF:100, AT:100, poles:3, count:4}',
+        hint: '예시: {AF:100, AT:100, poles:"3P", qty:4}',
       };
     }
 
     // 수량은 양수여야 함
-    if (branch.count <= 0) {
+    if (branch.qty <= 0) {
       return {
         ok: false,
         code: 'INVALID_COUNT',
@@ -358,7 +358,12 @@ function validateDeviceTypeConsistency(input: EstimateRequestInput): PreGateResu
     // 극수 유효성 검증
     if (input.main.poles) {
       const validPoles = getValidPolesForModel(input.main.model);
-      if (validPoles.length > 0 && !validPoles.includes(input.main.poles)) {
+      // Convert string poles (e.g., "3P") to number for comparison
+      const numericPoles = typeof input.main.poles === 'string'
+        ? parseInt((input.main.poles as string).replace('P', ''), 10)
+        : input.main.poles as number;
+
+      if (validPoles.length > 0 && !validPoles.includes(numericPoles)) {
         return {
           ok: false,
           code: 'POLES_MISMATCH',
@@ -375,7 +380,12 @@ function validateDeviceTypeConsistency(input: EstimateRequestInput): PreGateResu
     const branch = input.branches[i];
     if (branch.model && branch.poles) {
       const validPoles = getValidPolesForModel(branch.model);
-      if (validPoles.length > 0 && !validPoles.includes(branch.poles)) {
+      // Convert string poles (e.g., "3P") to number for comparison
+      const numericPoles = typeof branch.poles === 'string'
+        ? parseInt((branch.poles as string).replace('P', ''), 10)
+        : branch.poles as number;
+
+      if (validPoles.length > 0 && !validPoles.includes(numericPoles)) {
         return {
           ok: false,
           code: 'POLES_MISMATCH',

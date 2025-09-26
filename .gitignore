@@ -55,3 +55,17 @@ env/
 # Test coverage
 coverage/
 .nyc_output/
+
+# Security files
+.key
+.pem
+supabase/.temp/
+
+# Python cache
+.pytest_cache/
+
+# Test artifacts
+dist/test_artifacts/
+
+# Claude local settings
+CLAUDE.local.md

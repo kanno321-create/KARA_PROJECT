@@ -270,7 +270,8 @@ jobs:
           EOF
 
       - name: Upload deployment manifest
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: step5-deployment-manifest
           path: step5-deployment-manifest.json
+        # migrated to v4 due to v3 deprecation (cutoff 2025-01-30)

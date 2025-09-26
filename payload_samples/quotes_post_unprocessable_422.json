@@ -1,0 +1,41 @@
+﻿{
+  "request": {
+    "title": "Invalid Snapshot",
+    "customerInfo": {
+      "company": "Test Co.",
+      "contact": "",
+      "email": "invalid-email",
+      "address": ""
+    },
+    "enclosureInfo": {
+      "type": "indoor",
+      "boxType": "",
+      "material": "STEEL 1.6T"
+    },
+    "mainBreakerInfo": {
+      "type": "MCCB",
+      "poles": "3P",
+      "capacity": "",
+      "brand": "KIS"
+    },
+    "branchBreakers": [],
+    "accessories": []
+  },
+  "response": {
+    "status": 422,
+    "body": {
+      "error": {
+        "code": "validation_error",
+        "message": "Quote snapshot invalid",
+        "traceId": "99999999-aaaa-bbbb-cccc-dddddddddddd",
+        "details": [
+          {
+            "field": "mainBreakerInfo.capacity",
+            "message": "Main breaker capacity is required",
+            "rule": "not_null"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: kis
+      POSTGRES_PASSWORD: kis
+      POSTGRES_DB: kis
+    ports:
+      - "5432:5432"
+    volumes:
+      - kis_db_data:/var/lib/postgresql/data
+  api:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+asyncpg://kis:kis@db:5432/kis
+      LOG_LEVEL: INFO
+      TZ: UTC
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+volumes:
+  kis_db_data:

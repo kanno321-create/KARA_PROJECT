@@ -96,10 +96,14 @@ export async function runGoldenRegression(
           name: testCase.name,
           status: comparison.status,
           expected: testCase.expected,
-          actual: {
-            enclosure: estimate.enclosure,
-            brand: estimate.brand,
-            status: estimate.status,
+          actual: estimate.decision === 'OK' ? {
+            enclosure: estimate.estimate.enclosure,
+            brand: estimate.estimate.brand,
+            status: estimate.estimate.status,
+          } : {
+            decision: estimate.decision,
+            reasons: estimate.reasons,
+            stage: estimate.metadata.stage,
           },
           diff: comparison.diff,
         });

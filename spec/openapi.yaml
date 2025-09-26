@@ -1,0 +1,20 @@
+﻿openapi: 3.1.0
+info:
+  title: KIS Backend API
+  version: 0.1.0
+paths:
+  /v1/health:
+    get:
+      responses:
+        '200':
+          description: Health
+  /v1/quotes:
+    post:
+      responses:
+        '201':
+          description: Quote created
+  /v1/quotes/{quoteId}:
+    get:
+      responses:
+        '200':
+          description: Quote

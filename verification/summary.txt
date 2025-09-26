@@ -1,0 +1,4 @@
+git: fail - Repository not found
+구조: mcp-gateway=NO, supabase=NO, workflows=NO
+vercel: health FAIL, ping FAIL (DEPLOYMENT_NOT_FOUND)
+next: GitHub 리포지토리와 Vercel 배포 모두 존재하지 않음
