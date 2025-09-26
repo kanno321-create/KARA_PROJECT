@@ -3,26 +3,26 @@
   "public": true,
   "builds": [
     {
-      "src": "mcp-gateway/api/main.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
     }
   ],
   "rewrites": [
     {
       "source": "/health",
-      "destination": "/mcp-gateway/api/main.py"
+      "destination": "/api/index"
     },
     {
       "source": "/mcp/gateway",
-      "destination": "/mcp-gateway/api/main.py"
+      "destination": "/api/index"
     },
     {
       "source": "/v1/(.*)",
-      "destination": "/mcp-gateway/api/main.py"
+      "destination": "/api/index"
     },
     {
       "source": "/(.*)",
-      "destination": "/mcp-gateway/api/main.py"
+      "destination": "/api/index"
     }
   ],
   "regions": ["icn1"],
