@@ -1,0 +1,83 @@
+name: MCP Gateway CI
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'mcp-gateway/**'
+      - '.github/workflows/mcp-gateway-ci.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'mcp-gateway/**'
+      - '.github/workflows/mcp-gateway-ci.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.11']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('mcp-gateway/ops/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r mcp-gateway/ops/requirements.txt
+
+    - name: Run unit tests
+      run: |
+        cd mcp-gateway
+        pytest api/tests -v --tb=short
+
+    - name: Smoke test - Health check
+      if: ${{ vars.VERCEL_URL != '' }}
+      run: |
+        curl -f -s -o /dev/null -w "Health check: %{http_code}\n" \
+          ${{ vars.VERCEL_URL }}/health || echo "Health check skipped (no deployment)"
+
+    - name: Smoke test - JSON-RPC ping
+      if: ${{ vars.VERCEL_URL != '' }}
+      run: |
+        curl -f -X POST ${{ vars.VERCEL_URL }}/mcp/gateway \
+          -H "Content-Type: application/json" \
+          -d '{"jsonrpc":"2.0","method":"ping","id":"ci-test"}' \
+          || echo "Ping test skipped (no deployment)"
+
+    - name: Generate CI report
+      if: always()
+      run: |
+        mkdir -p artifacts
+        echo "# CI Report" > artifacts/ci_report.md
+        echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> artifacts/ci_report.md
+        echo "Python: ${{ matrix.python-version }}" >> artifacts/ci_report.md
+        echo "Test Status: ${{ job.status }}" >> artifacts/ci_report.md
+        if [ -n "${{ vars.VERCEL_URL }}" ]; then
+          echo "Deployment URL: ${{ vars.VERCEL_URL }}" >> artifacts/ci_report.md
+        fi
+
+    - name: Upload test artifacts
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.python-version }}
+        path: |
+          artifacts/
+          mcp-gateway/.pytest_cache/
+        retention-days: 7

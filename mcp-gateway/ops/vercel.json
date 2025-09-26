@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "mcp-gateway/api/main.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/health",
+      "dest": "mcp-gateway/api/main.py"
+    },
+    {
+      "src": "/mcp/gateway",
+      "dest": "mcp-gateway/api/main.py"
+    },
+    {
+      "src": "/mcp/gateway/stream",
+      "dest": "mcp-gateway/api/main.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "mcp-gateway/api/main.py"
+    }
+  ],
+  "env": {
+    "PYTHONPATH": "${PYTHONPATH}:."
+  }
+}
