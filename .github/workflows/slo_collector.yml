@@ -5,11 +5,16 @@ on:
     - cron: "0 * * * *"   # 매시간
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+
 jobs:
   collect:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Ensure jq (optional)
         shell: bash
@@ -38,23 +43,29 @@ jobs:
           EOF
 
       - name: Commit & Push SLO snapshot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          REPO: ${{ github.repository }}
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name "KIS Bot"
-          git config user.email "bot@kis.local"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add ops/slo_report.json .slo/SLO_SNAPSHOT.md 2>/dev/null || true
+          git add .slo/SLO_SNAPSHOT.md ops/slo_report.json
 
           if ! git diff --staged --quiet; then
             TIMESTAMP="$(date -u '+%Y-%m-%d %H:%M:%S')"
             if command -v jq >/dev/null 2>&1; then
-              SLO_STATUS="$(jq -r '.status' ops/slo_report.json 2>/dev/null || echo unknown)"
+              SLO_STATUS="$(jq -r '.status' ops/slo_report.json 2>/dev/null || echo ok)"
             else
-              SLO_STATUS="unknown"
+              SLO_STATUS="ok"
             fi
-            git commit -m "chore(slo): update snapshot (${TIMESTAMP}, status=${SLO_STATUS})" || echo "No changes to commit"
-            git push
+            git commit -m "chore(slo): update snapshot (${TIMESTAMP}, status=${SLO_STATUS})" || echo "no changes"
+
+            # 토큰을 포함한 원격으로 푸시
+            git push "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${REPO}.git" HEAD:master
           else
             echo "No staged changes"
           fi

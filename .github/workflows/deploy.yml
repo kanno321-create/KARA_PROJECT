@@ -12,6 +12,9 @@ jobs:
   deploy-staging:
     runs-on: ubuntu-latest
     environment: staging
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_PROJECT: ${{ secrets.VERCEL_PROJECT }}
 
     steps:
     - uses: actions/checkout@v3
@@ -25,7 +28,7 @@ jobs:
       run: npm i -g vercel@latest
 
     - name: Deploy to Staging
-      if: ${{ secrets.VERCEL_TOKEN != '' && secrets.VERCEL_PROJECT != '' }}
+      if: ${{ env.VERCEL_TOKEN != '' && env.VERCEL_PROJECT != '' }}
       run: |
         vercel --token ${{ secrets.VERCEL_TOKEN }} \
           --scope ${{ secrets.VERCEL_SCOPE }} \
@@ -36,14 +39,14 @@ jobs:
           || echo "Deploy skipped (missing credentials)"
 
     - name: Simulate deployment (no credentials)
-      if: ${{ secrets.VERCEL_TOKEN == '' || secrets.VERCEL_PROJECT == '' }}
+      if: ${{ env.VERCEL_TOKEN == '' || env.VERCEL_PROJECT == '' }}
       run: |
-        echo "📦 Simulating deployment to staging..."
+        echo "?벀 Simulating deployment to staging..."
         echo "Would deploy with:"
         echo "  - Project: kis-project"
         echo "  - Environment: staging"
         echo "  - Branch: ${{ github.ref }}"
-        echo "⚠️ Actual deployment skipped (VERCEL_TOKEN not configured)"
+        echo "?좑툘 Actual deployment skipped (VERCEL_TOKEN not configured)"
 
     - name: Smoke test staging
       if: ${{ vars.STAGING_URL != '' }}
@@ -56,6 +59,9 @@ jobs:
     needs: deploy-staging
     if: startsWith(github.ref, 'refs/tags/')
     environment: production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_PROJECT: ${{ secrets.VERCEL_PROJECT }}
 
     steps:
     - uses: actions/checkout@v3
@@ -69,7 +75,7 @@ jobs:
       run: npm i -g vercel@latest
 
     - name: Deploy to Production
-      if: ${{ secrets.VERCEL_TOKEN != '' && secrets.VERCEL_PROJECT != '' }}
+      if: ${{ env.VERCEL_TOKEN != '' && env.VERCEL_PROJECT != '' }}
       run: |
         vercel --token ${{ secrets.VERCEL_TOKEN }} \
           --scope ${{ secrets.VERCEL_SCOPE }} \
@@ -81,16 +87,16 @@ jobs:
           || echo "Production deploy skipped (missing credentials)"
 
     - name: Document Blue-Green switch
-      if: ${{ secrets.VERCEL_TOKEN == '' || secrets.VERCEL_PROJECT == '' }}
+      if: ${{ env.VERCEL_TOKEN == '' || env.VERCEL_PROJECT == '' }}
       run: |
-        echo "📘 Blue-Green Deployment Plan:"
+        echo "?뱲 Blue-Green Deployment Plan:"
         echo "1. Deploy new version to Green environment"
         echo "2. Run smoke tests on Green"
         echo "3. Switch traffic from Blue to Green"
         echo "4. Monitor for 15 minutes"
         echo "5. Keep Blue as rollback option"
         echo ""
-        echo "⚠️ Manual deployment required (VERCEL_TOKEN not configured)"
+        echo "?좑툘 Manual deployment required (VERCEL_TOKEN not configured)"
 
     - name: Smoke test production
       if: ${{ vars.PRODUCTION_URL != '' }}
@@ -115,8 +121,9 @@ jobs:
 
     - name: Upload deployment artifacts
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: deployment-artifacts
         path: deployment_summary.md
         retention-days: 30
+      # migrated to v4 due to v3 deprecation (cutoff 2025-01-30)

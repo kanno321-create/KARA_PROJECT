@@ -74,10 +74,11 @@ jobs:
 
     - name: Upload test artifacts
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-results-${{ matrix.python-version }}
         path: |
           artifacts/
           mcp-gateway/.pytest_cache/
         retention-days: 7
+      # migrated to v4 due to v3 deprecation (cutoff 2025-01-30)
